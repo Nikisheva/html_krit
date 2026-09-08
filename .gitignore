@@ -1,0 +1,7 @@
+.DS_Store
+.credentials.local
+.env
+.env.*
+!.env.example
+.cursor/credentials.local
+*.log
