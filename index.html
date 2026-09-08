@@ -3,23 +3,53 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <meta name="theme-color" content="#000089" />
   <title>Challenge — пересобери процесс и покажи, что он работает</title>
-  <link rel="preconnect" href="https://fonts.googleapis.com" />
-  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
-  <link href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;600;700;800&family=Unbounded:wght@500;600;700&display=swap" rel="stylesheet" />
+  <link rel="icon" type="image/png" href="https://www.krit.pro/images/favicon-32x32.png" sizes="32x32" />
   <style>
+    @font-face {
+      font-family: UNCAGE;
+      src: url("fonts/UNCAGE-Regular.woff2") format("woff2");
+      font-weight: 400;
+      font-style: normal;
+      font-display: swap;
+    }
+    @font-face {
+      font-family: Inter;
+      src: url("fonts/inter-400.woff2") format("woff2");
+      font-weight: 400;
+      font-style: normal;
+      font-display: swap;
+    }
+    @font-face {
+      font-family: Inter;
+      src: url("fonts/inter-600.woff2") format("woff2");
+      font-weight: 600;
+      font-style: normal;
+      font-display: swap;
+    }
+    @font-face {
+      font-family: Inter;
+      src: url("fonts/inter-700.woff2") format("woff2");
+      font-weight: 700;
+      font-style: normal;
+      font-display: swap;
+    }
+
     :root {
-      --bg: #f3eee6;
-      --paper: #fffdf8;
-      --ink: #171411;
-      --muted: #6a6259;
-      --line: #ddd4c7;
-      --accent: #c4451d;
-      --accent-ink: #9e3414;
-      --soft: #f6e6dc;
-      --deep: #241c16;
-      --ok: #215c3a;
-      --radius: 18px;
+      --black: #000;
+      --ink: #fff;
+      --muted: #9aa3ad;
+      --line: #3b3b3b;
+      --line-2: #646464;
+      --panel: #1e1e1e;
+      --panel-2: #161615;
+      --grey: #4d4d4d;
+      --blue: #389bff;
+      --blue-hover: #0581ff;
+      --logo: #00a0dc;
+      --red: #dc3545;
+      --wrap: 1160px;
     }
 
     * { box-sizing: border-box; }
@@ -27,136 +57,193 @@
     body {
       margin: 0;
       color: var(--ink);
-      background: var(--bg);
-      font-family: Manrope, "Segoe UI", sans-serif;
-      font-size: 17px;
-      line-height: 1.55;
+      background: var(--black);
+      font-family: Inter, system-ui, -apple-system, "Segoe UI", Roboto, Arial, sans-serif;
+      font-size: 16px;
+      line-height: 1.5;
+      letter-spacing: -0.32px;
     }
 
-    a { color: var(--accent-ink); }
-    .wrap { width: min(1080px, calc(100% - 40px)); margin: 0 auto; }
+    a { color: #88c3ff; }
+    .wrap { width: min(var(--wrap), calc(100% - 48px)); margin: 0 auto; }
+
     .kicker {
       display: inline-block;
-      font-size: 12px;
-      font-weight: 700;
-      letter-spacing: 0.14em;
+      font-family: UNCAGE, Inter, sans-serif;
+      font-size: 14px;
+      font-weight: 400;
+      letter-spacing: 0.42px;
       text-transform: uppercase;
-      color: var(--accent);
+      color: var(--muted);
+      line-height: 1.4;
     }
 
     h1, h2, h3, .display {
-      font-family: Unbounded, Manrope, sans-serif;
-      letter-spacing: -0.03em;
-      line-height: 1.12;
+      font-family: UNCAGE, Inter, sans-serif;
+      font-weight: 400;
+      text-transform: uppercase;
+      letter-spacing: -0.32px;
+      line-height: 1.2;
       margin: 0;
     }
 
-    h1 { font-size: clamp(42px, 7vw, 76px); font-weight: 600; }
-    h2 { font-size: clamp(26px, 3.4vw, 36px); margin-bottom: 14px; }
-    h3 { font-size: 20px; }
+    h1 { font-size: clamp(36px, 5.6vw, 68px); line-height: 1.18; }
+    h2 { font-size: clamp(26px, 3.2vw, 40px); margin: 10px 0 16px; }
+    h3 { font-size: 22px; letter-spacing: -0.32px; }
 
     p { margin: 0 0 12px; }
-    .lede { font-size: 20px; max-width: 42rem; color: var(--deep); }
+    .lede { font-size: 18px; max-width: 42rem; color: #fff; }
     .muted { color: var(--muted); }
     .small { font-size: 14px; color: var(--muted); }
 
+    .topbar {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 24px;
+      padding: 18px 0;
+      border-bottom: 1px solid var(--line);
+    }
+    .brand {
+      display: flex;
+      align-items: center;
+      gap: 16px;
+      color: #fff;
+      text-decoration: none;
+    }
+    .brand span {
+      font-family: UNCAGE, Inter, sans-serif;
+      font-size: 14px;
+      letter-spacing: 0.42px;
+      text-transform: uppercase;
+      color: var(--muted);
+    }
+    nav.toc {
+      display: flex;
+      flex-wrap: wrap;
+      justify-content: flex-end;
+      gap: 8px 18px;
+      font-size: 15px;
+    }
+    nav.toc a {
+      color: #fff;
+      text-decoration: none;
+    }
+    nav.toc a:hover { color: var(--blue); }
+
     header.hero {
-      padding: 56px 0 28px;
+      position: relative;
+      overflow: hidden;
+      padding: 72px 0 120px;
       border-bottom: 1px solid var(--line);
     }
     .hero-grid {
       display: grid;
-      grid-template-columns: 1.4fr 0.8fr;
-      gap: 40px;
+      grid-template-columns: 1.35fr 0.85fr;
+      gap: 48px;
       align-items: end;
+      position: relative;
+      z-index: 1;
+    }
+    .twist {
+      display: inline-block;
+      color: var(--blue);
+      transform: rotate(-14deg);
+      transform-origin: left center;
+      margin-left: 6px;
+      position: relative;
+      z-index: 2;
     }
     .hero-note {
-      background: var(--deep);
-      color: #f6efe6;
-      border-radius: var(--radius);
+      background: var(--blue);
+      color: #fff;
       padding: 22px 24px;
     }
-    .hero-note p { margin: 0; color: #efe6d8; }
-    .hero-note strong { color: #fff; }
-
-    nav.toc {
-      display: flex;
-      flex-wrap: wrap;
-      gap: 8px 18px;
-      padding: 18px 0 8px;
-      font-size: 14px;
-      font-weight: 600;
+    .hero-note p { margin: 0; }
+    .hero-geo {
+      position: absolute;
+      right: 0;
+      bottom: 0;
+      width: min(28vw, 340px);
+      height: min(20vw, 200px);
+      background: #fff;
+      clip-path: polygon(100% 0, 100% 100%, 0 100%);
+      pointer-events: none;
     }
-    nav.toc a { color: var(--muted); text-decoration: none; }
-    nav.toc a:hover { color: var(--ink); }
+    .hero-geo i {
+      position: absolute;
+      right: 0;
+      bottom: 0;
+      width: 34%;
+      height: 46%;
+      background: var(--grey);
+      clip-path: polygon(100% 0, 100% 100%, 0 100%);
+    }
 
-    section { padding: 56px 0; border-bottom: 1px solid var(--line); }
-    section.tight { padding: 36px 0; }
+    section { padding: 72px 0; border-bottom: 1px solid var(--line); }
+    section.tight { padding: 48px 0; }
+    section.alt { background: var(--panel-2); }
 
     .scheme {
       display: grid;
       grid-template-columns: repeat(6, 1fr);
-      gap: 10px;
+      gap: 8px;
       margin-top: 28px;
     }
     .scheme-step {
-      background: var(--paper);
+      background: var(--panel);
       border: 1px solid var(--line);
-      border-radius: 14px;
-      padding: 16px 14px 18px;
+      padding: 18px 14px 20px;
       min-height: 132px;
-      position: relative;
     }
     .scheme-step .n {
-      font-family: Unbounded, sans-serif;
-      font-size: 12px;
-      color: var(--accent);
-      font-weight: 600;
+      font-family: UNCAGE, Inter, sans-serif;
+      font-size: 14px;
+      letter-spacing: 0.42px;
+      color: var(--blue);
     }
-    .scheme-step h3 { font-size: 16px; margin: 18px 0 6px; }
-    .scheme-step p { font-size: 13px; color: var(--muted); margin: 0; }
+    .scheme-step h3 { font-size: 16px; margin: 18px 0 8px; }
+    .scheme-step p { font-size: 13px; color: var(--muted); margin: 0; letter-spacing: 0; }
 
     .cards {
       display: grid;
       grid-template-columns: 1fr 1fr;
-      gap: 16px;
+      gap: 8px;
       margin-top: 24px;
     }
     .card {
-      background: var(--paper);
+      background: var(--panel);
       border: 1px solid var(--line);
-      border-radius: var(--radius);
       padding: 24px;
     }
     .card.wide { grid-column: 1 / -1; }
     .card .num {
-      font-family: Unbounded, sans-serif;
-      font-size: 13px;
-      color: var(--accent);
-      margin-bottom: 10px;
+      font-family: UNCAGE, Inter, sans-serif;
+      font-size: 14px;
+      letter-spacing: 0.42px;
+      color: var(--blue);
+      margin-bottom: 12px;
     }
+    .card h3 { margin-bottom: 10px; }
     .card ul { margin: 10px 0 0; padding-left: 18px; }
     .card li { margin: 6px 0; }
     .callout {
       margin-top: 16px;
       padding: 12px 14px;
-      background: var(--soft);
-      border-radius: 12px;
+      background: rgba(56, 155, 255, 0.12);
+      border-left: 3px solid var(--blue);
       font-weight: 600;
     }
 
     .split {
       display: grid;
       grid-template-columns: 1fr 1fr;
-      gap: 16px;
+      gap: 8px;
       margin-top: 24px;
     }
-    .panel {
-      border-radius: var(--radius);
-      padding: 28px;
-    }
-    .panel.yes { background: #e8f0ea; }
-    .panel.no { background: #f4e4dc; }
+    .panel { padding: 28px; border: 1px solid var(--line); }
+    .panel.yes { background: rgba(56, 155, 255, 0.08); border-color: var(--blue); }
+    .panel.no { background: var(--panel); }
     .panel h3 { margin-bottom: 14px; }
     .panel ul { margin: 0; padding-left: 18px; }
     .panel li { margin: 8px 0; }
@@ -168,17 +255,14 @@
       margin: 16px 0 8px;
     }
     .chip {
-      background: var(--paper);
-      border: 1px solid var(--line);
-      border-radius: 999px;
+      border: 1px solid var(--line-2);
       padding: 7px 12px;
       font-size: 14px;
-      font-weight: 600;
     }
 
     .criteria {
       display: grid;
-      gap: 10px;
+      gap: 8px;
       margin-top: 24px;
     }
     .criterion {
@@ -186,52 +270,41 @@
       grid-template-columns: 72px 1fr auto;
       gap: 16px;
       align-items: start;
-      background: var(--paper);
+      background: var(--panel);
       border: 1px solid var(--line);
-      border-radius: 14px;
-      padding: 16px 18px;
+      padding: 18px 20px;
     }
     .criterion .score {
-      font-family: Unbounded, sans-serif;
-      font-size: 18px;
-      font-weight: 600;
-      color: var(--accent);
+      font-family: UNCAGE, Inter, sans-serif;
+      font-size: 22px;
+      color: var(--blue);
       padding-top: 2px;
     }
-    .criterion h3 { font-size: 18px; margin: 0 0 4px; }
+    .criterion h3 { font-size: 22px; margin: 0 0 4px; }
     .criterion p { font-size: 15px; color: var(--muted); margin: 0; }
     .criterion .scale {
-      font-size: 12px;
-      font-weight: 700;
-      letter-spacing: 0.08em;
+      font-family: UNCAGE, Inter, sans-serif;
+      font-size: 14px;
+      letter-spacing: 0.42px;
       text-transform: uppercase;
       color: var(--muted);
       padding-top: 6px;
     }
 
-    .principles {
-      display: grid;
-      gap: 12px;
-      margin-top: 24px;
-    }
+    .principles { display: grid; gap: 8px; margin-top: 24px; }
     .principle {
       display: grid;
-      grid-template-columns: 220px 1fr;
+      grid-template-columns: 260px 1fr;
       gap: 24px;
-      background: var(--paper);
+      background: var(--panel);
       border: 1px solid var(--line);
-      border-radius: 14px;
-      padding: 20px 22px;
+      padding: 22px 24px;
       align-items: start;
     }
-    .principle h3 { font-size: 18px; }
+    .principle h3 { font-size: 22px; }
     .principle p { margin: 0; }
 
-    .timeline {
-      margin-top: 28px;
-      display: grid;
-      gap: 0;
-    }
+    .timeline { margin-top: 28px; }
     .t-row {
       display: grid;
       grid-template-columns: 28px 1fr;
@@ -249,30 +322,32 @@
     }
     .t-row:last-child .rail::before { display: none; }
     .dot {
-      width: 14px;
-      height: 14px;
-      border-radius: 50%;
-      background: var(--accent);
-      margin: 8px auto 0;
+      width: 10px;
+      height: 10px;
+      background: var(--blue);
+      margin: 10px auto 0;
       position: relative;
       z-index: 1;
     }
     .t-body {
-      background: var(--paper);
+      background: var(--panel);
       border: 1px solid var(--line);
-      border-radius: 14px;
       padding: 16px 18px;
-      margin-bottom: 12px;
+      margin-bottom: 8px;
     }
-    .t-body strong { display: block; font-family: Unbounded, sans-serif; font-size: 16px; margin-bottom: 4px; }
+    .t-body strong {
+      display: block;
+      font-family: UNCAGE, Inter, sans-serif;
+      font-size: 16px;
+      text-transform: uppercase;
+      letter-spacing: -0.32px;
+      margin-bottom: 4px;
+    }
 
     table.calendar {
       width: 100%;
       border-collapse: collapse;
       margin-top: 20px;
-      background: var(--paper);
-      border-radius: var(--radius);
-      overflow: hidden;
       border: 1px solid var(--line);
     }
     table.calendar th,
@@ -283,94 +358,118 @@
       vertical-align: top;
     }
     table.calendar th {
-      font-size: 12px;
-      letter-spacing: 0.08em;
+      font-family: UNCAGE, Inter, sans-serif;
+      font-size: 14px;
+      letter-spacing: 0.42px;
       text-transform: uppercase;
       color: var(--muted);
-      font-weight: 700;
-      background: #f7f1e8;
+      font-weight: 400;
+      background: var(--panel);
     }
     table.calendar tr:last-child td { border-bottom: 0; }
     .ph {
       display: inline-block;
-      border-bottom: 1.5px dashed var(--accent);
-      color: var(--accent-ink);
-      font-weight: 700;
+      border-bottom: 1px dashed var(--blue);
+      color: var(--blue);
+      font-weight: 600;
       min-width: 8rem;
     }
 
     .faq { margin-top: 12px; }
     .faq-item {
       border-top: 1px solid var(--line);
-      padding: 18px 0;
+      padding: 20px 0;
     }
     .faq-item:last-child { border-bottom: 1px solid var(--line); }
-    .faq-item h3 { font-size: 18px; margin-bottom: 8px; }
+    .faq-item h3 { font-size: 22px; margin-bottom: 8px; }
     .faq-item p { margin: 0; max-width: 46rem; }
 
     .cta {
-      background: var(--deep);
-      color: #f4efe6;
-      border-radius: 24px;
-      padding: 36px 36px 32px;
-      margin: 12px 0 8px;
+      background: var(--panel);
+      border: 1px solid var(--line);
+      padding: 40px;
+      margin: 48px 0 8px;
     }
     .cta h2 { color: #fff; }
-    .cta p { color: #e4d8c8; max-width: 40rem; }
-    .cta .note { margin-top: 18px; font-size: 14px; color: #cbbba8; }
+    .cta p { color: var(--muted); max-width: 40rem; }
+    .cta .note { margin-top: 18px; font-size: 14px; }
 
     footer {
       padding: 28px 0 48px;
       color: var(--muted);
       font-size: 14px;
-    }
-
-    .tools {
       display: flex;
+      justify-content: space-between;
+      gap: 16px;
       flex-wrap: wrap;
-      gap: 8px;
-      margin-top: 16px;
     }
+    footer a { color: var(--muted); text-decoration: none; }
+    footer a:hover { color: var(--blue); }
+
+    .tools { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 16px; }
     .tool {
-      background: var(--soft);
-      color: var(--accent-ink);
-      border-radius: 999px;
+      border: 1px solid var(--blue);
+      color: var(--blue);
       padding: 6px 12px;
       font-size: 13px;
-      font-weight: 700;
     }
 
     @media (max-width: 900px) {
       .hero-grid, .cards, .split, .principle, .criterion { grid-template-columns: 1fr; }
       .scheme { grid-template-columns: 1fr 1fr; }
-      .principle { gap: 8px; }
-      .criterion .scale { padding-top: 0; }
+      .topbar { flex-direction: column; align-items: flex-start; }
+      nav.toc { justify-content: flex-start; }
+      .hero-geo { opacity: 0.35; }
+      .twist { transform: none; margin-left: 0; }
     }
     @media (max-width: 560px) {
-      .wrap { width: min(1080px, calc(100% - 28px)); }
+      .wrap { width: min(var(--wrap), calc(100% - 28px)); }
       .scheme { grid-template-columns: 1fr; }
-      header.hero, section { padding-top: 36px; padding-bottom: 36px; }
+      header.hero, section { padding-top: 40px; padding-bottom: 40px; }
     }
-    @page { margin: 14mm; }
+    @page { margin: 12mm; }
     @media print {
-      body { background: #fff; font-size: 12pt; }
-      header.hero, section { padding: 22px 0; }
+      body { background: #000; color: #fff; -webkit-print-color-adjust: exact; print-color-adjust: exact; }
       nav.toc { display: none; }
-      a { text-decoration: none; color: inherit; }
+      .hero-geo { display: none; }
       .card, .principle, .criterion, .t-body, .faq-item, .hero-note, .panel { break-inside: avoid; }
       .scheme { grid-template-columns: repeat(3, 1fr); }
-      .cta { -webkit-print-color-adjust: exact; print-color-adjust: exact; }
     }
   </style>
 </head>
 <body>
+  <div class="wrap">
+    <div class="topbar">
+      <a class="brand" href="https://www.krit.pro" aria-label="КРИТ">
+        <svg width="82" height="47" viewBox="0 0 82 47" fill="none" xmlns="http://www.w3.org/2000/svg" role="img" aria-hidden="true">
+          <path d="M55.8512 23.2175H51.0098V46.434H55.8512V23.2175Z" fill="white"/>
+          <path d="M54.4359 14.2756L49.9775 19.223H56.3405L60.8095 14.2756H54.4359Z" fill="#00A0DC"/>
+          <path d="M44.3815 14.297C40.4147 14.3626 36.629 15.9795 33.8261 18.8054V14.2756H28.9209V46.4017H33.8261V30.3386C33.8541 27.4005 35.0313 24.5919 37.1027 22.5212C39.1741 20.4506 41.9727 19.2849 44.8922 19.2765H45.5093L50.0103 14.2756H44.3815V14.297Z" fill="white"/>
+          <path d="M79.6219 41.4856C79.0882 41.4924 78.559 41.3866 78.0684 41.175C77.596 40.9798 77.1712 40.6839 76.8234 40.3076C76.4794 39.9274 76.1991 39.4934 75.9935 39.0226C75.7877 38.55 75.6826 38.0393 75.6849 37.5234V19.2757H80.4944V14.2747H75.6849V0H70.769V14.2747H65.2679L60.8096 19.2757H70.769V37.4805C70.7718 39.8426 71.7054 42.1072 73.3651 43.7775C75.0247 45.4477 77.2748 46.3873 79.6219 46.3902H81.75V41.4856H79.6219Z" fill="white"/>
+          <path d="M24.4837 14.2747H18.3973L4.87332 28.8921V0H0V46.433H4.87332V35.4673L8.59748 31.4408L19.8125 46.433H25.686L11.9173 27.8641L24.4837 14.2747Z" fill="white"/>
+        </svg>
+        <span>Challenge</span>
+      </a>
+      <nav class="toc" aria-label="Содержание">
+        <a href="#scheme">Схема</a>
+        <a href="#stages">Этапы</a>
+        <a href="#idea">Идея</a>
+        <a href="#criteria">Критерии</a>
+        <a href="#principles">Принципы</a>
+        <a href="#timeline">Календарь</a>
+        <a href="#faq">FAQ</a>
+      </nav>
+    </div>
+  </div>
+
   <header class="hero">
+    <div class="hero-geo" aria-hidden="true"><i></i></div>
     <div class="wrap">
       <div class="kicker">Внутренний Challenge</div>
       <div class="hero-grid">
         <div>
-          <h1>Пересобери процесс.<br />Покажи, что он работает.</h1>
-          <p class="lede" style="margin-top: 22px;">
+          <h1>Пересобери<br />процесс.<br />Покажи, что он <span class="twist">работает</span></h1>
+          <p class="lede" style="margin-top: 28px;">
             Не курс и не презентация о будущем. Короткий цикл: взять живой процесс компании, спроектировать его заново и собрать работающий MVP.
           </p>
           <p class="muted" style="max-width: 40rem;">
@@ -381,15 +480,6 @@
           <p><strong>Суть простая.</strong> Выбираем реальный процесс, меняем его логику, показываем работающий сценарий. Challenge заканчивается не слайдами, а тем, что уже можно нажать и проверить.</p>
         </aside>
       </div>
-      <nav class="toc" aria-label="Содержание">
-        <a href="#scheme">Схема</a>
-        <a href="#stages">Этапы</a>
-        <a href="#idea">Хорошая идея</a>
-        <a href="#criteria">Критерии</a>
-        <a href="#principles">Принципы</a>
-        <a href="#timeline">Календарь</a>
-        <a href="#faq">FAQ</a>
-      </nav>
     </div>
   </header>
 
@@ -409,7 +499,7 @@
     </div>
   </section>
 
-  <section id="stages">
+  <section id="stages" class="alt">
     <div class="wrap">
       <div class="kicker">Этапы</div>
       <h2>Что происходит на каждом шаге</h2>
@@ -507,7 +597,7 @@
     </div>
   </section>
 
-  <section id="criteria">
+  <section id="criteria" class="alt">
     <div class="wrap">
       <div class="kicker">Как оцениваем</div>
       <h2>Пять критериев отбора идей</h2>
@@ -591,7 +681,7 @@
     </div>
   </section>
 
-  <section id="timeline">
+  <section id="timeline" class="alt">
     <div class="wrap">
       <div class="kicker">Сроки</div>
       <h2>Timeline</h2>
@@ -712,14 +802,15 @@
   </section>
 
   <div class="wrap">
-    <section class="cta" style="border: 0; padding: 36px;">
-      <div class="kicker" style="color: #e08a6a;">Дальше</div>
+    <section class="cta" style="border-bottom: 0; padding: 40px;">
+      <div class="kicker" style="color: var(--blue);">Дальше</div>
       <h2>Если есть процесс, который давно хочется пересобрать — этого достаточно, чтобы прийти.</h2>
       <p>Workshop и входной тест помогут освоить инструменты. Идея покажет, стоит ли идти в MVP. А MVP нужен только один: сценарий, который уже работает.</p>
       <p class="note">Даты workshop, теста, приёма идей и Demo Day появятся в календаре после утверждения.</p>
     </section>
     <footer>
-      Challenge для сотрудников компании. Документ можно править точечно: даты — только в блоке «Календарь Challenge».
+      <span>Challenge для сотрудников КРИТ. Даты — только в блоке «Календарь Challenge».</span>
+      <a href="https://www.krit.pro">krit.pro</a>
     </footer>
   </div>
 </body>
