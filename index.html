@@ -2,816 +2,637 @@
 <html lang="ru">
 <head>
   <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <meta name="theme-color" content="#000089" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Challenge — пересобери процесс и покажи, что он работает</title>
-  <link rel="icon" type="image/png" href="https://www.krit.pro/images/favicon-32x32.png" sizes="32x32" />
+  <link rel="stylesheet" href="brand-tokens.css" />
+  <link rel="stylesheet" href="storybook-static/krit-report-components.css" />
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@20..48,400,0,0&display=swap" />
   <style>
-    @font-face {
-      font-family: UNCAGE;
-      src: url("fonts/UNCAGE-Regular.woff2") format("woff2");
-      font-weight: 400;
-      font-style: normal;
-      font-display: swap;
-    }
-    @font-face {
-      font-family: Inter;
-      src: url("fonts/inter-400.woff2") format("woff2");
-      font-weight: 400;
-      font-style: normal;
-      font-display: swap;
-    }
-    @font-face {
-      font-family: Inter;
-      src: url("fonts/inter-600.woff2") format("woff2");
-      font-weight: 600;
-      font-style: normal;
-      font-display: swap;
-    }
-    @font-face {
-      font-family: Inter;
-      src: url("fonts/inter-700.woff2") format("woff2");
-      font-weight: 700;
-      font-style: normal;
-      font-display: swap;
-    }
-
-    :root {
-      --black: #000;
-      --ink: #fff;
-      --muted: #9aa3ad;
-      --line: #3b3b3b;
-      --line-2: #646464;
-      --panel: #1e1e1e;
-      --panel-2: #161615;
-      --grey: #4d4d4d;
-      --blue: #389bff;
-      --blue-hover: #0581ff;
-      --logo: #00a0dc;
-      --red: #dc3545;
-      --wrap: 1160px;
-    }
-
-    * { box-sizing: border-box; }
-    html { scroll-behavior: smooth; }
-    body {
+    html, body {
+      height: 100%;
       margin: 0;
+      background: var(--chart-palette-blue-6);
       color: var(--ink);
-      background: var(--black);
-      font-family: Inter, system-ui, -apple-system, "Segoe UI", Roboto, Arial, sans-serif;
-      font-size: 16px;
-      line-height: 1.5;
-      letter-spacing: -0.32px;
-    }
-
-    a { color: #88c3ff; }
-    .wrap { width: min(var(--wrap), calc(100% - 48px)); margin: 0 auto; }
-
-    .kicker {
-      display: inline-block;
-      font-family: UNCAGE, Inter, sans-serif;
-      font-size: 14px;
+      font-family: var(--font-family-body);
       font-weight: 400;
-      letter-spacing: 0.42px;
-      text-transform: uppercase;
-      color: var(--muted);
-      line-height: 1.4;
     }
-
-    h1, h2, h3, .display {
-      font-family: UNCAGE, Inter, sans-serif;
-      font-weight: 400;
-      text-transform: uppercase;
-      letter-spacing: -0.32px;
-      line-height: 1.2;
-      margin: 0;
+    strong, b { font-weight: 400; }
+    h1, h2, h3, h4 { font-family: var(--font-family-heading); font-weight: 300; text-transform: none; }
+    .stage {
+      height: 100%;
+      display: grid;
+      place-items: center;
     }
-
-    h1 { font-size: clamp(36px, 5.6vw, 68px); line-height: 1.18; }
-    h2 { font-size: clamp(26px, 3.2vw, 40px); margin: 10px 0 16px; }
-    h3 { font-size: 22px; letter-spacing: -0.32px; }
-
-    p { margin: 0 0 12px; }
-    .lede { font-size: 18px; max-width: 42rem; color: #fff; }
-    .muted { color: var(--muted); }
-    .small { font-size: 14px; color: var(--muted); }
-
-    .topbar {
-      display: flex;
-      align-items: center;
-      justify-content: space-between;
-      gap: 24px;
-      padding: 18px 0;
-      border-bottom: 1px solid var(--line);
-    }
-    .brand {
-      display: flex;
-      align-items: center;
-      gap: 16px;
-      color: #fff;
-      text-decoration: none;
-    }
-    .brand span {
-      font-family: UNCAGE, Inter, sans-serif;
-      font-size: 14px;
-      letter-spacing: 0.42px;
-      text-transform: uppercase;
-      color: var(--muted);
-    }
-    nav.toc {
-      display: flex;
-      flex-wrap: wrap;
-      justify-content: flex-end;
-      gap: 8px 18px;
-      font-size: 15px;
-    }
-    nav.toc a {
-      color: #fff;
-      text-decoration: none;
-    }
-    nav.toc a:hover { color: var(--blue); }
-
-    header.hero {
+    .slide {
+      width: 1280px;
+      height: 720px;
+      background: var(--bg);
       position: relative;
       overflow: hidden;
-      padding: 72px 0 120px;
-      border-bottom: 1px solid var(--line);
+      display: none;
+      flex-direction: column;
+      box-shadow: var(--shadow-card);
     }
-    .hero-grid {
-      display: grid;
-      grid-template-columns: 1.35fr 0.85fr;
-      gap: 48px;
-      align-items: end;
-      position: relative;
-      z-index: 1;
-    }
-    .twist {
-      display: inline-block;
-      color: var(--blue);
-      transform: rotate(-14deg);
-      transform-origin: left center;
-      margin-left: 6px;
-      position: relative;
-      z-index: 2;
-    }
-    .hero-note {
-      background: var(--blue);
-      color: #fff;
-      padding: 22px 24px;
-    }
-    .hero-note p { margin: 0; }
-    .hero-geo {
+    .slide.active { display: flex; }
+    .slide.cover { background: var(--bg); }
+    .cover-geo {
       position: absolute;
       right: 0;
-      bottom: 0;
-      width: min(28vw, 340px);
-      height: min(20vw, 200px);
-      background: #fff;
-      clip-path: polygon(100% 0, 100% 100%, 0 100%);
+      top: 0;
+      width: 34%;
+      height: 100%;
+      background: var(--accent);
+      clip-path: polygon(38% 0, 100% 0, 100% 100%, 0 100%);
       pointer-events: none;
     }
-    .hero-geo i {
+    .cover-logo {
       position: absolute;
-      right: 0;
-      bottom: 0;
-      width: 34%;
-      height: 46%;
-      background: var(--grey);
-      clip-path: polygon(100% 0, 100% 100%, 0 100%);
+      top: 28px;
+      right: 36px;
+      z-index: 2;
     }
-
-    section { padding: 72px 0; border-bottom: 1px solid var(--line); }
-    section.tight { padding: 48px 0; }
-    section.alt { background: var(--panel-2); }
-
-    .scheme {
-      display: grid;
-      grid-template-columns: repeat(6, 1fr);
-      gap: 8px;
-      margin-top: 28px;
-    }
-    .scheme-step {
-      background: var(--panel);
-      border: 1px solid var(--line);
-      padding: 18px 14px 20px;
-      min-height: 132px;
-    }
-    .scheme-step .n {
-      font-family: UNCAGE, Inter, sans-serif;
-      font-size: 14px;
-      letter-spacing: 0.42px;
-      color: var(--blue);
-    }
-    .scheme-step h3 { font-size: 16px; margin: 18px 0 8px; }
-    .scheme-step p { font-size: 13px; color: var(--muted); margin: 0; letter-spacing: 0; }
-
-    .cards {
-      display: grid;
-      grid-template-columns: 1fr 1fr;
-      gap: 8px;
-      margin-top: 24px;
-    }
-    .card {
-      background: var(--panel);
-      border: 1px solid var(--line);
-      padding: 24px;
-    }
-    .card.wide { grid-column: 1 / -1; }
-    .card .num {
-      font-family: UNCAGE, Inter, sans-serif;
-      font-size: 14px;
-      letter-spacing: 0.42px;
-      color: var(--blue);
-      margin-bottom: 12px;
-    }
-    .card h3 { margin-bottom: 10px; }
-    .card ul { margin: 10px 0 0; padding-left: 18px; }
-    .card li { margin: 6px 0; }
-    .callout {
-      margin-top: 16px;
-      padding: 12px 14px;
-      background: rgba(56, 155, 255, 0.12);
-      border-left: 3px solid var(--blue);
-      font-weight: 600;
-    }
-
-    .split {
-      display: grid;
-      grid-template-columns: 1fr 1fr;
-      gap: 8px;
-      margin-top: 24px;
-    }
-    .panel { padding: 28px; border: 1px solid var(--line); }
-    .panel.yes { background: rgba(56, 155, 255, 0.08); border-color: var(--blue); }
-    .panel.no { background: var(--panel); }
-    .panel h3 { margin-bottom: 14px; }
-    .panel ul { margin: 0; padding-left: 18px; }
-    .panel li { margin: 8px 0; }
-
-    .metrics {
-      display: flex;
-      flex-wrap: wrap;
-      gap: 8px;
-      margin: 16px 0 8px;
-    }
-    .chip {
-      border: 1px solid var(--line-2);
-      padding: 7px 12px;
-      font-size: 14px;
-    }
-
-    .criteria {
-      display: grid;
-      gap: 8px;
-      margin-top: 24px;
-    }
-    .criterion {
-      display: grid;
-      grid-template-columns: 72px 1fr auto;
-      gap: 16px;
-      align-items: start;
-      background: var(--panel);
-      border: 1px solid var(--line);
-      padding: 18px 20px;
-    }
-    .criterion .score {
-      font-family: UNCAGE, Inter, sans-serif;
-      font-size: 22px;
-      color: var(--blue);
-      padding-top: 2px;
-    }
-    .criterion h3 { font-size: 22px; margin: 0 0 4px; }
-    .criterion p { font-size: 15px; color: var(--muted); margin: 0; }
-    .criterion .scale {
-      font-family: UNCAGE, Inter, sans-serif;
-      font-size: 14px;
-      letter-spacing: 0.42px;
-      text-transform: uppercase;
-      color: var(--muted);
-      padding-top: 6px;
-    }
-
-    .principles { display: grid; gap: 8px; margin-top: 24px; }
-    .principle {
-      display: grid;
-      grid-template-columns: 260px 1fr;
-      gap: 24px;
-      background: var(--panel);
-      border: 1px solid var(--line);
-      padding: 22px 24px;
-      align-items: start;
-    }
-    .principle h3 { font-size: 22px; }
-    .principle p { margin: 0; }
-
-    .timeline { margin-top: 28px; }
-    .t-row {
-      display: grid;
-      grid-template-columns: 28px 1fr;
-      gap: 16px;
-    }
-    .rail { position: relative; }
-    .rail::before {
-      content: "";
-      position: absolute;
-      left: 12px;
-      top: 8px;
-      bottom: -8px;
-      width: 2px;
-      background: var(--line);
-    }
-    .t-row:last-child .rail::before { display: none; }
-    .dot {
-      width: 10px;
-      height: 10px;
-      background: var(--blue);
-      margin: 10px auto 0;
+    .cover-body {
       position: relative;
       z-index: 1;
+      padding: 72px 64px 48px;
+      max-width: 820px;
+      display: flex;
+      flex-direction: column;
+      align-items: flex-start;
+      height: 100%;
     }
-    .t-body {
-      background: var(--panel);
-      border: 1px solid var(--line);
-      padding: 16px 18px;
-      margin-bottom: 8px;
+    .cover-body .badge { align-self: flex-start; }
+    .cover-body h1 {
+      font-size: 52px;
+      line-height: 1.05;
+      letter-spacing: -0.02em;
+      margin: 18px 0 24px;
+      color: var(--ink);
     }
-    .t-body strong {
-      display: block;
-      font-family: UNCAGE, Inter, sans-serif;
-      font-size: 16px;
-      text-transform: uppercase;
-      letter-spacing: -0.32px;
+    .cover-body h1.compact { font-size: 36px; }
+    .cover-body h1 span { color: var(--accent); }
+    .cover-body .lede {
+      font-size: 18px;
+      line-height: 1.45;
+      color: var(--ink);
+      max-width: 38rem;
+    }
+    .cover-body .muted {
+      margin-top: 16px;
+      font-size: 15px;
+      color: var(--muted);
+      max-width: 38rem;
+    }
+    .cover-meta {
+      margin-top: auto;
+      font-size: 13px;
+      color: var(--muted);
+    }
+
+    .slide-header {
+      display: grid;
+      grid-template-columns: 1fr auto;
+      align-items: start;
+      padding: 22px 56px 0 56px;
+      gap: 16px;
+    }
+    .slide-kicker {
+      font-size: 13px;
+      color: var(--accent);
+      font-weight: 400;
       margin-bottom: 4px;
     }
-
-    table.calendar {
-      width: 100%;
-      border-collapse: collapse;
-      margin-top: 20px;
-      border: 1px solid var(--line);
+    .slide-title {
+      font-size: 28px;
+      line-height: 1.15;
+      color: var(--ink);
+      margin: 0;
     }
-    table.calendar th,
-    table.calendar td {
-      text-align: left;
-      padding: 14px 16px;
-      border-bottom: 1px solid var(--line);
-      vertical-align: top;
+    .slide-header img { margin-top: 4px; }
+    .rail {
+      position: absolute;
+      left: 22px;
+      top: 92px;
+      bottom: 48px;
+      width: 2px;
+      background: var(--accent);
     }
-    table.calendar th {
-      font-family: UNCAGE, Inter, sans-serif;
-      font-size: 14px;
-      letter-spacing: 0.42px;
-      text-transform: uppercase;
-      color: var(--muted);
-      font-weight: 400;
-      background: var(--panel);
+    .slide-body {
+      flex: 1;
+      padding: 22px 56px 20px 56px;
+      min-height: 0;
+      overflow: hidden;
     }
-    table.calendar tr:last-child td { border-bottom: 0; }
-    .ph {
-      display: inline-block;
-      border-bottom: 1px dashed var(--blue);
-      color: var(--blue);
-      font-weight: 600;
-      min-width: 8rem;
-    }
-
-    .faq { margin-top: 12px; }
-    .faq-item {
-      border-top: 1px solid var(--line);
-      padding: 20px 0;
-    }
-    .faq-item:last-child { border-bottom: 1px solid var(--line); }
-    .faq-item h3 { font-size: 22px; margin-bottom: 8px; }
-    .faq-item p { margin: 0; max-width: 46rem; }
-
-    .cta {
-      background: var(--panel);
-      border: 1px solid var(--line);
-      padding: 40px;
-      margin: 48px 0 8px;
-    }
-    .cta h2 { color: #fff; }
-    .cta p { color: var(--muted); max-width: 40rem; }
-    .cta .note { margin-top: 18px; font-size: 14px; }
-
-    footer {
-      padding: 28px 0 48px;
-      color: var(--muted);
-      font-size: 14px;
+    .slide-footer {
       display: flex;
       justify-content: space-between;
-      gap: 16px;
-      flex-wrap: wrap;
+      align-items: center;
+      padding: 0 56px 16px;
+      font-size: 12px;
+      color: var(--accent);
     }
-    footer a { color: var(--muted); text-decoration: none; }
-    footer a:hover { color: var(--blue); }
+    .slide-footer .num { color: var(--muted); }
 
-    .tools { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 16px; }
-    .tool {
-      border: 1px solid var(--blue);
-      color: var(--blue);
-      padding: 6px 12px;
-      font-size: 13px;
+    .lede { font-size: 16px; line-height: 1.45; color: var(--ink); margin: 0 0 14px; }
+    .muted { color: var(--muted); }
+    .grid-2 { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; }
+    .grid-3 { display: grid; grid-template-columns: repeat(3, 1fr); gap: 12px; }
+    .kpi-grid.cols-3 { grid-template-columns: repeat(3, 1fr); }
+    .kpi-grid.cols-5 { grid-template-columns: repeat(5, 1fr); gap: 10px; }
+    .kpi-grid.cols-6 { grid-template-columns: repeat(3, 1fr); }
+    .slide .kpi { min-height: 0; }
+    .slide .kpi-value { font-size: 26px; }
+    .slide .kpi-sub { font-size: 12px; color: var(--muted); margin-top: 6px; }
+    .slide .card { height: 100%; }
+    .slide .card p { font-size: 14px; line-height: 1.45; color: var(--muted); margin: 8px 0 0; }
+    .slide .card p.ink { color: var(--ink); }
+    .num-label {
+      font-size: 12px;
+      color: var(--accent);
+      margin-bottom: 6px;
     }
+    .tools { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 12px; }
+    .list {
+      margin: 0;
+      padding: 0;
+      list-style: none;
+      display: grid;
+      gap: 10px;
+    }
+    .list li {
+      position: relative;
+      padding-left: 14px;
+      font-size: 14px;
+      line-height: 1.45;
+      color: var(--ink);
+    }
+    .list li::before {
+      content: "";
+      position: absolute;
+      left: 0;
+      top: 0.55em;
+      width: 6px;
+      height: 6px;
+      background: var(--accent);
+    }
+    .list.no li::before { background: var(--danger); }
+    .faq-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
+    .faq-grid .card { padding: 0.9rem 1rem; }
+    .faq-grid h3 { font-size: 15px; margin: 0 0 6px; }
+    .faq-grid p { margin: 0; font-size: 13px; color: var(--muted); }
+    .ph {
+      display: inline-flex;
+      padding: 2px 8px;
+      border-radius: var(--radius-sm);
+      background: var(--warn-soft);
+      color: var(--warn);
+    }
+    table.mtable { font-size: 14px; }
+    table.mtable thead th,
+    table.mtable thead th:first-child {
+      background: var(--accent);
+      color: var(--color-white);
+      font-size: 12px;
+    }
+    table.mtable tbody td { padding: 0.65rem 0.9rem; font-size: 14px; }
+    .nav {
+      position: fixed;
+      right: 18px;
+      bottom: 18px;
+      display: flex;
+      gap: 8px;
+      z-index: 20;
+    }
+    .sb-btn { cursor: pointer; }
 
-    @media (max-width: 900px) {
-      .hero-grid, .cards, .split, .principle, .criterion { grid-template-columns: 1fr; }
-      .scheme { grid-template-columns: 1fr 1fr; }
-      .topbar { flex-direction: column; align-items: flex-start; }
-      nav.toc { justify-content: flex-start; }
-      .hero-geo { opacity: 0.35; }
-      .twist { transform: none; margin-left: 0; }
-    }
-    @media (max-width: 560px) {
-      .wrap { width: min(var(--wrap), calc(100% - 28px)); }
-      .scheme { grid-template-columns: 1fr; }
-      header.hero, section { padding-top: 40px; padding-bottom: 40px; }
-    }
-    @page { margin: 12mm; }
     @media print {
-      body { background: #000; color: #fff; -webkit-print-color-adjust: exact; print-color-adjust: exact; }
-      nav.toc { display: none; }
-      .hero-geo { display: none; }
-      .card, .principle, .criterion, .t-body, .faq-item, .hero-note, .panel { break-inside: avoid; }
-      .scheme { grid-template-columns: repeat(3, 1fr); }
+      html, body { height: auto; background: var(--bg); }
+      .stage { display: block; height: auto; }
+      .slide {
+        display: flex !important;
+        box-shadow: none;
+        page-break-after: always;
+        break-after: page;
+        transform: none !important;
+      }
+      .nav, .hint { display: none; }
+      @page { size: 338.67mm 190.5mm; margin: 0; }
     }
   </style>
 </head>
 <body>
-  <div class="wrap">
-    <div class="topbar">
-      <a class="brand" href="https://www.krit.pro" aria-label="КРИТ">
-        <svg width="82" height="47" viewBox="0 0 82 47" fill="none" xmlns="http://www.w3.org/2000/svg" role="img" aria-hidden="true">
-          <path d="M55.8512 23.2175H51.0098V46.434H55.8512V23.2175Z" fill="white"/>
-          <path d="M54.4359 14.2756L49.9775 19.223H56.3405L60.8095 14.2756H54.4359Z" fill="#00A0DC"/>
-          <path d="M44.3815 14.297C40.4147 14.3626 36.629 15.9795 33.8261 18.8054V14.2756H28.9209V46.4017H33.8261V30.3386C33.8541 27.4005 35.0313 24.5919 37.1027 22.5212C39.1741 20.4506 41.9727 19.2849 44.8922 19.2765H45.5093L50.0103 14.2756H44.3815V14.297Z" fill="white"/>
-          <path d="M79.6219 41.4856C79.0882 41.4924 78.559 41.3866 78.0684 41.175C77.596 40.9798 77.1712 40.6839 76.8234 40.3076C76.4794 39.9274 76.1991 39.4934 75.9935 39.0226C75.7877 38.55 75.6826 38.0393 75.6849 37.5234V19.2757H80.4944V14.2747H75.6849V0H70.769V14.2747H65.2679L60.8096 19.2757H70.769V37.4805C70.7718 39.8426 71.7054 42.1072 73.3651 43.7775C75.0247 45.4477 77.2748 46.3873 79.6219 46.3902H81.75V41.4856H79.6219Z" fill="white"/>
-          <path d="M24.4837 14.2747H18.3973L4.87332 28.8921V0H0V46.433H4.87332V35.4673L8.59748 31.4408L19.8125 46.433H25.686L11.9173 27.8641L24.4837 14.2747Z" fill="white"/>
-        </svg>
-        <span>Challenge</span>
-      </a>
-      <nav class="toc" aria-label="Содержание">
-        <a href="#scheme">Схема</a>
-        <a href="#stages">Этапы</a>
-        <a href="#idea">Идея</a>
-        <a href="#criteria">Критерии</a>
-        <a href="#principles">Принципы</a>
-        <a href="#timeline">Календарь</a>
-        <a href="#faq">FAQ</a>
-      </nav>
-    </div>
-  </div>
+  <div class="stage">
 
-  <header class="hero">
-    <div class="hero-geo" aria-hidden="true"><i></i></div>
-    <div class="wrap">
-      <div class="kicker">Внутренний Challenge для сотрудников ОЦО и Бэкофиса</div>
-      <div class="hero-grid">
-        <div>
-          <h1>Пересобери<br />процесс.<br />Покажи, что он <span class="twist">работает</span></h1>
-          <p class="lede" style="margin-top: 28px;">
-            Не курс и не презентация о будущем. Короткий цикл: взять живой процесс компании, спроектировать его заново и собрать работающий MVP.
-          </p>
-          <p class="muted" style="max-width: 40rem;">
-            Инструменты вроде Cursor, Bitrix и AI-агентов нужны для этого — чтобы сделать самому то, что недавно ушло бы в очередь к разработке. Если процесс становится лучше без AI, это нормальное решение.
-          </p>
-        </div>
-        <aside class="hero-note">
-          <p><strong>Суть простая.</strong> Выбираем реальный процесс, меняем его логику, показываем работающий сценарий. Challenge заканчивается не слайдами, а тем, что уже можно нажать и проверить.</p>
-        </aside>
+    <section class="slide cover active" data-title="Обложка">
+      <div class="cover-geo" aria-hidden="true"></div>
+      <img class="cover-logo" src="logo/KRIT_Logo_White_Color.svg" alt="КРИТ" width="90" height="51" />
+      <div class="cover-body">
+        <span class="badge">Внутренний Challenge для сотрудников ОЦО и бэкофиса</span>
+        <h1>Пересобери процесс.<br />Покажи, что он <span>работает</span></h1>
+        <p class="lede">Не курс и не презентация о будущем. Короткий цикл: взять живой процесс компании, спроектировать его заново и собрать работающий MVP.</p>
+        <p class="muted">Инструменты вроде Cursor, Bitrix и AI-агентов нужны для этого — чтобы сделать самому то, что недавно ушло бы в очередь к разработке. Если процесс становится лучше без AI, это нормальное решение.</p>
+        <p class="cover-meta">Challenge для сотрудников КРИТ · даты — только в календаре</p>
       </div>
-    </div>
-  </header>
-
-  <section id="scheme" class="tight">
-    <div class="wrap">
-      <div class="kicker">Как устроен Challenge</div>
-      <h2>Шесть шагов — от знакомства с инструментами до Demo Day</h2>
-      <p class="muted" style="max-width: 40rem;">Сначала разбираемся в формате и стеке. Затем берём процесс, проходим отбор и собираем то, что можно показать живьём.</p>
-      <div class="scheme" role="list">
-        <div class="scheme-step" role="listitem"><div class="n">01</div><h3>Workshop</h3><p>Практический старт, не лекция</p></div>
-        <div class="scheme-step" role="listitem"><div class="n">02</div><h3>Входной тест</h3><p>Короткий вход в формат</p></div>
-        <div class="scheme-step" role="listitem"><div class="n">03</div><h3>Идея</h3><p>Реальный процесс и эффект</p></div>
-        <div class="scheme-step" role="listitem"><div class="n">04</div><h3>Отбор</h3><p>Ориентир: 5–7 проектов</p></div>
-        <div class="scheme-step" role="listitem"><div class="n">05</div><h3>MVP</h3><p>Работающий сценарий</p></div>
-        <div class="scheme-step" role="listitem"><div class="n">06</div><h3>Demo Day</h3><p>Показ и разбор внедрения</p></div>
-      </div>
-    </div>
-  </section>
-
-  <section id="stages" class="alt">
-    <div class="wrap">
-      <div class="kicker">Этапы</div>
-      <h2>Что происходит на каждом шаге</h2>
-      <div class="cards">
-        <article class="card">
-          <div class="num">01 · Workshop</div>
-          <h3>Понять формат и попробовать стек</h3>
-          <p>Короткая рабочая сессия: как смотреть на процессы, какие инструменты доступны и как устроен Challenge.</p>
-          <p class="muted">Это не обязательное обучение «про нейросети». Задача workshop — быстро выйти на практику, а не прослушать курс.</p>
-        </article>
-        <article class="card">
-          <div class="num">02 · Входной тест</div>
-          <h3>Короткий вход, не экзамен</h3>
-          <p>Проверяем, что формат Challenge вам подходит и базовые инструменты уже можно использовать.</p>
-          <p class="muted">Это не тест на умение программировать. Точный формат и критерии прохождения будут уточнены до старта.</p>
-        </article>
-        <article class="card">
-          <div class="num">03 · Идея</div>
-          <h3>Взять живой процесс, а не «кейс для AI»</h3>
-          <p>Опишите, как процесс устроен сейчас, где в нём потери и каким он должен стать, если проектировать его сегодня с нуля.</p>
-          <p class="muted">Идея сильна не формулировкой, а понятным эффектом: быстрее, проще, меньше ошибок, меньше ручных шагов.</p>
-        </article>
-        <article class="card">
-          <div class="num">04 · Отбор</div>
-          <h3>Экспертная комиссия, 5 критериев</h3>
-          <p>Каждый критерий оценивается от 0 до 5. Дальше проходят ориентировочно 5–7 проектов — те, где виден эффект и реален MVP.</p>
-          <p class="muted">Отбор нужен не для «отсева ради отсева», а чтобы сфокусировать время на решениях, которые можно довести до рабочего сценария.</p>
-        </article>
-        <article class="card wide">
-          <div class="num">05 · MVP</div>
-          <h3>Не рассказ о том, как могло бы работать. Демонстрация того, что уже работает.</h3>
-          <p>Авторы отобранных идей собирают минимальную работающую версию. MVP не обязан быть идеальным, красивым или сразу жить в PROD. Исключительные сценарии можно оставить за рамками.</p>
-          <p>Но должен быть настоящий сценарий, который можно пройти и протестировать.</p>
-          <div class="tools">
-            <span class="tool">Cursor</span>
-            <span class="tool">Bitrix</span>
-            <span class="tool">AI-агенты</span>
-            <span class="tool">Интеграции</span>
-            <span class="tool">Автоматизации</span>
-            <span class="tool">Другие согласованные инструменты</span>
-          </div>
-          <div class="callout">Дизайн может быть черновым. Логика процесса — нет: её должно быть видно.</div>
-        </article>
-        <article class="card wide">
-          <div class="num">06 · Demo Day</div>
-          <h3>Показать процесс, изменение и рабочий результат</h3>
-          <p>Каждый участник или команда коротко разбирает: какой процесс взят, как он работал раньше, что изменилось, как выглядит MVP, какой эффект уже виден и что нужно для внедрения.</p>
-          <p class="muted" style="margin-bottom: 0;">На финале отдельно смотрим на фактический эффект, работоспособность MVP, качество новой логики, возможность масштабирования и потенциал внедрения в работу компании.</p>
-        </article>
-      </div>
-    </div>
-  </section>
-
-  <section id="idea">
-    <div class="wrap">
-      <div class="kicker">Отбор смысла</div>
-      <h2>Что считается хорошей идеей</h2>
-      <p class="lede">Хорошая идея начинается с конкретного процесса, который уже существует и регулярно создаёт трение. Не с технологии.</p>
-      <p>Эффект лучше сразу мыслить измеримо. Подойдут, например:</p>
-      <div class="metrics">
-        <span class="chip">время выполнения</span>
-        <span class="chip">ручные операции</span>
-        <span class="chip">число участников</span>
-        <span class="chip">ошибки</span>
-        <span class="chip">скорость реакции</span>
-        <span class="chip">качество результата</span>
-        <span class="chip">прозрачность</span>
-        <span class="chip">удобство для сотрудников или внутренних клиентов</span>
-      </div>
-      <p class="muted">Главный фильтр один: после запуска должно стать заметно лучше. Не «чуть аккуратнее таблица», а ощутимый сдвиг в работе.</p>
-
-      <div class="split">
-        <div class="panel yes">
-          <h3>Хороший заход</h3>
-          <ul>
-            <li>Есть повторяющийся процесс, который вы знаете не понаслышке.</li>
-            <li>Понятно, что болит сейчас и как измерить «до» и «после».</li>
-            <li>Предлагается новая логика, а не косметика старых шагов.</li>
-            <li>Рабочий кусок можно собрать в срок Challenge.</li>
-            <li>Решение может пригодиться шире одного частного случая.</li>
-          </ul>
-        </div>
-        <div class="panel no" id="not-goal">
-          <h3>Что не является целью Challenge</h3>
-          <ul>
-            <li>AI ради AI и вопрос «куда сюда вставить модель».</li>
-            <li>Красивая концепция без работающего сценария.</li>
-            <li>Идеальный продукт на все исключения сразу.</li>
-            <li>Обязательный вывод MVP в PROD.</li>
-            <li>Сохранить процесс «как всегда делали», только ускорить старые этапы.</li>
-            <li>Обучение для галочки и набор сертификатов.</li>
-          </ul>
-        </div>
-      </div>
-    </div>
-  </section>
-
-  <section id="criteria" class="alt">
-    <div class="wrap">
-      <div class="kicker">Как оцениваем</div>
-      <h2>Пять критериев отбора идей</h2>
-      <p class="muted">Каждый критерий — от 0 до 5. Дальше ориентировочно 5–7 проектов.</p>
-      <div class="criteria">
-        <article class="criterion">
-          <div class="score">01</div>
-          <div>
-            <h3>Бизнес-эффект</h3>
-            <p>Насколько заметно решение улучшает процесс.</p>
-          </div>
-          <div class="scale">0–5</div>
-        </article>
-        <article class="criterion">
-          <div class="score">02</div>
-          <div>
-            <h3>Удобство</h3>
-            <p>Насколько новый процесс становится проще для людей, которые им пользуются.</p>
-          </div>
-          <div class="scale">0–5</div>
-        </article>
-        <article class="criterion">
-          <div class="score">03</div>
-          <div>
-            <h3>Качество и снижение ошибок</h3>
-            <p>Помогает ли решение уменьшить ручные ошибки и повысить качество результата.</p>
-          </div>
-          <div class="scale">0–5</div>
-        </article>
-        <article class="criterion">
-          <div class="score">04</div>
-          <div>
-            <h3>Масштабируемость</h3>
-            <p>Можно ли использовать решение шире одного конкретного кейса.</p>
-          </div>
-          <div class="scale">0–5</div>
-        </article>
-        <article class="criterion">
-          <div class="score">05</div>
-          <div>
-            <h3>Реализуемость</h3>
-            <p>Можно ли создать работающий MVP в рамках Challenge.</p>
-          </div>
-          <div class="scale">0–5</div>
-        </article>
-      </div>
-
-      <div class="card" style="margin-top: 20px;">
-        <h3>На Demo Day смотрим уже на другое</h3>
-        <p class="muted" style="margin-bottom: 0;">Фактически полученный эффект. Работоспособность MVP. Качество новой логики процесса. Возможность масштабирования. Потенциал внедрения в реальную работу компании.</p>
-      </div>
-    </div>
-  </section>
-
-  <section id="principles">
-    <div class="wrap">
-      <div class="kicker">Философия</div>
-      <h2>Несколько правил, без которых Challenge теряет смысл</h2>
-      <div class="principles">
-        <article class="principle">
-          <h3>AI — не цель</h3>
-          <p>Нам не нужен AI ради AI. Если процесс можно сделать лучше без него — это нормальное, и часто более честное, решение.</p>
-        </article>
-        <article class="principle">
-          <h3>Сначала процесс, потом инструмент</h3>
-          <p>Нельзя начинать с вопроса «куда здесь вставить AI?». Начинать нужно с другого: как должен выглядеть этот процесс, если проектировать его сегодня с нуля?</p>
-        </article>
-        <article class="principle">
-          <h3>Можно ломать старые процессы</h3>
-          <p>Не нужно сохранять этап только потому, что «мы всегда так делали». Если шаг больше не создаёт ценность — его можно убрать.</p>
-        </article>
-        <article class="principle">
-          <h3>MVP важнее презентации</h3>
-          <p>Challenge должен закончиться работающими решениями, а не только красивыми концепциями. Слайды без сценария, который можно пройти, — это ещё не результат.</p>
-        </article>
-        <article class="principle">
-          <h3>Учимся на реальных задачах</h3>
-          <p>Это одновременно соревнование и способ освоить новый стек компании на деле, а не на учебном примере.</p>
-        </article>
-      </div>
-    </div>
-  </section>
-
-  <section id="timeline" class="alt">
-    <div class="wrap">
-      <div class="kicker">Сроки</div>
-      <h2>Timeline</h2>
-      <p class="muted">Порядок этапов фиксированный. Даты — нет: их утвердим отдельно и пропишем в календаре ниже.</p>
-
-      <div class="timeline">
-        <div class="t-row">
-          <div class="rail"><div class="dot"></div></div>
-          <div class="t-body"><strong>Workshop</strong><span class="muted">Знакомимся с форматом, процессами и инструментами.</span></div>
-        </div>
-        <div class="t-row">
-          <div class="rail"><div class="dot"></div></div>
-          <div class="t-body"><strong>Входной тест</strong><span class="muted">Короткий практический вход. Формат будет уточнён до старта.</span></div>
-        </div>
-        <div class="t-row">
-          <div class="rail"><div class="dot"></div></div>
-          <div class="t-body"><strong>Идея</strong><span class="muted">Описываем процесс, новую логику и ожидаемый эффект.</span></div>
-        </div>
-        <div class="t-row">
-          <div class="rail"><div class="dot"></div></div>
-          <div class="t-body"><strong>Отбор</strong><span class="muted">Комиссия оценивает идеи по пяти критериям. Дальше — ориентировочно 5–7 проектов.</span></div>
-        </div>
-        <div class="t-row">
-          <div class="rail"><div class="dot"></div></div>
-          <div class="t-body"><strong>MVP</strong><span class="muted">Собираем работающий сценарий, который можно показать и протестировать.</span></div>
-        </div>
-        <div class="t-row">
-          <div class="rail"><div class="dot"></div></div>
-          <div class="t-body"><strong>Demo Day</strong><span class="muted">Показ процесса, MVP, эффекта и следующего шага к внедрению.</span></div>
-        </div>
-      </div>
-
-      <h3 style="margin-top: 36px;">Календарь Challenge</h3>
-      <p class="small">Этот блок можно править отдельно, не трогая остальной текст. Пока даты — плейсхолдеры.</p>
-      <table class="calendar">
-        <thead>
-          <tr>
-            <th>Этап</th>
-            <th>Когда</th>
-            <th>Что происходит</th>
-          </tr>
-        </thead>
-        <tbody>
-          <tr>
-            <td>Workshop</td>
-            <td><span class="ph">дата будет объявлена</span></td>
-            <td>Практический старт Challenge</td>
-          </tr>
-          <tr>
-            <td>Входной тест</td>
-            <td><span class="ph">дата будет объявлена</span></td>
-            <td>Короткий вход в формат</td>
-          </tr>
-          <tr>
-            <td>Приём идей</td>
-            <td><span class="ph">даты будут объявлены</span></td>
-            <td>Описание процесса, новой логики и эффекта</td>
-          </tr>
-          <tr>
-            <td>Отбор</td>
-            <td><span class="ph">дата будет объявлена</span></td>
-            <td>Оценка комиссии, ориентир 5–7 проектов</td>
-          </tr>
-          <tr>
-            <td>Разработка MVP</td>
-            <td><span class="ph">даты будут объявлены</span></td>
-            <td>Сборка работающего сценария</td>
-          </tr>
-          <tr>
-            <td>Demo Day</td>
-            <td><span class="ph">дата будет объявлена</span></td>
-            <td>Показ MVP и разбор внедрения</td>
-          </tr>
-        </tbody>
-      </table>
-    </div>
-  </section>
-
-  <section id="faq">
-    <div class="wrap">
-      <div class="kicker">FAQ</div>
-      <h2>Короткие ответы</h2>
-      <div class="faq">
-        <div class="faq-item">
-          <h3>Можно ли участвовать командой?</h3>
-          <p>Да. На Demo Day выступает участник или команда. Точный размер команды и правила регистрации будут уточнены до старта.</p>
-        </div>
-        <div class="faq-item">
-          <h3>Можно ли выбрать процесс другого подразделения?</h3>
-          <p>Будет уточнено до старта. Если берёте чужой процесс, важно понимать его достаточно хорошо, чтобы честно описать текущую логику и эффект.</p>
-        </div>
-        <div class="faq-item">
-          <h3>Нужно ли уметь программировать?</h3>
-          <p>Нет, это не требование. Challenge как раз про то, чтобы собрать решение на доступных инструментах, не дожидаясь классической разработки. Понадобится готовность разбираться, а не опыт коммерческой разработки.</p>
-        </div>
-        <div class="faq-item">
-          <h3>Можно ли использовать AI-агентов?</h3>
-          <p>Да. Можно использовать Cursor, Bitrix, AI-агентов, интеграции, автоматизации и другие согласованные инструменты. AI при этом не обязателен: если процесс лучше собирается без него, так и делайте.</p>
-        </div>
-        <div class="faq-item">
-          <h3>Нужно ли выводить MVP в PROD?</h3>
-          <p>Нет. MVP не обязан сразу жить в проде. Нужен настоящий работающий сценарий, который можно показать и протестировать.</p>
-        </div>
-        <div class="faq-item">
-          <h3>Что делать, если идея затрагивает несколько подразделений?</h3>
-          <p>Такую идею можно предлагать. Как именно согласовывать её между командами, будет уточнено до старта. На этапе идеи важно явно сказать, кого затрагивает процесс и где проходит граница MVP.</p>
-        </div>
-        <div class="faq-item">
-          <h3>Можно ли полностью изменить существующий процесс?</h3>
-          <p>Да. Более того, это желаемый ход. Не нужно сохранять шаг только потому, что он уже есть. Если проектировать процесс сегодня с нуля, часть старой цепочки может просто исчезнуть.</p>
-        </div>
-        <div class="faq-item">
-          <h3>Что будет с успешными MVP после Challenge?</h3>
-          <p>На Demo Day отдельно разбираем, что нужно для внедрения. Автоматического вывода в PROD нет. Решение по каждому рабочему MVP будет приниматься отдельно; порядок этого решения будет уточнён до старта.</p>
-        </div>
-      </div>
-    </div>
-  </section>
-
-  <div class="wrap">
-    <section class="cta" style="border-bottom: 0; padding: 40px;">
-      <div class="kicker" style="color: var(--blue);">Дальше</div>
-      <h2>Если есть процесс, который давно хочется пересобрать — этого достаточно, чтобы прийти.</h2>
-      <p>Workshop и входной тест помогут освоить инструменты. Идея покажет, стоит ли идти в MVP. А MVP нужен только один: сценарий, который уже работает.</p>
-      <p class="note">Даты workshop, теста, приёма идей и Demo Day появятся в календаре после утверждения.</p>
     </section>
-    <footer>
-      <span>Challenge для сотрудников КРИТ. Даты — только в блоке «Календарь Challenge».</span>
-      <a href="https://www.krit.pro">krit.pro</a>
-    </footer>
+
+    <section class="slide">
+      <header class="slide-header">
+        <div>
+          <div class="slide-kicker">Суть</div>
+          <h2 class="slide-title">Выбираем процесс, меняем логику, показываем сценарий</h2>
+        </div>
+        <img src="logo/KRIT_Logo_Grey_Color.svg" alt="КРИТ" width="90" height="51" />
+      </header>
+      <div class="rail" aria-hidden="true"></div>
+      <div class="slide-body">
+        <div class="alert info">
+          <div class="alert-text"><strong>Challenge заканчивается не слайдами.</strong> Нужен сценарий, который уже можно нажать и проверить.</div>
+        </div>
+        <div class="kpi-grid cols-3" style="margin-top:16px">
+          <div class="kpi">
+            <div class="kpi-label">Живой процесс</div>
+            <div class="kpi-value dark">01</div>
+            <div class="kpi-sub">Берём то, что уже есть в компании и регулярно создаёт трение</div>
+          </div>
+          <div class="kpi">
+            <div class="kpi-label">Новая логика</div>
+            <div class="kpi-value dark">02</div>
+            <div class="kpi-sub">Проектируем процесс так, как если бы делали его сегодня с нуля</div>
+          </div>
+          <div class="kpi">
+            <div class="kpi-label">Рабочий MVP</div>
+            <div class="kpi-value dark">03</div>
+            <div class="kpi-sub">Показываем не концепцию, а проходимый сценарий</div>
+          </div>
+        </div>
+      </div>
+      <footer class="slide-footer"><span>Challenge · ОЦО и бэкофис</span><span class="num">02</span></footer>
+    </section>
+
+    <section class="slide">
+      <header class="slide-header">
+        <div>
+          <div class="slide-kicker">Как устроен Challenge</div>
+          <h2 class="slide-title">Шесть шагов — до Demo Day</h2>
+        </div>
+        <img src="logo/KRIT_Logo_Grey_Color.svg" alt="КРИТ" width="90" height="51" />
+      </header>
+      <div class="rail" aria-hidden="true"></div>
+      <div class="slide-body">
+        <p class="lede">Сначала разбираемся в формате и стеке. Затем берём процесс, проходим отбор и собираем то, что можно показать живьём.</p>
+        <div class="kpi-grid cols-6">
+          <div class="kpi"><div class="kpi-label">01</div><div class="kpi-value dark">Workshop</div><div class="kpi-sub">Практический старт, не лекция</div></div>
+          <div class="kpi"><div class="kpi-label">02</div><div class="kpi-value dark">Входной тест</div><div class="kpi-sub">Короткий вход в формат</div></div>
+          <div class="kpi"><div class="kpi-label">03</div><div class="kpi-value dark">Идея</div><div class="kpi-sub">Реальный процесс и эффект</div></div>
+          <div class="kpi"><div class="kpi-label">04</div><div class="kpi-value dark">Отбор</div><div class="kpi-sub">Ориентир: 5–7 проектов</div></div>
+          <div class="kpi"><div class="kpi-label">05</div><div class="kpi-value dark">MVP</div><div class="kpi-sub">Работающий сценарий</div></div>
+          <div class="kpi"><div class="kpi-label">06</div><div class="kpi-value dark">Demo Day</div><div class="kpi-sub">Показ и разбор внедрения</div></div>
+        </div>
+      </div>
+      <footer class="slide-footer"><span>Challenge · ОЦО и бэкофис</span><span class="num">03</span></footer>
+    </section>
+
+    <section class="slide">
+      <header class="slide-header">
+        <div>
+          <div class="slide-kicker">Этапы 01–02</div>
+          <h2 class="slide-title">Workshop и входной тест</h2>
+        </div>
+        <img src="logo/KRIT_Logo_Grey_Color.svg" alt="КРИТ" width="90" height="51" />
+      </header>
+      <div class="rail" aria-hidden="true"></div>
+      <div class="slide-body">
+        <div class="grid-2">
+          <article class="card">
+            <div class="num-label">01 · Workshop</div>
+            <div class="card-title">Понять формат и попробовать стек</div>
+            <p class="ink">Короткая рабочая сессия: как смотреть на процессы, какие инструменты доступны и как устроен Challenge.</p>
+            <p>Это не обязательное обучение «про нейросети». Задача workshop — быстро выйти на практику, а не прослушать курс.</p>
+          </article>
+          <article class="card">
+            <div class="num-label">02 · Входной тест</div>
+            <div class="card-title">Короткий вход, не экзамен</div>
+            <p class="ink">Проверяем, что формат Challenge вам подходит и базовые инструменты уже можно использовать.</p>
+            <p>Это не тест на умение программировать. Точный формат и критерии прохождения будут уточнены до старта.</p>
+          </article>
+        </div>
+      </div>
+      <footer class="slide-footer"><span>Challenge · ОЦО и бэкофис</span><span class="num">04</span></footer>
+    </section>
+
+    <section class="slide">
+      <header class="slide-header">
+        <div>
+          <div class="slide-kicker">Этап 03</div>
+          <h2 class="slide-title">Идея: живой процесс, а не кейс для AI</h2>
+        </div>
+        <img src="logo/KRIT_Logo_Grey_Color.svg" alt="КРИТ" width="90" height="51" />
+      </header>
+      <div class="rail" aria-hidden="true"></div>
+      <div class="slide-body">
+        <article class="card">
+          <div class="card-title">Опишите, как процесс устроен сейчас</div>
+          <p class="ink">Где в нём потери и каким он должен стать, если проектировать его сегодня с нуля.</p>
+          <p>Идея сильна не формулировкой, а понятным эффектом: быстрее, проще, меньше ошибок, меньше ручных шагов.</p>
+        </article>
+        <div class="tools">
+          <span class="badge">время выполнения</span>
+          <span class="badge">ручные операции</span>
+          <span class="badge">число участников</span>
+          <span class="badge">ошибки</span>
+          <span class="badge">скорость реакции</span>
+          <span class="badge">качество результата</span>
+          <span class="badge">прозрачность</span>
+          <span class="badge">удобство</span>
+        </div>
+        <div class="alert info" style="margin-top:16px">
+          <div class="alert-text"><strong>Главный фильтр:</strong> после запуска должно стать заметно лучше. Не «чуть аккуратнее таблица», а ощутимый сдвиг в работе.</div>
+        </div>
+      </div>
+      <footer class="slide-footer"><span>Challenge · ОЦО и бэкофис</span><span class="num">05</span></footer>
+    </section>
+
+    <section class="slide">
+      <header class="slide-header">
+        <div>
+          <div class="slide-kicker">Этап 04</div>
+          <h2 class="slide-title">Отбор: экспертная комиссия, 5 критериев</h2>
+        </div>
+        <img src="logo/KRIT_Logo_Grey_Color.svg" alt="КРИТ" width="90" height="51" />
+      </header>
+      <div class="rail" aria-hidden="true"></div>
+      <div class="slide-body">
+        <div class="grid-2">
+          <article class="card">
+            <div class="card-title">Как считаем</div>
+            <p class="ink">Каждый критерий оценивается от 0 до 5. Дальше проходят ориентировочно 5–7 проектов — те, где виден эффект и реален MVP.</p>
+            <p>Отбор нужен не для «отсева ради отсева», а чтобы сфокусировать время на решениях, которые можно довести до рабочего сценария.</p>
+          </article>
+          <article class="card">
+            <div class="card-title">Что проходит дальше</div>
+            <p class="ink">Проекты, где уже на бумаге видно: процесс станет лучше, людям будет проще, MVP можно собрать в срок Challenge.</p>
+            <p>Шкала единая для всех идей. Детали критериев — на отдельном слайде.</p>
+          </article>
+        </div>
+      </div>
+      <footer class="slide-footer"><span>Challenge · ОЦО и бэкофис</span><span class="num">06</span></footer>
+    </section>
+
+    <section class="slide">
+      <header class="slide-header">
+        <div>
+          <div class="slide-kicker">Этап 05</div>
+          <h2 class="slide-title">MVP: не рассказ, а то, что уже работает</h2>
+        </div>
+        <img src="logo/KRIT_Logo_Grey_Color.svg" alt="КРИТ" width="90" height="51" />
+      </header>
+      <div class="rail" aria-hidden="true"></div>
+      <div class="slide-body">
+        <p class="lede">Авторы отобранных идей собирают минимальную работающую версию. MVP не обязан быть идеальным, красивым или сразу жить в PROD. Исключительные сценарии можно оставить за рамками.</p>
+        <p class="lede">Но должен быть настоящий сценарий, который можно пройти и протестировать.</p>
+        <div class="tools">
+          <span class="badge">Cursor</span>
+          <span class="badge">Bitrix</span>
+          <span class="badge">AI-агенты</span>
+          <span class="badge">Интеграции</span>
+          <span class="badge">Автоматизации</span>
+          <span class="badge">Другие согласованные инструменты</span>
+        </div>
+        <div class="alert info" style="margin-top:16px">
+          <div class="alert-text"><strong>Дизайн может быть черновым.</strong> Логика процесса — нет: её должно быть видно.</div>
+        </div>
+      </div>
+      <footer class="slide-footer"><span>Challenge · ОЦО и бэкофис</span><span class="num">07</span></footer>
+    </section>
+
+    <section class="slide">
+      <header class="slide-header">
+        <div>
+          <div class="slide-kicker">Этап 06</div>
+          <h2 class="slide-title">Demo Day: процесс, изменение и рабочий результат</h2>
+        </div>
+        <img src="logo/KRIT_Logo_Grey_Color.svg" alt="КРИТ" width="90" height="51" />
+      </header>
+      <div class="rail" aria-hidden="true"></div>
+      <div class="slide-body">
+        <p class="lede">Каждый участник или команда коротко разбирает маршрут решения.</p>
+        <div class="kpi-grid cols-5">
+          <div class="kpi"><div class="kpi-label">Процесс</div><div class="kpi-value dark">какой</div><div class="kpi-sub">Что взяли в работу</div></div>
+          <div class="kpi"><div class="kpi-label">Было</div><div class="kpi-value dark">как</div><div class="kpi-sub">Как работало раньше</div></div>
+          <div class="kpi"><div class="kpi-label">Стало</div><div class="kpi-value dark">что</div><div class="kpi-sub">Что изменилось</div></div>
+          <div class="kpi"><div class="kpi-label">MVP</div><div class="kpi-value dark">как</div><div class="kpi-sub">Как выглядит сценарий</div></div>
+          <div class="kpi"><div class="kpi-label">Эффект</div><div class="kpi-value dark">зачем</div><div class="kpi-sub">Что уже видно и что нужно для внедрения</div></div>
+        </div>
+        <div class="alert info" style="margin-top:16px">
+          <div class="alert-text">На финале отдельно смотрим на фактический эффект, работоспособность MVP, качество новой логики, возможность масштабирования и потенциал внедрения в работу компании.</div>
+        </div>
+      </div>
+      <footer class="slide-footer"><span>Challenge · ОЦО и бэкофис</span><span class="num">08</span></footer>
+    </section>
+
+    <section class="slide">
+      <header class="slide-header">
+        <div>
+          <div class="slide-kicker">Отбор смысла</div>
+          <h2 class="slide-title">Что считается хорошей идеей</h2>
+        </div>
+        <img src="logo/KRIT_Logo_Grey_Color.svg" alt="КРИТ" width="90" height="51" />
+      </header>
+      <div class="rail" aria-hidden="true"></div>
+      <div class="slide-body">
+        <div class="grid-2">
+          <article class="card">
+            <span class="badge success">Хороший заход</span>
+            <ul class="list" style="margin-top:12px">
+              <li>Есть повторяющийся процесс, который вы знаете не понаслышке.</li>
+              <li>Понятно, что болит сейчас и как измерить «до» и «после».</li>
+              <li>Предлагается новая логика, а не косметика старых шагов.</li>
+              <li>Рабочий кусок можно собрать в срок Challenge.</li>
+              <li>Решение может пригодиться шире одного частного случая.</li>
+            </ul>
+          </article>
+          <article class="card">
+            <span class="badge danger">Что не является целью</span>
+            <ul class="list no" style="margin-top:12px">
+              <li>AI ради AI и вопрос «куда сюда вставить модель».</li>
+              <li>Красивая концепция без работающего сценария.</li>
+              <li>Идеальный продукт на все исключения сразу.</li>
+              <li>Обязательный вывод MVP в PROD.</li>
+              <li>Сохранить процесс «как всегда делали», только ускорить старые этапы.</li>
+              <li>Обучение для галочки и набор сертификатов.</li>
+            </ul>
+          </article>
+        </div>
+      </div>
+      <footer class="slide-footer"><span>Challenge · ОЦО и бэкофис</span><span class="num">09</span></footer>
+    </section>
+
+    <section class="slide">
+      <header class="slide-header">
+        <div>
+          <div class="slide-kicker">Как оцениваем</div>
+          <h2 class="slide-title">Пять критериев отбора идей</h2>
+        </div>
+        <img src="logo/KRIT_Logo_Grey_Color.svg" alt="КРИТ" width="90" height="51" />
+      </header>
+      <div class="rail" aria-hidden="true"></div>
+      <div class="slide-body">
+        <p class="lede">Каждый критерий — от 0 до 5. Дальше ориентировочно 5–7 проектов.</p>
+        <div class="kpi-grid cols-5">
+          <div class="kpi"><div class="kpi-label">01 · 0–5</div><div class="kpi-value dark">Эффект</div><div class="kpi-sub">Насколько заметно решение улучшает процесс</div></div>
+          <div class="kpi"><div class="kpi-label">02 · 0–5</div><div class="kpi-value dark">Удобство</div><div class="kpi-sub">Насколько новый процесс проще для людей</div></div>
+          <div class="kpi"><div class="kpi-label">03 · 0–5</div><div class="kpi-value dark">Качество</div><div class="kpi-sub">Меньше ручных ошибок, выше качество результата</div></div>
+          <div class="kpi"><div class="kpi-label">04 · 0–5</div><div class="kpi-value dark">Масштаб</div><div class="kpi-sub">Можно ли использовать шире одного кейса</div></div>
+          <div class="kpi"><div class="kpi-label">05 · 0–5</div><div class="kpi-value dark">MVP</div><div class="kpi-sub">Можно ли создать работающий сценарий в срок</div></div>
+        </div>
+      </div>
+      <footer class="slide-footer"><span>Challenge · ОЦО и бэкофис</span><span class="num">10</span></footer>
+    </section>
+
+    <section class="slide">
+      <header class="slide-header">
+        <div>
+          <div class="slide-kicker">Философия</div>
+          <h2 class="slide-title">Правила, без которых Challenge теряет смысл</h2>
+        </div>
+        <img src="logo/KRIT_Logo_Grey_Color.svg" alt="КРИТ" width="90" height="51" />
+      </header>
+      <div class="rail" aria-hidden="true"></div>
+      <div class="slide-body">
+        <div class="kpi-grid cols-6">
+          <div class="kpi"><div class="kpi-label">01</div><div class="kpi-value dark">AI — не цель</div><div class="kpi-sub">Если процесс лучше без него — это нормальное и часто более честное решение</div></div>
+          <div class="kpi"><div class="kpi-label">02</div><div class="kpi-value dark">Сначала процесс</div><div class="kpi-sub">Не «куда вставить AI», а как должен выглядеть процесс, если проектировать его сегодня</div></div>
+          <div class="kpi"><div class="kpi-label">03</div><div class="kpi-value dark">Можно ломать</div><div class="kpi-sub">Если шаг больше не создаёт ценность — его можно убрать</div></div>
+          <div class="kpi"><div class="kpi-label">04</div><div class="kpi-value dark">MVP важнее слайдов</div><div class="kpi-sub">Слайды без сценария, который можно пройти, — ещё не результат</div></div>
+          <div class="kpi"><div class="kpi-label">05</div><div class="kpi-value dark">Реальные задачи</div><div class="kpi-sub">Соревнование и способ освоить стек компании на деле, не на учебном примере</div></div>
+          <div class="kpi neutral"><div class="kpi-label">На Demo Day</div><div class="kpi-value dark">Другой взгляд</div><div class="kpi-sub">Фактический эффект, работоспособность, логика, масштаб, внедрение</div></div>
+        </div>
+      </div>
+      <footer class="slide-footer"><span>Challenge · ОЦО и бэкофис</span><span class="num">11</span></footer>
+    </section>
+
+    <section class="slide">
+      <header class="slide-header">
+        <div>
+          <div class="slide-kicker">Сроки</div>
+          <h2 class="slide-title">Календарь Challenge</h2>
+        </div>
+        <img src="logo/KRIT_Logo_Grey_Color.svg" alt="КРИТ" width="90" height="51" />
+      </header>
+      <div class="rail" aria-hidden="true"></div>
+      <div class="slide-body">
+        <div class="alert warn" style="margin-bottom:14px">
+          <div class="alert-text"><strong>Порядок этапов фиксированный.</strong> Даты не зафиксированы: их нужно вписать только в эту таблицу, не трогая остальной текст.</div>
+        </div>
+        <table class="mtable">
+          <thead>
+            <tr>
+              <th>Этап</th>
+              <th>Когда</th>
+              <th>Что происходит</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr><td>Workshop</td><td><span class="ph">дата будет объявлена</span></td><td>Практический старт Challenge</td></tr>
+            <tr><td>Входной тест</td><td><span class="ph">дата будет объявлена</span></td><td>Короткий вход в формат</td></tr>
+            <tr><td>Приём идей</td><td><span class="ph">даты будут объявлены</span></td><td>Описание процесса, новой логики и эффекта</td></tr>
+            <tr><td>Отбор</td><td><span class="ph">дата будет объявлена</span></td><td>Оценка комиссии, ориентир 5–7 проектов</td></tr>
+            <tr><td>Разработка MVP</td><td><span class="ph">даты будут объявлены</span></td><td>Сборка работающего сценария</td></tr>
+            <tr class="krit-row"><td>Demo Day</td><td><span class="ph">дата будет объявлена</span></td><td>Показ MVP и разбор внедрения</td></tr>
+          </tbody>
+        </table>
+      </div>
+      <footer class="slide-footer"><span>Challenge · ОЦО и бэкофис</span><span class="num">12</span></footer>
+    </section>
+
+    <section class="slide">
+      <header class="slide-header">
+        <div>
+          <div class="slide-kicker">FAQ</div>
+          <h2 class="slide-title">Короткие ответы</h2>
+        </div>
+        <img src="logo/KRIT_Logo_Grey_Color.svg" alt="КРИТ" width="90" height="51" />
+      </header>
+      <div class="rail" aria-hidden="true"></div>
+      <div class="slide-body">
+        <div class="faq-grid">
+          <article class="card"><h3>Можно ли участвовать командой?</h3><p>Да. На Demo Day выступает участник или команда. Точный размер команды и правила регистрации будут уточнены до старта.</p></article>
+          <article class="card"><h3>Можно ли выбрать процесс другого подразделения?</h3><p>Будет уточнено до старта. Если берёте чужой процесс, важно понимать его достаточно хорошо, чтобы честно описать текущую логику и эффект.</p></article>
+          <article class="card"><h3>Нужно ли уметь программировать?</h3><p>Нет. Challenge про то, чтобы собрать решение на доступных инструментах. Понадобится готовность разбираться, а не опыт коммерческой разработки.</p></article>
+          <article class="card"><h3>Можно ли использовать AI-агентов?</h3><p>Да. Cursor, Bitrix, AI-агенты, интеграции и другие согласованные инструменты. AI не обязателен: если процесс лучше без него, так и делайте.</p></article>
+        </div>
+      </div>
+      <footer class="slide-footer"><span>Challenge · ОЦО и бэкофис</span><span class="num">13</span></footer>
+    </section>
+
+    <section class="slide">
+      <header class="slide-header">
+        <div>
+          <div class="slide-kicker">FAQ</div>
+          <h2 class="slide-title">Продукт, процессы и что будет после</h2>
+        </div>
+        <img src="logo/KRIT_Logo_Grey_Color.svg" alt="КРИТ" width="90" height="51" />
+      </header>
+      <div class="rail" aria-hidden="true"></div>
+      <div class="slide-body">
+        <div class="faq-grid">
+          <article class="card"><h3>Нужно ли выводить MVP в PROD?</h3><p>Нет. MVP не обязан сразу жить в проде. Нужен настоящий работающий сценарий, который можно показать и протестировать.</p></article>
+          <article class="card"><h3>Если идея затрагивает несколько подразделений?</h3><p>Такую идею можно предлагать. Как согласовывать её между командами, будет уточнено до старта. На этапе идеи важно сказать, кого затрагивает процесс и где граница MVP.</p></article>
+          <article class="card"><h3>Можно ли полностью изменить существующий процесс?</h3><p>Да, это желаемый ход. Не нужно сохранять шаг только потому, что он уже есть. Часть старой цепочки может просто исчезнуть.</p></article>
+          <article class="card"><h3>Что будет с успешными MVP после Challenge?</h3><p>Автоматического вывода в PROD нет. Решение по каждому рабочему MVP принимается отдельно; порядок будет уточнён до старта.</p></article>
+        </div>
+      </div>
+      <footer class="slide-footer"><span>Challenge · ОЦО и бэкофис</span><span class="num">14</span></footer>
+    </section>
+
+    <section class="slide cover">
+      <div class="cover-geo" aria-hidden="true"></div>
+      <img class="cover-logo" src="logo/KRIT_Logo_White_Color.svg" alt="КРИТ" width="90" height="51" />
+      <div class="cover-body">
+        <span class="badge">Дальше</span>
+        <h1 class="compact">Если есть процесс, который давно хочется пересобрать — этого достаточно, чтобы прийти.</h1>
+        <p class="lede">Workshop и входной тест помогут освоить инструменты. Идея покажет, стоит ли идти в MVP. А MVP нужен только один: сценарий, который уже работает.</p>
+        <p class="muted">Даты workshop, теста, приёма идей и Demo Day появятся в календаре после утверждения.</p>
+        <p class="cover-meta">Challenge для сотрудников КРИТ</p>
+      </div>
+    </section>
+
   </div>
+
+  <div class="nav">
+    <button class="sb-btn ghost" type="button" id="prev" aria-label="Предыдущий слайд">Назад</button>
+    <button class="sb-btn primary" type="button" id="next" aria-label="Следующий слайд">Дальше</button>
+  </div>
+
+  <script>
+    const slides = [...document.querySelectorAll(".slide")];
+    let i = 0;
+    const stage = document.querySelector(".stage");
+
+    function fit() {
+      const slide = slides[i];
+      const scale = Math.min(window.innerWidth / 1280, window.innerHeight / 720);
+      slides.forEach((s) => { s.style.transform = "none"; });
+      slide.style.transform = "scale(" + scale + ")";
+    }
+
+    function show(n) {
+      i = (n + slides.length) % slides.length;
+      slides.forEach((s, idx) => s.classList.toggle("active", idx === i));
+      fit();
+    }
+
+    document.getElementById("prev").addEventListener("click", () => show(i - 1));
+    document.getElementById("next").addEventListener("click", () => show(i + 1));
+    document.addEventListener("keydown", (e) => {
+      if (e.key === "ArrowRight" || e.key === " " || e.key === "PageDown") { e.preventDefault(); show(i + 1); }
+      if (e.key === "ArrowLeft" || e.key === "PageUp") { e.preventDefault(); show(i - 1); }
+      if (e.key === "Home") { e.preventDefault(); show(0); }
+      if (e.key === "End") { e.preventDefault(); show(slides.length - 1); }
+    });
+    window.addEventListener("resize", fit);
+    window.showSlide = show;
+    show(0);
+  </script>
 </body>
 </html>

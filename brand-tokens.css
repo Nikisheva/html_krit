@@ -1,0 +1,177 @@
+/* Regular only for light/normal — do not map Bold/Semibold to 400. */
+@font-face {
+  font-family: "Uncage";
+  src: url("./fonts/UNCAGE_Regular.ttf") format("truetype");
+  font-style: normal;
+  font-weight: 300;
+  font-display: swap;
+}
+
+@font-face {
+  font-family: "Uncage";
+  src: url("./fonts/UNCAGE_Regular.ttf") format("truetype");
+  font-style: normal;
+  font-weight: 400;
+  font-display: swap;
+}
+
+@font-face {
+  font-family: "Uncage";
+  src: url("./fonts/UNCAGE_Medium.ttf") format("truetype");
+  font-style: normal;
+  font-weight: 500;
+  font-display: swap;
+}
+
+@font-face {
+  font-family: "Uncage";
+  src: url("./fonts/UNCAGE_Semibold.ttf") format("truetype");
+  font-style: normal;
+  font-weight: 600;
+  font-display: swap;
+}
+
+@font-face {
+  font-family: "Uncage";
+  src: url("./fonts/UNCAGE_Bold.ttf") format("truetype");
+  font-style: normal;
+  font-weight: 700;
+  font-display: swap;
+}
+
+:root {
+  /* Core brand tokens */
+  --color-white: #ffffff;
+  --color-text-dark: #1e1e1e;
+  --color-gray-mid: #777777;
+  --color-gray-light: #e0e3e8;
+  --color-primary: #389bff;
+  --color-accent-green: #16a34a;
+  --color-accent-red: #ef4444;
+  --shadow-card: 0 4px 20px rgba(30, 30, 30, 0.07);
+  --border-radius-button: 3px;
+  /* Primer uses 3px for surfaces (var(--radius)) and 2px for smaller pills/bars. */
+  --border-radius-small: 2px;
+  --font-family-heading: "Uncage", system-ui, -apple-system, "Segoe UI", sans-serif;
+  --font-family-body: "Aptos", Arial, sans-serif;
+  --font-family-mono: "SFMono-Regular", Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace;
+
+  /* Compatibility aliases for legacy variables */
+  --bg: var(--color-white);
+  --panel: var(--color-white);
+  --ink: var(--color-text-dark);
+  --muted: var(--color-gray-mid);
+  --line: var(--color-gray-light);
+  --accent: var(--color-primary);
+  --accent-soft: color-mix(in srgb, var(--color-primary) 14%, var(--color-white));
+  --graphite: var(--color-text-dark);
+  --success: var(--color-accent-green);
+  --warn: #f59e0b;
+  --danger: var(--color-accent-red);
+  --success-soft: color-mix(in srgb, var(--color-accent-green) 10%, var(--color-white));
+  --warn-soft: #fffbeb;
+  --danger-soft: color-mix(in srgb, var(--color-accent-red) 10%, var(--color-white));
+  --shadow: var(--shadow-card);
+  --radius: var(--border-radius-button);
+  --radius-sm: var(--border-radius-small);
+
+  /* Chart palettes: по умолчанию Blue Shades; Multi-colored — только для категоризации/сравнения многих сущностей */
+  --chart-palette-blue-1: #3b82f6;
+  --chart-palette-blue-2: #60a5fa;
+  --chart-palette-blue-3: #dbeafe;
+  --chart-palette-blue-4: #7086a3;
+  --chart-palette-blue-5: #d1d5db;
+  --chart-palette-blue-6: #f3f4f6;
+  --chart-palette-blue-7: #2563eb;
+  --chart-palette-blue-8: #93c5fd;
+  --chart-palette-blue-9: #94a3b8;
+  --chart-palette-blue-10: #e5e7eb;
+
+  --chart-palette-multi-1: #e85d5d;
+  --chart-palette-multi-2: #f59e0b;
+  --chart-palette-multi-3: #facc15;
+  --chart-palette-multi-4: #6ee7b7;
+  --chart-palette-multi-5: #e0f2fe;
+  --chart-palette-multi-6: #38bdf8;
+  --chart-palette-multi-7: #94a3b8;
+  --chart-palette-multi-8: #a78bfa;
+  --chart-palette-multi-9: #fbcfe8;
+  --chart-palette-multi-10: #db7093;
+}
+
+/* Base styles */
+html,
+body {
+  background: var(--bg);
+  color: var(--ink);
+  font-family: var(--font-family-body);
+  font-weight: 400;
+}
+
+/* UA bold defaults can override our tokens; light Uncage for headings. */
+h1, h2, h3, h4, h5, h6 {
+  font-weight: 300;
+  font-family: var(--font-family-heading);
+}
+
+strong, b {
+  font-weight: 400;
+}
+
+/* Component primitives */
+.panel {
+  background: var(--panel);
+  border: 1px solid var(--line);
+  box-shadow: var(--shadow);
+}
+
+.badge {
+  background: var(--accent-soft);
+  color: var(--accent);
+}
+
+.badge.success {
+  background: var(--success-soft);
+  color: var(--success);
+}
+
+.badge.warn {
+  background: var(--warn-soft);
+  color: var(--warn);
+}
+
+.badge.danger {
+  background: var(--danger-soft);
+  color: var(--danger);
+}
+
+/* Material Symbols Outlined — inline icon alignment */
+.material-symbols-outlined {
+  font-family: "Material Symbols Outlined", sans-serif;
+  font-weight: normal;
+  font-style: normal;
+  font-size: 1.15em;
+  line-height: 1;
+  letter-spacing: normal;
+  text-transform: none;
+  display: inline-block;
+  white-space: nowrap;
+  word-wrap: normal;
+  direction: ltr;
+  -webkit-font-feature-settings: "liga";
+  -webkit-font-smoothing: antialiased;
+  vertical-align: -0.2em;
+  color: inherit;
+  font-variation-settings: "FILL" 0, "wght" 400, "GRAD" 0, "opsz" 20;
+  user-select: none;
+}
+
+.material-symbols-outlined.mi-sm {
+  font-size: 14px;
+  vertical-align: -0.18em;
+}
+
+.material-symbols-outlined.mi-xs {
+  font-size: 12px;
+  vertical-align: -0.12em;
+}
