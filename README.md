@@ -4,7 +4,7 @@
 
 ## Что здесь
 
-- [`index.html`](index.html) — HTML-презентация в фирменном стиле КРИТ (16:9, 15 слайдов).
+- [`index.html`](index.html) — HTML-презентация в фирменном стиле КРИТ (16:9, 7 слайдов).
 - Источник стилей: `brand-tokens.css`, `storybook-static/krit-report-components.css`, шрифт Uncage, логотипы Grey/White.
 - Для рассылки используйте самодостаточный файл [`dist/index-client.html`](dist/index-client.html).
 
