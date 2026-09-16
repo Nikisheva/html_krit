@@ -6,7 +6,7 @@
 
 - [`index.html`](index.html) — HTML-презентация в фирменном стиле КРИТ (16:9, 7 слайдов).
 - Источник стилей: `brand-tokens.css`, `storybook-static/krit-report-components.css`, шрифт Uncage, логотипы Grey/White.
-- Для рассылки используйте самодостаточный файл [`dist/index-client.html`](dist/index-client.html).
+- Для рассылки: публичная ссылка [https://nikisheva.github.io/html_krit/](https://nikisheva.github.io/html_krit/) — открывается у любого без доступа к файлам. Самодостаточная копия также лежит в [`dist/index-client.html`](dist/index-client.html).
 
 ## Как смотреть
 
