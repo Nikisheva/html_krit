@@ -12,7 +12,6 @@
     https://commons.wikimedia.org/wiki/File:Antique_World_Map_of_Continents_and_Oceans_1700.png
     assets/road.jpg — Dietmar Rabich, «Schönwald im Schwarzwald, Escheckstraße», 2025. CC BY-SA 4.0.
     https://commons.wikimedia.org/wiki/File:Sch%C3%B6nwald_im_Schwarzwald,_Escheckstra%C3%9Fe_--_2025_--_0150.jpg
-    TODO фото: assets/elena-work.jpg и assets/elena-sport.jpg
   -->
   <style>
     html, body {
@@ -104,34 +103,28 @@
     .slide-footer .num { color: var(--muted); }
     .num-label { font-size: 13px; color: var(--accent); margin-bottom: 6px; }
 
-    .me {
-      display: grid; grid-template-columns: 1fr 300px; gap: 36px; align-items: center;
+    .path { display: grid; gap: 0; }
+    .path div {
+      display: grid; grid-template-columns: 140px 1fr; gap: 20px; align-items: baseline;
+      padding: 16px 0 16px 18px; border-left: 2px solid var(--accent);
     }
-    .me p { margin: 0 0 14px; font-size: 20px; line-height: 1.4; }
+    .path span {
+      font-family: var(--font-family-heading); font-weight: 300; font-size: 26px; color: var(--accent);
+    }
+    .path p { margin: 0; font-size: 22px; line-height: 1.35; }
     .accent-line {
-      margin: 8px 0 0;
+      margin: 28px 0 0;
       font-family: var(--font-family-heading);
       font-weight: 300;
-      font-size: 28px;
+      font-size: 30px;
       line-height: 1.2;
     }
-    .portrait {
-      margin: 0; height: 420px;
-      border: 1px solid var(--line);
-      background: var(--accent-soft);
-      display: grid; place-items: center;
-      position: relative;
+    .lanes {
+      display: grid; grid-template-columns: 1fr 48px 1fr 48px 1fr; gap: 8px; align-items: center;
+      margin-bottom: 28px;
     }
-    .portrait img { width: 100%; height: 100%; object-fit: cover; display: block; position: relative; z-index: 1; }
-    .portrait:has(img) .portrait-mark,
-    .portrait:has(img) figcaption { display: none; }
-    .portrait-mark {
-      font-family: var(--font-family-heading);
-      font-weight: 300; font-size: 42px; color: var(--accent);
-    }
-    .portrait figcaption {
-      position: absolute; left: 12px; bottom: 10px;
-      font-size: 12px; color: var(--muted);
+    .lanes div:not(.bend) {
+      font-family: var(--font-family-heading); font-weight: 300; font-size: 36px; line-height: 1.1;
     }
 
     .markers { list-style: none; margin: 0; padding: 8px 0 8px 8px; display: grid; gap: 26px; }
@@ -241,8 +234,7 @@
     .unlearn p { margin: 0; font-size: 22px; }
     .unlearn .hit { margin-top: 8px; }
 
-    .sport { display: grid; grid-template-columns: 340px 1fr; gap: 36px; align-items: center; }
-    .sport p { margin: 0 0 12px; font-size: 22px; line-height: 1.4; }
+    .plain p { margin: 0 0 12px; font-size: 22px; line-height: 1.4; }
 
     .cycle { list-style: none; margin: 22px 0 0; padding: 0; display: grid; grid-template-columns: repeat(5, 1fr); gap: 12px; }
     .cycle li { border-top: 2px solid var(--accent); padding-top: 10px; font-size: 16px; line-height: 1.3; }
@@ -319,19 +311,12 @@
       </header>
       <div class="rail" aria-hidden="true"></div>
       <div class="slide-body">
-        <div class="me">
-          <div>
-            <p>20 лет я строила свою экспертность в HR. Потом стала операционным директором.</p>
-            <p>А сейчас учусь разбираться в AI-агентах, Cursor, архитектуре процессов и цифровых сотрудниках — и регулярно снова оказываюсь новичком.</p>
-            <p class="accent-line">Мой опыт никуда не исчез. Но его уже недостаточно просто повторять.</p>
-          </div>
-          <!-- TODO: положите рабочее фото в assets/elena-work.jpg и уберите класс is-empty -->
-          <figure class="portrait is-empty">
-            <img src="assets/elena-work.jpg" alt="Елена Никишева" onerror="this.remove()" />
-            <span class="portrait-mark">ЕН</span>
-            <figcaption>Сюда — рабочее фото</figcaption>
-          </figure>
+        <div class="path">
+          <div><span>20 лет</span><p>Строила экспертность в HR</p></div>
+          <div><span>Потом</span><p>Стала операционным директором</p></div>
+          <div><span>Сейчас</span><p>Снова новичок: AI-агенты, Cursor, архитектура процессов, цифровые сотрудники</p></div>
         </div>
+        <p class="accent-line">Мой опыт никуда не исчез. Но его уже недостаточно просто повторять.</p>
       </div>
       <footer class="slide-footer"><span>Когда старая карта мира перестаёт работать</span><span class="num">02</span></footer>
     </section>
@@ -552,7 +537,7 @@
       <footer class="slide-footer"><span>Когда старая карта мира перестаёт работать</span><span class="num">12</span></footer>
     </section>
 
-    <section class="slide" data-note="Если будет ваша фотография с велосипеда, воды или бега — она здесь вместо рамки. Смысл: новичок не значит с нуля. Биография остаётся. Здесь говорите вы, без чужой цитаты.">
+    <section class="slide" data-note="Смысл: новичок не значит с нуля. Биография остаётся. Здесь говорите вы, без чужой цитаты. Бег, велосипед и вода — про вас, если захотите сказать это вслух.">
       <header class="slide-header">
         <div>
           <div class="slide-kicker">Снова я</div>
@@ -562,18 +547,17 @@
       </header>
       <div class="rail" aria-hidden="true"></div>
       <div class="slide-body">
-        <div class="sport">
-          <!-- TODO: положите спортивное фото в assets/elena-sport.jpg -->
-          <figure class="portrait">
-            <img src="assets/elena-sport.jpg" alt="" onerror="this.remove()" />
-            <span class="portrait-mark">ЕН</span>
-            <figcaption>Сюда — фото с тренировки</figcaption>
-          </figure>
-          <div>
-            <p>В спорте это видно буквально: можно много лет уметь бегать — и снова оказаться новичком на велосипеде или в воде.</p>
-            <p>Опыт остаётся. Но он не отменяет необходимость учиться заново.</p>
-            <p class="accent-line">Эксперт будущего умеет снова становиться новичком — не выбрасывая свою биографию.</p>
-          </div>
+        <div class="lanes">
+          <div>Бег</div>
+          <div class="bend" aria-hidden="true"></div>
+          <div>Велосипед</div>
+          <div class="bend" aria-hidden="true"></div>
+          <div>Вода</div>
+        </div>
+        <div class="plain">
+          <p>Можно много лет уметь бегать — и снова оказаться новичком на велосипеде или в воде.</p>
+          <p>Опыт остаётся. Но он не отменяет необходимость учиться заново.</p>
+          <p class="accent-line">Эксперт будущего умеет снова становиться новичком — не выбрасывая свою биографию.</p>
         </div>
       </div>
       <footer class="slide-footer"><span>Когда старая карта мира перестаёт работать</span><span class="num">13</span></footer>

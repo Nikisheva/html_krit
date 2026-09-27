@@ -5,7 +5,7 @@ AI Challenge для сотрудников ОЦО и бэкофиса: знак�
 ## Что здесь
 
 - [`index.html`](index.html) — HTML-презентация AI Challenge в фирменном стиле КРИТ (16:9, 6 слайдов).
-- [`webinar.html`](webinar.html) — вебинар «Когда старая карта мира перестаёт работать» (16:9, 17 слайдов). Клавиша `N` показывает заметки спикера. Рабочее и спортивное фото спикера подключаются файлами `assets/elena-work.jpg` и `assets/elena-sport.jpg`.
+- [`webinar.html`](webinar.html) — вебинар «Когда старая карта мира перестаёт работать» (16:9, 17 слайдов). Клавиша `N` показывает заметки спикера.
 - Источник стилей: `brand-tokens.css`, `storybook-static/krit-report-components.css`, шрифт Uncage, логотипы Grey/White.
 
 ## Как смотреть
