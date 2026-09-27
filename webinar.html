@@ -12,6 +12,8 @@
     https://commons.wikimedia.org/wiki/File:Antique_World_Map_of_Continents_and_Oceans_1700.png
     assets/road.jpg — Dietmar Rabich, «Schönwald im Schwarzwald, Escheckstraße», 2025. CC BY-SA 4.0.
     https://commons.wikimedia.org/wiki/File:Sch%C3%B6nwald_im_Schwarzwald,_Escheckstra%C3%9Fe_--_2025_--_0150.jpg
+    assets/vertik.svg — фирменный маскот КРИТ из стикера 1.svg (корпус, глаза, ноги).
+    Подпись стикера снята, чтобы персонаж стоял в вёрстке. Геометрия не перерисовывалась.
   -->
   <style>
     html, body {
@@ -257,13 +259,65 @@
 
     .source { margin: 8px 0 0; font-size: 13px; line-height: 1.35; color: var(--muted); }
 
+    .vertik { display: block; height: auto; }
+    .vertik-cover {
+      position: absolute; left: 292px; bottom: 112px; width: 96px; z-index: 2;
+    }
+    .vertik-final { width: 58px; flex: 0 0 auto; margin: 0 0 -18px -14px; }
+    .slide.final .route-row { display: flex; align-items: flex-end; gap: 6px; }
+    .slide.final .route { width: 560px; }
+
+    .bounds .slide-title { max-width: 15em; }
+    .bounds-lead {
+      margin: 0;
+      font-family: var(--font-family-heading); font-weight: 300;
+      font-size: 30px; line-height: 1.15;
+    }
+    .grounds { position: relative; height: 250px; margin-top: 6px; }
+    .grounds-svg { width: 100%; height: 214px; display: block; }
+    .grounds-labels { position: absolute; inset: 0 0 36px; }
+    .grounds-labels div { position: absolute; }
+    .grounds-labels b {
+      display: block; font-family: var(--font-family-heading); font-weight: 300;
+      font-size: 26px; line-height: 1.1; margin-bottom: 6px;
+    }
+    .grounds-labels span { display: block; font-size: 15px; line-height: 1.3; max-width: 13em; }
+    .g-hr { left: 2%; top: 26%; }
+    .g-an { left: 32%; top: 14%; }
+    .g-dev { left: 62%; top: 12%; color: var(--color-white); }
+    .g-dev span { max-width: 16em; }
+    .vertik-cross { position: absolute; left: 39%; bottom: 56px; width: 92px; z-index: 2; }
+    .bounds-close {
+      display: grid; grid-template-columns: 1.45fr 0.7fr; gap: 28px; align-items: end;
+    }
+    .bounds-close .hit { margin: 0; font-size: 26px; }
+    .bounds-small { margin: 8px 0 0; font-size: 16px; line-height: 1.35; }
+    .datapoint { margin: 0; font-size: 15px; line-height: 1.3; }
+    .datapoint b {
+      font-family: var(--font-family-heading); font-weight: 300;
+      font-size: 28px; color: var(--accent); letter-spacing: -0.02em;
+      margin-right: 8px;
+    }
+
+    .fork { position: relative; margin-top: 64px; }
+    .vertik-fork { position: absolute; left: 29%; top: -76px; width: 74px; z-index: 2; }
+    .fork article:last-child {
+      background: var(--accent); color: var(--color-white);
+      clip-path: polygon(12% 0, 100% 0, 100% 100%, 0 100%);
+      padding: 20px 16px 22px 34px; border-top: 0;
+    }
+
+    .redraw { position: relative; margin-top: 28px; display: flex; align-items: flex-end; }
+    .redraw .route { width: min(620px, 70%); margin: 0 0 14px; }
+    .vertik-draw { width: 72px; margin: 0; }
+
     .nav { position: fixed; right: 18px; bottom: 18px; display: flex; gap: 8px; z-index: 20; }
     body.with-notes .nav { bottom: 164px; }
     .sb-btn { cursor: pointer; }
     .speaker {
       display: none; position: fixed; left: 0; right: 0; bottom: 0; height: 148px; z-index: 15;
       background: var(--bg); border-top: 2px solid var(--accent);
-      padding: 16px 56px 18px; box-sizing: border-box;
+      padding: 16px 56px 18px; box-sizing: border-box; overflow: auto;
     }
     body.with-notes .speaker { display: block; }
     .speaker p { margin: 0; font-size: 16px; line-height: 1.45; max-width: 980px; }
@@ -292,6 +346,7 @@
         </g>
       </svg>
       <img class="cover-logo" src="logo/KRIT_Logo_White_Color.svg" alt="КРИТ" width="90" height="51" />
+      <img class="vertik vertik-cover" src="assets/vertik.svg" alt="" />
       <div class="cover-body">
         <span class="badge">Вебинар для всей компании</span>
         <h1>Когда старая карта мира перестаёт работать</h1>
@@ -340,11 +395,11 @@
       <footer class="slide-footer"><span>Когда старая карта мира перестаёт работать</span><span class="num">03</span></footer>
     </section>
 
-    <section class="slide" data-note="Не говорите, что AI заменяет эти функции. Черновик, поиск и первая сборка уже сдвигаются везде: в разработке, продажах, финансах, HR и у руководителей. Я вижу это в нашей работе, не в статье.">
+    <section class="slide" data-note="Не говорите, что профессии исчезают. AI меняет состав работы: черновик, поиск и первая сборка уже сдвигаются в разработке, продажах, финансах, HR и у руководителей. Я вижу это в нашей работе, не в статье.">
       <header class="slide-header">
         <div>
           <div class="slide-kicker">Не только код</div>
-          <h2 class="slide-title">Это уже касается всех. Не функции целиком</h2>
+          <h2 class="slide-title">AI не забирает профессию целиком. Он меняет то, из чего она состоит.</h2>
         </div>
         <img src="logo/KRIT_Logo_Grey_Color.svg" alt="КРИТ" width="90" height="51" />
       </header>
@@ -459,6 +514,7 @@
       <div class="rail" aria-hidden="true"></div>
       <div class="slide-body">
         <div class="fork">
+          <img class="vertik vertik-fork" src="assets/vertik.svg" alt="" />
           <article>
             <p class="big">Человек</p>
             <p>Это всё ещё должен делать человек?</p>
@@ -476,7 +532,7 @@
       <footer class="slide-footer"><span>Когда старая карта мира перестаёт работать</span><span class="num">09</span></footer>
     </section>
 
-    <section class="slide" data-note="Здесь ваша сцена, от первого лица. Вопрос у меня сменился: не «как автоматизировать», а «зачем процесс устроен так». Подставьте один живой контур КРИТ — договоры, подрядчики, сорсер или другой, который уже идёт. Без цифр, которых нет. TODO на слайде для вас, залу его можно не зачитывать.">
+    <section class="slide" data-note="Здесь ваша сцена, от первого лица. Вопрос у меня сменился: не «как автоматизировать», а «зачем процесс устроен так». Живой контур КРИТ на слайд не выдумывать. Если к вебинару будет один реальный пример без чувствительных данных — сказать его вслух, не читая со слайда.">
       <header class="slide-header">
         <div>
           <div class="slide-kicker">Из моей работы</div>
@@ -490,28 +546,46 @@
           <p><em>Раньше я спрашивала</em>как автоматизировать этот процесс?</p>
           <p><em>Теперь всё чаще спрашиваю</em>а зачем он вообще устроен именно так?</p>
         </div>
-        <!-- TODO: один реальный процесс КРИТ и, если можно, скриншот без чувствительных данных. Не выдумывать факты. -->
-        <p class="todo">Пример процесса — добавить перед вебинаром. Один контур, который уже идёт. Без цифр и без скриншота, пока их нет.</p>
+        <!-- TODO: один реальный процесс КРИТ и, если можно, скриншот без чувствительных данных. Не выдумывать факты. На слайд не выводить, пока примера нет. -->
       </div>
       <footer class="slide-footer"><span>Когда старая карта мира перестаёт работать</span><span class="num">10</span></footer>
     </section>
 
-    <section class="slide" data-note="Когда черновик дешёвый, дорожает глаз. Это про разработчика, юриста, рекрутера — и про меня тоже. Экспертность не исчезла, она сдвинулась.">
+    <section class="slide bounds" data-note="Профессии не исчезают — их границы становятся проницаемыми. AI снижает стоимость перехода в соседнюю область: раньше, чтобы пройти дальше по цепочке, часто нужен был другой человек. Сейчас можно самому довести работу дальше и сильнее влиять на результат. Это не «теперь делай работу пятерых». Глубина в своей профессии остаётся, соседние области просто ближе. 43,5% — доля occupation-specific сообщений ChatGPT у пользователей в США, которые относятся к задачам другой профессии. OpenAI Economic Research, Work at the Frontier, июль 2026. Это не статистика всего рынка труда. Для себя, не в зал: в той же выборке у HR crossover 69% occupation-specific сообщений. Microsoft Work Trend Index 2026: 58% опрошенных AI users говорят, что создают работу, которую не могли делать год назад. Мост дальше: сильный специалист снова чувствует себя новичком, потому что заходит на территорию, где раньше работал другой человек.">
       <header class="slide-header">
         <div>
-          <div class="slide-kicker">Сдвиг</div>
-          <h2 class="slide-title">Экспертность не исчезла. Она сдвинулась</h2>
+          <div class="slide-kicker">Границы</div>
+          <h2 class="slide-title">Границы профессий становятся проницаемыми</h2>
         </div>
         <img src="logo/KRIT_Logo_Grey_Color.svg" alt="КРИТ" width="90" height="51" />
       </header>
       <div class="rail" aria-hidden="true"></div>
       <div class="slide-body">
-        <ul class="shifts">
-          <li><b>Разработчик</b><span>не только написать — спроектировать, проверить, увидеть ограничение</span></li>
-          <li><b>Юрист</b><span>не только найти формулировку — увидеть риск, исключение, ответственность</span></li>
-          <li><b>Рекрутер</b><span>не только найти кандидата — понять качество, контекст и пригодность</span></li>
-        </ul>
-        <p class="hit">Когда черновик становится дешёвым, дорожает способность понять, хороший ли это черновик.</p>
+        <p class="bounds-lead">Не исчезают. Но рядом стало гораздо ближе.</p>
+        <div class="grounds">
+          <svg class="grounds-svg" viewBox="0 0 1100 230" preserveAspectRatio="none" aria-hidden="true">
+            <polygon points="0,46 300,46 368,196 0,196" fill="var(--accent-soft)"/>
+            <polygon points="248,28 690,28 748,196 196,196" fill="none" stroke="var(--ink)" stroke-width="1.5"/>
+            <polygon points="560,12 1100,12 1100,196 492,196" fill="var(--accent)"/>
+            <path d="M8 196 H1092" fill="none" stroke="var(--ink)" stroke-width="1.5"/>
+          </svg>
+          <div class="grounds-labels">
+            <div class="g-hr"><b>HR</b><span>процесс → прототип автоматизации</span></div>
+            <div class="g-an"><b>Аналитика</b><span>требования → end-to-end<br>прототип / web-coding</span></div>
+            <div class="g-dev"><b>Разработка</b><span>код → контекст / архитектура / результат</span></div>
+          </div>
+          <img class="vertik vertik-cross" src="assets/vertik.svg" alt="" />
+        </div>
+        <div class="bounds-close">
+          <div>
+            <p class="hit">Роль шире ≠ эксперт во всём.</p>
+            <p class="bounds-small">Глубина остаётся. Порог входа в соседние области становится ниже.</p>
+          </div>
+          <div>
+            <p class="datapoint"><b>43,5%</b> за пределами традиционной границы профессии</p>
+            <p class="source">OpenAI Economic Research, Work at the Frontier, 2026.</p>
+          </div>
+        </div>
       </div>
       <footer class="slide-footer"><span>Когда старая карта мира перестаёт работать</span><span class="num">11</span></footer>
     </section>
@@ -581,11 +655,15 @@
           <li><b>04</b>Попробовать новую</li>
           <li><b>05</b>Посмотреть, что вышло, и обновить карту</li>
         </ol>
+        <div class="redraw" aria-hidden="true">
+          <div class="route"></div>
+          <img class="vertik vertik-draw" src="assets/vertik.svg" alt="" />
+        </div>
       </div>
       <footer class="slide-footer"><span>Когда старая карта мира перестаёт работать</span><span class="num">14</span></footer>
     </section>
 
-    <section class="slide" data-note="Риск — остаться зрителем своей работы. У нас можно пробовать собирать её здесь, не дожидаясь, пока её соберут снаружи. Без «мы впереди всех».">
+    <section class="slide" data-note="Риск — остаться зрителем своей работы. Говорите спокойно: есть редкая возможность не ждать, пока новая работа станет стандартом, и пробовать собирать её сейчас. Без «мы впереди всех».">
       <header class="slide-header">
         <div>
           <div class="slide-kicker">Участие</div>
@@ -597,7 +675,8 @@
       <div class="slide-body">
         <div class="join">
           <div>
-            <p class="after" style="margin-top:0">Мы можем не только читать о новой работе. Мы можем пробовать её собирать.</p>
+            <p class="after" style="margin-top:0">У нас есть редкая возможность не ждать, пока новая работа станет стандартом.</p>
+            <p class="accent-line">Мы можем пробовать собирать её сейчас.</p>
           </div>
           <svg class="sketch" viewBox="0 0 420 280" aria-hidden="true">
             <g fill="none" stroke="var(--line)" stroke-width="1.5">
@@ -631,7 +710,10 @@
         <p class="final-line">Мы живём в очень интересное время.</p>
         <div class="routes" aria-hidden="true">
           <div class="route old"></div>
-          <div class="route"></div>
+          <div class="route-row">
+            <div class="route"></div>
+            <img class="vertik vertik-final" src="assets/vertik.svg" alt="" />
+          </div>
         </div>
         <p class="cover-meta">Елена Никишева · КРИТ</p>
       </div>
