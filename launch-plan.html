@@ -1,0 +1,149 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>План запуска AI Challenge</title>
+  <link rel="stylesheet" href="brand-tokens.css" />
+  <link rel="stylesheet" href="storybook-static/krit-report-components.css" />
+  <style>
+    body {
+      margin: 0;
+      background: var(--bg);
+      color: var(--ink);
+      font-family: var(--font-family-body);
+      line-height: 1.5;
+    }
+    .wrap { width: min(920px, calc(100% - 40px)); margin: 0 auto; padding: 48px 0 72px; }
+    h1, h2, h3 { font-family: var(--font-family-heading); font-weight: 300; }
+    h1 { font-size: 36px; line-height: 1.15; margin: 12px 0 16px; }
+    h2 { font-size: 24px; margin: 36px 0 12px; }
+    h3 { font-size: 18px; margin: 24px 0 8px; }
+    .kicker { color: var(--accent); font-size: 13px; }
+    .lede { font-size: 18px; max-width: 40rem; }
+    .muted { color: var(--muted); }
+    .stats { display: grid; grid-template-columns: repeat(4, 1fr); gap: 10px; margin: 24px 0; }
+    .kpi-value { font-size: 28px; }
+    table.mtable { width: 100%; margin: 12px 0 8px; }
+    .list { margin: 0; padding-left: 18px; }
+    .list li { margin: 6px 0; }
+    footer { margin-top: 48px; font-size: 13px; color: var(--muted); }
+    @media (max-width: 700px) { .stats { grid-template-columns: 1fr 1fr; } }
+  </style>
+</head>
+<body>
+  <div class="wrap">
+    <div class="kicker">Для организаторов · ОЦО и бэкофис</div>
+    <h1>Оценка и план запуска AI Challenge</h1>
+    <p class="lede">Концепция готова. К массовому анонсу челлендж ещё не готов: нет дат, жюри, доступов и сценария воркшопа.</p>
+    <p class="muted">Оценка по текущим слайдам и открытым правилам. 28 сентября 2026.</p>
+
+    <div class="stats">
+      <div class="kpi"><div class="kpi-label">Готовность к анонсу</div><div class="kpi-value dark">35%</div></div>
+      <div class="kpi"><div class="kpi-label">Блокеры</div><div class="kpi-value dark">4</div></div>
+      <div class="kpi"><div class="kpi-label">Открытые правила</div><div class="kpi-value dark">7</div></div>
+      <div class="kpi"><div class="kpi-label">Подготовка</div><div class="kpi-value dark">3 нед.</div></div>
+    </div>
+
+    <div class="alert warning">
+      <div class="alert-text">Слайды можно показывать узкому кругу. Рассылку сотрудникам — только после дат, доступов, жюри и сценария воркшопа.</div>
+    </div>
+
+    <h2>Что уже есть</h2>
+    <ul class="list">
+      <li>Маршрут: воркшоп → практика → идея → отбор → MVP → демодень.</li>
+      <li>Критерии 0–5: эффект, удобство, качество, потенциал применения, реализуемость MVP.</li>
+      <li>Позиция: не курс и не «AI ради AI», нужен работающий прототип.</li>
+      <li>PROD не обязателен. Для КРИТ MVP только на Bitrix Dev и Work IT Dev.</li>
+      <li>Есть публичная страница для сотрудников.</li>
+    </ul>
+
+    <h2>Готовность по контурам</h2>
+    <table class="mtable">
+      <thead><tr><th>Контур</th><th>Балл</th><th>Статус</th><th>Пробел</th></tr></thead>
+      <tbody>
+        <tr><td>Концепция и правила игры</td><td>80</td><td>Готово</td><td>Маршрут и критерии есть</td></tr>
+        <tr><td>Страница для сотрудников</td><td>75</td><td>Почти</td><td>Нет дат и закрытого FAQ</td></tr>
+        <tr><td>Календарь</td><td>10</td><td>Блокер</td><td>Все даты — плейсхолдеры</td></tr>
+        <tr><td>Организаторы и жюри</td><td>15</td><td>Блокер</td><td>Нет владельца и комиссии</td></tr>
+        <tr><td>Доступы к инструментам</td><td>25</td><td>Блокер</td><td>Cursor, Bitrix Dev, Work IT Dev</td></tr>
+        <tr><td>Воркшоп и практика</td><td>20</td><td>Не начато</td><td>Нет сценария и ведущих</td></tr>
+        <tr><td>Подача и отбор идей</td><td>35</td><td>Частично</td><td>Нет формы и квоты</td></tr>
+        <tr><td>Контур MVP</td><td>40</td><td>Частично</td><td>Среды названы, инструкция нет</td></tr>
+        <tr><td>Демодень и после</td><td>30</td><td>Частично</td><td>Нет порядка решения по внедрению</td></tr>
+      </tbody>
+    </table>
+
+    <h2>Четыре блокера</h2>
+    <ol class="list">
+      <li><strong>Календарь.</strong> Даты всех шести этапов.</li>
+      <li><strong>Владелец и жюри.</strong> Спонсор, операционный владелец, 3–5 человек комиссии, менторы на MVP.</li>
+      <li><strong>Доступы.</strong> Cursor, Bitrix Dev, Work IT Dev, правила данных — до воркшопа, не после.</li>
+      <li><strong>Воркшоп и практика.</strong> Сценарий 90–120 минут, учебная задача, критерий «практика пройдена».</li>
+    </ol>
+
+    <h2>Правила до анонса</h2>
+    <table class="mtable">
+      <thead><tr><th>Тема</th><th>Решение</th></tr></thead>
+      <tbody>
+        <tr><td>Команда</td><td>1 человек или 2–3, кто капитан</td></tr>
+        <tr><td>Процесс другой команды</td><td>Можно, если есть согласующий владелец процесса</td></tr>
+        <tr><td>Квота в MVP</td><td>5–7 проектов или все выше порога</td></tr>
+        <tr><td>Форма идеи</td><td>Процесс, «до», идея, эффект, контур MVP</td></tr>
+        <tr><td>Данные</td><td>Что нельзя тянуть в Cursor и прототип</td></tr>
+        <tr><td>Среды</td><td>Как получить Dev-доступ, PROD закрыт</td></tr>
+        <tr><td>После демодня</td><td>Кто решает по каждому MVP и в какой срок</td></tr>
+      </tbody>
+    </table>
+
+    <h2>План</h2>
+    <h3>Неделя 0. Решения</h3>
+    <p>Спонсор, владелец, жюри, календарь, закрытый FAQ.</p>
+    <h3>Недели 1–2. Контур и контент</h3>
+    <p>Лицензии Cursor, доступы в Dev-среды, правила данных, сценарий воркшопа, учебная практика, форма идеи, шаблон демо.</p>
+    <h3>Неделя 3. Анонс</h3>
+    <p>Обновить слайды, письмо в ОЦО и бэкофис, запись на воркшоп, бриф жюри.</p>
+    <h3>Цикл челленджа</h3>
+    <table class="mtable">
+      <thead><tr><th>Этап</th><th>Длительность</th><th>Выход</th></tr></thead>
+      <tbody>
+        <tr><td>Воркшоп</td><td>1 день</td><td>Формат и стек понятны</td></tr>
+        <tr><td>Практика</td><td>2–5 дней</td><td>Первый самостоятельный результат</td></tr>
+        <tr><td>Идея</td><td>1–2 недели</td><td>Форма по реальному процессу</td></tr>
+        <tr><td>Отбор</td><td>1 день + 2–3 дня оценки</td><td>Проекты в MVP</td></tr>
+        <tr><td>MVP</td><td>3–4 недели</td><td>Рабочий сценарий на Dev</td></tr>
+        <tr><td>Демодень</td><td>1 день</td><td>Показ и решение по каждому MVP</td></tr>
+      </tbody>
+    </table>
+
+    <h2>Оргкоманда</h2>
+    <table class="mtable">
+      <thead><tr><th>Роль</th><th>Зачем</th></tr></thead>
+      <tbody>
+        <tr><td>Спонсор</td><td>Прикрытие и решение после демодня</td></tr>
+        <tr><td>Владелец Challenge</td><td>Календарь, правила, отбор, демодень</td></tr>
+        <tr><td>Ведущий воркшопа</td><td>Сценарий и практика</td></tr>
+        <tr><td>ИТ / доступы</td><td>Cursor, Bitrix Dev, Work IT Dev</td></tr>
+        <tr><td>ИБ</td><td>Граница данных</td></tr>
+        <tr><td>Жюри</td><td>Отбор и финал</td></tr>
+        <tr><td>Менторы</td><td>Помощь на MVP, не делают работу за команду</td></tr>
+      </tbody>
+    </table>
+
+    <h2>Go / no-go перед рассылкой</h2>
+    <ul class="list">
+      <li>Есть даты всех шести этапов.</li>
+      <li>Есть владелец и жюри.</li>
+      <li>Cursor и Dev-среды выдаются до воркшопа.</li>
+      <li>Есть сценарий воркшопа и учебной задачи.</li>
+      <li>Закрыты правила команд и чужих процессов.</li>
+      <li>Есть форма идеи и шаблон демо.</li>
+      <li>Запрет PROD прописан в инструкции, не только в слайдах.</li>
+    </ul>
+
+    <footer>
+      Когда пункты go закрыты — обновляем календарь в <a href="index.html">слайдах</a> и отправляем ссылку сотрудникам.
+    </footer>
+  </div>
+</body>
+</html>
