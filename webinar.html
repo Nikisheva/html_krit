@@ -6,6 +6,14 @@
   <title>Когда старая карта мира перестаёт работать</title>
   <link rel="stylesheet" href="brand-tokens.css" />
   <link rel="stylesheet" href="storybook-static/krit-report-components.css" />
+  <!--
+    Изображения:
+    assets/map.jpg — Antique World Map of Continents and Oceans, 1700. Public domain.
+    https://commons.wikimedia.org/wiki/File:Antique_World_Map_of_Continents_and_Oceans_1700.png
+    assets/road.jpg — Dietmar Rabich, «Schönwald im Schwarzwald, Escheckstraße», 2025. CC BY-SA 4.0.
+    https://commons.wikimedia.org/wiki/File:Sch%C3%B6nwald_im_Schwarzwald,_Escheckstra%C3%9Fe_--_2025_--_0150.jpg
+    TODO фото: assets/elena-work.jpg и assets/elena-sport.jpg
+  -->
   <style>
     html, body {
       height: 100%;
@@ -17,11 +25,7 @@
     }
     strong, b { font-weight: 400; }
     h1, h2, h3, h4 { font-family: var(--font-family-heading); font-weight: 300; text-transform: none; }
-    .stage {
-      height: 100%;
-      display: grid;
-      place-items: center;
-    }
+    .stage { height: 100%; display: grid; place-items: center; }
     body.with-notes .stage { height: calc(100% - 148px); }
     .slide {
       width: 1280px;
@@ -34,332 +38,250 @@
       box-shadow: var(--shadow-card);
     }
     .slide.active { display: flex; }
-    .slide.cover { background: var(--bg); }
     .cover-geo {
-      position: absolute;
-      right: 0;
-      top: 0;
-      width: 34%;
-      height: 100%;
+      position: absolute; right: 0; top: 0; width: 34%; height: 100%;
       background: var(--accent);
       clip-path: polygon(38% 0, 100% 0, 100% 100%, 0 100%);
       pointer-events: none;
     }
-    .cover-logo {
-      position: absolute;
-      top: 28px;
-      right: 36px;
-      z-index: 2;
+    .cover-logo { position: absolute; top: 28px; right: 36px; z-index: 2; }
+    .cover-grid {
+      position: absolute; left: 48px; bottom: 36px; width: 460px; height: 220px;
+      opacity: 0.28; pointer-events: none;
     }
     .cover-body {
-      position: relative;
-      z-index: 1;
-      padding: 72px 64px 56px;
+      position: relative; z-index: 1;
+      padding: 64px 64px 48px;
       max-width: 860px;
-      display: flex;
-      flex-direction: column;
-      align-items: flex-start;
-      height: 100%;
-      box-sizing: border-box;
+      display: flex; flex-direction: column; align-items: flex-start;
+      height: 100%; box-sizing: border-box;
     }
     .cover-body .badge { align-self: flex-start; }
     .cover-body h1 {
-      font-size: 46px;
-      line-height: 1.08;
-      letter-spacing: -0.02em;
-      margin: 18px 0 20px;
-      color: var(--ink);
-      max-width: 12em;
+      font-size: 44px; line-height: 1.06; letter-spacing: -0.02em;
+      margin: 16px 0 14px; color: var(--ink); max-width: 13em;
     }
-    .cover-body .lede {
-      font-size: 18px;
-      line-height: 1.45;
-      color: var(--ink);
-      max-width: 34rem;
-      margin: 0;
-    }
+    .cover-body .lede { font-size: 22px; line-height: 1.35; color: var(--ink); margin: 0; max-width: 22em; }
     .cover-meta {
-      margin-top: auto;
-      font-size: 15px;
-      color: var(--muted);
+      margin-top: auto; font-size: 15px; color: var(--muted);
+      position: relative; z-index: 2; background: var(--bg); padding-top: 8px;
     }
-    .route {
-      margin-top: 28px;
-      width: 180px;
-      height: 2px;
-      background: var(--accent);
-      position: relative;
-    }
-    .slide.final .route {
-      width: 980px;
+    .cover-grid { bottom: 64px; height: 180px; }
+    .route { margin-top: 22px; width: 168px; height: 2px; background: var(--accent); }
+    .slide.final .routes { margin-top: 18px; display: grid; gap: 8px; }
+    .slide.final .route.old { width: 120px; background: var(--line); margin: 0; }
+    .slide.final .route { width: 920px; margin: 0; }
+    .slide.final h1 { font-size: 34px; max-width: 16em; }
+    .final-line {
+      margin: 22px 0 0;
+      font-family: var(--font-family-heading);
+      font-weight: 300;
+      font-size: 36px;
+      line-height: 1.15;
+      max-width: 14em;
     }
 
     .slide-header {
-      display: grid;
-      grid-template-columns: 1fr auto;
-      align-items: start;
-      padding: 22px 56px 0 56px;
-      gap: 16px;
+      display: grid; grid-template-columns: 1fr auto; align-items: start;
+      padding: 22px 56px 0; gap: 16px;
     }
-    .slide-kicker {
-      font-size: 13px;
-      color: var(--accent);
-      font-weight: 400;
-      margin-bottom: 4px;
-    }
-    .slide-title {
-      font-size: 30px;
-      line-height: 1.15;
-      color: var(--ink);
-      margin: 0;
-      max-width: 980px;
-    }
+    .slide-kicker { font-size: 13px; color: var(--accent); margin-bottom: 4px; }
+    .slide-title { font-size: 30px; line-height: 1.15; color: var(--ink); margin: 0; max-width: 980px; }
     .slide-header img { margin-top: 4px; }
     .rail {
-      position: absolute;
-      left: 22px;
-      top: 92px;
-      bottom: 48px;
-      width: 2px;
-      background: var(--accent);
+      position: absolute; left: 22px; top: 96px; bottom: 48px; width: 2px; background: var(--accent);
     }
     .slide-body {
-      flex: 1;
-      padding: 22px 56px 12px 56px;
-      min-height: 0;
-      overflow: hidden;
-      display: flex;
-      flex-direction: column;
-      justify-content: center;
+      flex: 1; min-height: 0; overflow: hidden;
+      padding: 20px 56px 8px;
+      display: flex; flex-direction: column; justify-content: center;
     }
+    .slide-body.fill { justify-content: stretch; padding-bottom: 16px; }
     .slide-footer {
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-      padding: 0 56px 16px;
-      font-size: 12px;
-      color: var(--accent);
+      display: flex; justify-content: space-between; align-items: center;
+      padding: 0 56px 16px; font-size: 12px; color: var(--accent);
     }
     .slide-footer .num { color: var(--muted); }
+    .num-label { font-size: 13px; color: var(--accent); margin-bottom: 6px; }
 
-    .slide .card { height: auto; }
-    .slide .card p { font-size: 16px; line-height: 1.4; color: var(--ink); margin: 8px 0 0; }
-    .slide .kpi { min-height: 0; height: auto; }
-    .slide .kpi-sub { font-size: 15px; color: var(--ink); margin-top: 8px; line-height: 1.35; }
-    .num-label {
-      font-size: 13px;
-      color: var(--accent);
-      margin-bottom: 6px;
+    .me {
+      display: grid; grid-template-columns: 1fr 300px; gap: 36px; align-items: center;
     }
-    .step-name {
-      font-family: var(--font-family-heading);
-      font-weight: 300;
-      font-size: 22px;
-      line-height: 1.2;
-      margin: 4px 0 0;
-      color: var(--ink);
-    }
-
-    .stack { display: grid; gap: 12px; }
-    .card.here {
-      border-color: var(--accent);
-      background: var(--accent-soft);
-    }
-    .words {
-      display: grid;
-      grid-template-columns: repeat(5, 1fr);
-      gap: 12px;
-      align-items: stretch;
-    }
-    .words .step-name { font-size: 28px; }
-    .q-list { display: grid; gap: 14px; }
-    .q-list .card-title {
-      font-size: 26px;
-      letter-spacing: 0;
-      line-height: 1.25;
-      margin: 0;
-    }
-    .split {
-      display: grid;
-      grid-template-columns: 1fr 120px 1fr;
-      gap: 12px;
-      align-items: center;
-    }
-    .split-gap {
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      text-align: center;
-      font-size: 14px;
-      line-height: 1.3;
-      color: var(--accent);
-    }
-    .pairs { display: grid; gap: 12px; }
-    .pair {
-      display: grid;
-      grid-template-columns: 1fr 28px 1fr;
-      gap: 10px;
-      align-items: stretch;
-    }
-    .pair .card { height: 100%; }
-    .pair .was p { color: var(--muted); }
-    .chev {
-      display: flex;
-      align-items: center;
-      justify-content: center;
-    }
-    .chev::before {
-      content: "";
-      width: 10px;
-      height: 10px;
-      border-right: 2px solid var(--accent);
-      border-top: 2px solid var(--accent);
-      transform: rotate(45deg);
-    }
-    .trio {
-      display: grid;
-      grid-template-columns: 1fr 28px 1fr 28px 1fr;
-      gap: 8px;
-      align-items: center;
-    }
-    .cols-2 {
-      display: grid;
-      grid-template-columns: 1fr 1fr;
-      gap: 14px;
-      align-items: stretch;
-    }
-    .cols-3 {
-      display: grid;
-      grid-template-columns: 1fr 1fr 1fr;
-      gap: 12px;
-      align-items: stretch;
-    }
-    .quad {
-      display: grid;
-      grid-template-columns: 1fr 1fr;
-      gap: 12px;
-    }
-    .source {
-      margin: 10px 0 0;
-      font-size: 13px;
-      line-height: 1.35;
-      color: var(--muted);
-    }
-    .pull {
-      margin: 0;
-      padding: 4px 0 4px 22px;
-      border-left: 3px solid var(--accent);
-      font-family: var(--font-family-heading);
-      font-weight: 300;
-      font-size: 34px;
-      line-height: 1.28;
-      color: var(--ink);
-    }
-    .pull.small { font-size: 26px; margin-top: 18px; }
-    .marks { display: grid; gap: 10px; margin-top: 14px; }
-    .marks div {
+    .me p { margin: 0 0 14px; font-size: 20px; line-height: 1.4; }
+    .accent-line {
+      margin: 8px 0 0;
       font-family: var(--font-family-heading);
       font-weight: 300;
       font-size: 28px;
-      line-height: 1.15;
+      line-height: 1.2;
     }
-    .slide.quiet .slide-body {
-      display: flex;
-      flex-direction: column;
-      justify-content: center;
-      padding: 0 80px 48px;
+    .portrait {
+      margin: 0; height: 420px;
+      border: 1px solid var(--line);
+      background: var(--accent-soft);
+      display: grid; place-items: center;
+      position: relative;
     }
-    .quiet-line {
+    .portrait img { width: 100%; height: 100%; object-fit: cover; display: block; position: relative; z-index: 1; }
+    .portrait:has(img) .portrait-mark,
+    .portrait:has(img) figcaption { display: none; }
+    .portrait-mark {
       font-family: var(--font-family-heading);
-      font-weight: 300;
-      font-size: 52px;
-      line-height: 1.12;
-      margin: 0;
-      max-width: 16em;
-      color: var(--ink);
+      font-weight: 300; font-size: 42px; color: var(--accent);
     }
-    .quiet-sub {
-      margin: 22px 0 0;
-      font-size: 20px;
-      line-height: 1.4;
-      max-width: 28em;
-      color: var(--ink);
-    }
-    .bridge {
-      display: grid;
-      grid-template-columns: 1fr 160px 1fr;
-      gap: 12px;
-      align-items: center;
-    }
-    .bridge-span {
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      position: relative;
-    }
-    .bridge-span::before {
-      content: "";
-      position: absolute;
-      left: 0;
-      right: 0;
-      top: 50%;
-      height: 2px;
-      background: var(--accent);
-    }
-    .bridge-span span {
-      position: relative;
-      background: var(--bg);
-      padding: 0 8px;
-      color: var(--accent);
-      font-size: 14px;
-    }
-    .after {
-      margin: 18px 0 0;
-      font-size: 18px;
-      line-height: 1.4;
+    .portrait figcaption {
+      position: absolute; left: 12px; bottom: 10px;
+      font-size: 12px; color: var(--muted);
     }
 
-    .nav {
-      position: fixed;
-      right: 18px;
-      bottom: 18px;
-      display: flex;
-      gap: 8px;
-      z-index: 20;
+    .markers { list-style: none; margin: 0; padding: 8px 0 8px 8px; display: grid; gap: 26px; }
+    .markers li { display: grid; grid-template-columns: 28px 1fr; gap: 18px; align-items: start; position: relative; }
+    .markers li:not(:last-child)::before {
+      content: ""; position: absolute; left: 5px; top: 16px; bottom: -28px; width: 2px; background: var(--accent);
     }
+    .pin { width: 12px; height: 12px; margin-top: 8px; background: var(--accent); border-radius: 50%; }
+    .markers p { margin: 0; font-size: 26px; line-height: 1.3; }
+
+    .roles { list-style: none; margin: 0; padding: 0; display: grid; gap: 10px; }
+    .roles li {
+      display: grid; grid-template-columns: 210px 1fr; gap: 18px; align-items: baseline;
+      padding: 12px 0; border-bottom: 1px solid var(--line);
+    }
+    .roles b {
+      font-family: var(--font-family-heading); font-weight: 300; font-size: 26px;
+    }
+    .roles span { font-size: 18px; line-height: 1.35; }
+
+    .depth { display: grid; gap: 0; width: min(760px, 100%); }
+    .depth div {
+      display: flex; justify-content: space-between; align-items: baseline; gap: 24px;
+      padding: 18px 22px; border-left: 2px solid var(--line); margin-left: 0;
+    }
+    .depth div + div { border-top: 1px solid var(--line); }
+    .depth span { font-family: var(--font-family-heading); font-weight: 300; font-size: 28px; }
+    .depth em { font-style: normal; font-size: 18px; color: var(--muted); }
+    .depth .core {
+      border-left-color: var(--accent); border-left-width: 4px;
+      background: var(--accent-soft); padding: 26px 22px;
+    }
+    .depth .core span { font-size: 34px; }
+    .depth .core em { color: var(--ink); }
+
+    .voice {
+      margin: 28px 0 0; max-width: 34em;
+      font-size: 22px; line-height: 1.4;
+    }
+    .quiet .slide-body { padding: 0 80px 40px; }
+    .quiet-line {
+      font-family: var(--font-family-heading); font-weight: 300;
+      font-size: 48px; line-height: 1.12; margin: 0; max-width: 16em;
+    }
+
+    .diptych { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; flex: 1; min-height: 0; }
+    .diptych figure { position: relative; margin: 0; overflow: hidden; min-height: 0; }
+    .diptych img { width: 100%; height: 100%; object-fit: cover; display: block; }
+    .diptych figure:first-child img { object-position: center 22%; }
+    .diptych figure:last-child img { object-position: center 62%; }
+    .diptych figcaption {
+      position: absolute; left: 0; right: 0; bottom: 0;
+      padding: 56px 18px 16px;
+      background: linear-gradient(transparent, rgba(30, 30, 30, 0.82));
+      color: var(--color-white); font-size: 16px; line-height: 1.35;
+    }
+    .diptych strong {
+      display: block; font-family: var(--font-family-heading); font-weight: 300;
+      font-size: 26px; margin-bottom: 4px;
+    }
+    .credit {
+      position: absolute; right: 10px; bottom: 8px; z-index: 2;
+      font-size: 10px; color: var(--color-white); opacity: 0.8;
+    }
+
+    .reroute { display: grid; gap: 22px; }
+    .reroute-row { display: grid; grid-template-columns: 1fr 72px 1fr; gap: 8px; align-items: center; }
+    .from { font-size: 20px; line-height: 1.3; color: var(--muted); }
+    .to { font-family: var(--font-family-heading); font-weight: 300; font-size: 26px; line-height: 1.2; }
+    .bend { height: 2px; background: var(--accent); position: relative; }
+    .bend::after {
+      content: ""; position: absolute; right: 0; top: -4px; width: 10px; height: 10px;
+      border-right: 2px solid var(--accent); border-top: 2px solid var(--accent); transform: rotate(45deg);
+    }
+
+    .fork { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 22px; }
+    .fork article { padding-top: 18px; border-top: 3px solid var(--accent); }
+    .fork .big {
+      font-family: var(--font-family-heading); font-weight: 300;
+      font-size: 40px; line-height: 1.05; margin: 0 0 12px;
+    }
+    .fork p { margin: 0; font-size: 18px; line-height: 1.35; }
+
+    .ask { margin: 0; display: grid; gap: 16px; }
+    .ask p { margin: 0; font-size: 28px; line-height: 1.25; }
+    .ask em { font-style: normal; color: var(--muted); font-size: 18px; display: block; margin-bottom: 4px; }
+    .todo {
+      margin-top: 28px; padding-top: 14px; border-top: 1px solid var(--line);
+      font-size: 15px; line-height: 1.4; color: var(--muted);
+    }
+
+    .shifts { list-style: none; margin: 0; padding: 0; display: grid; gap: 12px; }
+    .shifts li { display: grid; grid-template-columns: 180px 1fr; gap: 16px; align-items: baseline; }
+    .shifts b { font-family: var(--font-family-heading); font-weight: 300; font-size: 24px; }
+    .shifts span { font-size: 18px; }
+    .hit {
+      margin: 26px 0 0; padding: 4px 0 4px 18px; border-left: 3px solid var(--accent);
+      font-family: var(--font-family-heading); font-weight: 300;
+      font-size: 28px; line-height: 1.25;
+    }
+
+    .quote {
+      margin: 0 0 22px; padding-left: 16px; border-left: 3px solid var(--accent);
+      font-size: 20px; line-height: 1.4;
+    }
+    .unlearn { display: grid; gap: 10px; }
+    .unlearn p { margin: 0; font-size: 22px; }
+    .unlearn .hit { margin-top: 8px; }
+
+    .sport { display: grid; grid-template-columns: 340px 1fr; gap: 36px; align-items: center; }
+    .sport p { margin: 0 0 12px; font-size: 22px; line-height: 1.4; }
+
+    .cycle { list-style: none; margin: 22px 0 0; padding: 0; display: grid; grid-template-columns: repeat(5, 1fr); gap: 12px; }
+    .cycle li { border-top: 2px solid var(--accent); padding-top: 10px; font-size: 16px; line-height: 1.3; }
+    .cycle b { display: block; color: var(--accent); font-weight: 400; margin-bottom: 6px; }
+
+    .join { display: grid; grid-template-columns: 1.15fr 0.85fr; gap: 28px; align-items: center; }
+    .join .quiet-line { font-size: 36px; }
+    .join .after { margin: 18px 0 0; font-size: 20px; line-height: 1.4; }
+    .sketch { width: 100%; height: 280px; }
+
+    .photo-slide { background: var(--ink); }
+    .photo-bg { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; object-position: center 60%; }
+    .photo-card {
+      position: relative; z-index: 1;
+      margin: auto 64px 56px;
+      max-width: 720px;
+      background: var(--bg); padding: 28px 32px;
+    }
+    .photo-slide .cover-logo { background: var(--bg); padding: 8px 10px; }
+
+    .source { margin: 8px 0 0; font-size: 13px; line-height: 1.35; color: var(--muted); }
+
+    .nav { position: fixed; right: 18px; bottom: 18px; display: flex; gap: 8px; z-index: 20; }
     body.with-notes .nav { bottom: 164px; }
     .sb-btn { cursor: pointer; }
     .speaker {
-      display: none;
-      position: fixed;
-      left: 0;
-      right: 0;
-      bottom: 0;
-      height: 148px;
-      z-index: 15;
-      background: var(--bg);
-      border-top: 2px solid var(--accent);
-      padding: 16px 56px 18px;
-      box-sizing: border-box;
+      display: none; position: fixed; left: 0; right: 0; bottom: 0; height: 148px; z-index: 15;
+      background: var(--bg); border-top: 2px solid var(--accent);
+      padding: 16px 56px 18px; box-sizing: border-box;
     }
     body.with-notes .speaker { display: block; }
-    .speaker p {
-      margin: 0;
-      font-size: 16px;
-      line-height: 1.45;
-      max-width: 980px;
-    }
+    .speaker p { margin: 0; font-size: 16px; line-height: 1.45; max-width: 980px; }
 
     @media print {
       html, body { height: auto; background: var(--bg); }
-      .stage { display: block; height: auto; }
-      body.with-notes .stage { height: auto; }
+      .stage, body.with-notes .stage { display: block; height: auto; }
       .slide {
-        display: flex !important;
-        box-shadow: none;
-        page-break-after: always;
-        break-after: page;
-        transform: none !important;
+        display: flex !important; box-shadow: none;
+        page-break-after: always; break-after: page; transform: none !important;
       }
       .nav, .speaker { display: none !important; }
       @page { size: 338.67mm 190.5mm; margin: 0; }
@@ -369,19 +291,52 @@
 <body>
   <div class="stage">
 
-    <section class="slide cover active" data-note="Не про прогноз и не про инструмент к понедельнику. Про ощущение: работу делаю хорошо — и земля под ней уже другая.">
+    <section class="slide cover active" data-note="Не начинайте с технологии. Карта, по которой мы долго ходили, перестаёт совпадать с тем, что под ногами. Подзаголовок — про то, как меняться и при этом не развалиться.">
       <div class="cover-geo" aria-hidden="true"></div>
+      <svg class="cover-grid" viewBox="0 0 460 220" aria-hidden="true">
+        <g fill="none" stroke="var(--accent)" stroke-width="1">
+          <path d="M0 20 H460 M0 70 H460 M0 120 H460 M0 170 H460 M40 0 V220 M110 0 V220 M180 0 V220 M250 0 V220 M320 0 V220 M390 0 V220"/>
+          <path d="M20 180 C 80 140, 120 150, 168 110 S 250 40, 300 70" stroke-width="2"/>
+        </g>
+      </svg>
       <img class="cover-logo" src="logo/KRIT_Logo_White_Color.svg" alt="КРИТ" width="90" height="51" />
       <div class="cover-body">
         <span class="badge">Вебинар для всей компании</span>
         <h1>Когда старая карта мира перестаёт работать</h1>
-        <p class="lede">Разговор о работе, экспертности и очень интересном времени.</p>
+        <p class="lede">Как меняться, не разрушая себя</p>
         <div class="route" aria-hidden="true"></div>
-        <p class="cover-meta">Елена Никишева · операционный директор</p>
+        <p class="cover-meta">Елена Никишева · операционный директор · КРИТ</p>
       </div>
     </section>
 
-    <section class="slide" data-note="Ответы не собираем. Пауза после второго вопроса. Достаточно честно ответить себе.">
+    <section class="slide" data-note="Это про меня, не про лидеров вообще. Двадцать лет HR, потом операционка, сейчас я сама снова новичок: агенты, Cursor, архитектура процессов, цифровые сотрудники. Опыт остался. Повторять его уже мало. Пауза на последней фразе.">
+      <header class="slide-header">
+        <div>
+          <div class="slide-kicker">От первого лица</div>
+          <h2 class="slide-title">Я сама сейчас живу внутри этой темы</h2>
+        </div>
+        <img src="logo/KRIT_Logo_Grey_Color.svg" alt="КРИТ" width="90" height="51" />
+      </header>
+      <div class="rail" aria-hidden="true"></div>
+      <div class="slide-body">
+        <div class="me">
+          <div>
+            <p>20 лет я строила свою экспертность в HR. Потом стала операционным директором.</p>
+            <p>А сейчас учусь разбираться в AI-агентах, Cursor, архитектуре процессов и цифровых сотрудниках — и регулярно снова оказываюсь новичком.</p>
+            <p class="accent-line">Мой опыт никуда не исчез. Но его уже недостаточно просто повторять.</p>
+          </div>
+          <!-- TODO: положите рабочее фото в assets/elena-work.jpg и уберите класс is-empty -->
+          <figure class="portrait is-empty">
+            <img src="assets/elena-work.jpg" alt="Елена Никишева" onerror="this.remove()" />
+            <span class="portrait-mark">ЕН</span>
+            <figcaption>Сюда — рабочее фото</figcaption>
+          </figure>
+        </div>
+      </div>
+      <footer class="slide-footer"><span>Когда старая карта мира перестаёт работать</span><span class="num">02</span></footer>
+    </section>
+
+    <section class="slide" data-note="Не спрашивайте, где люди незаменимы: в начале это звучит как обвинение. Пауза после второго вопроса. Ответы не собирайте.">
       <header class="slide-header">
         <div>
           <div class="slide-kicker">Вопрос в зал</div>
@@ -391,79 +346,68 @@
       </header>
       <div class="rail" aria-hidden="true"></div>
       <div class="slide-body">
-        <div class="q-list">
-          <article class="card"><h3 class="card-title">Где вы до сих пор уверены, что незаменимы?</h3></article>
-          <article class="card"><h3 class="card-title">Что из того, чем вы гордились, стало делаться быстрее, чем вы ожидали?</h3></article>
-          <article class="card"><h3 class="card-title">Ваш опыт всё ещё карта — или уже воспоминание о местности?</h3></article>
-        </div>
-      </div>
-      <footer class="slide-footer"><span>Когда старая карта мира перестаёт работать</span><span class="num">02</span></footer>
-    </section>
-
-    <section class="slide" data-note="Если вы не строите модели, карта всё равно может не совпадать. Меняется способ собирать решение, готовить разговор, проверять качество.">
-      <header class="slide-header">
-        <div>
-          <div class="slide-kicker">Для всей компании</div>
-          <h2 class="slide-title">Это происходит не только с теми, кто пишет код</h2>
-        </div>
-        <img src="logo/KRIT_Logo_Grey_Color.svg" alt="КРИТ" width="90" height="51" />
-      </header>
-      <div class="rail" aria-hidden="true"></div>
-      <div class="slide-body">
-        <div class="words">
-          <div class="kpi"><div class="step-name">Продажи</div></div>
-          <div class="kpi"><div class="step-name">Финансы</div></div>
-          <div class="kpi"><div class="step-name">Люди</div></div>
-          <div class="kpi"><div class="step-name">Проекты</div></div>
-          <div class="kpi"><div class="step-name">Клиенты</div></div>
-        </div>
+        <ol class="markers">
+          <li><span class="pin" aria-hidden="true"></span><p>За что в своей работе вы привыкли считать себя сильным?</p></li>
+          <li><span class="pin" aria-hidden="true"></span><p>Что из этого сегодня уже делается быстрее или иначе, чем ещё год назад?</p></li>
+          <li><span class="pin" aria-hidden="true"></span><p>Где ваша старая профессиональная карта уже начинает расходиться с местностью?</p></li>
+        </ol>
       </div>
       <footer class="slide-footer"><span>Когда старая карта мира перестаёт работать</span><span class="num">03</span></footer>
     </section>
 
-    <section class="slide" data-note="Задачу можно отдать, роль переименовать. Труднее, когда под сомнением то, на чём держалось самоуважение: я тот человек, который это знает.">
+    <section class="slide" data-note="Не говорите, что AI заменяет эти функции. Черновик, поиск и первая сборка уже сдвигаются везде: в разработке, продажах, финансах, HR и у руководителей. Я вижу это в нашей работе, не в статье.">
       <header class="slide-header">
         <div>
-          <div class="slide-kicker">Идентичность</div>
-          <h2 class="slide-title">AI бьёт не по должности. По ощущению «кто я в работе»</h2>
+          <div class="slide-kicker">Не только код</div>
+          <h2 class="slide-title">Это уже касается всех. Не функции целиком</h2>
         </div>
         <img src="logo/KRIT_Logo_Grey_Color.svg" alt="КРИТ" width="90" height="51" />
       </header>
       <div class="rail" aria-hidden="true"></div>
       <div class="slide-body">
-        <div class="stack">
-          <article class="card">
-            <div class="num-label">Задача</div>
-            <p>Её можно передать.</p>
-          </article>
-          <article class="card">
-            <div class="num-label">Роль</div>
-            <p>Её можно собрать иначе.</p>
-          </article>
-          <article class="card here">
-            <div class="num-label">Кто я в работе</div>
-            <p>Сюда и попадает сомнение.</p>
-          </article>
-        </div>
+        <ul class="roles">
+          <li><b>Разработка</b><span>код, тесты, документация, анализ</span></li>
+          <li><b>Продажи</b><span>подготовка, анализ клиента, follow-up</span></li>
+          <li><b>Финансы</b><span>сверки, черновики, поиск отклонений</span></li>
+          <li><b>HR</b><span>sourcing, документы, аналитика</span></li>
+          <li><b>Управление</b><span>поиск информации, варианты решений, контроль процессов</span></li>
+        </ul>
       </div>
       <footer class="slide-footer"><span>Когда старая карта мира перестаёт работать</span><span class="num">04</span></footer>
     </section>
 
-    <section class="slide quiet" data-note="Люди злятся не на технологию. Им кажется, что мастерство обесценили за квартал. Это больно. И это не повод делать вид, что не больно.">
+    <section class="slide" data-note="Задачу можно отдать. Роль можно переименовать. Больно там, где под вопросом «кто я, если это больше не только моё ремесло».">
       <header class="slide-header">
         <div>
-          <div class="slide-kicker">Пауза</div>
+          <div class="slide-kicker">Идентичность</div>
+          <h2 class="slide-title">AI бьёт не только по должности. Он попадает в ощущение «кто я в работе»</h2>
         </div>
         <img src="logo/KRIT_Logo_Grey_Color.svg" alt="КРИТ" width="90" height="51" />
       </header>
+      <div class="rail" aria-hidden="true"></div>
       <div class="slide-body">
-        <p class="quiet-line">Страх здесь — часто защита собственной ценности.</p>
-        <p class="quiet-sub">Его не надо стыдиться. И не надо путать с выводом «мне здесь больше нечего делать».</p>
+        <div class="depth">
+          <div><span>Задача</span><em>её можно передать</em></div>
+          <div><span>Роль</span><em>её можно собрать иначе</em></div>
+          <div class="core"><span>Кто я в работе</span><em>сюда и попадает</em></div>
+        </div>
       </div>
       <footer class="slide-footer"><span>Когда старая карта мира перестаёт работать</span><span class="num">05</span></footer>
     </section>
 
-    <section class="slide" data-note="То, что привело меня сюда, не факт, что приведёт дальше. Это не приговор опыту. Это отказ тащить дальше весь багаж только потому, что он когда-то спасал.">
+    <section class="slide quiet" data-note="Прочитайте вторую часть медленно. Это не вывод, а то, что человек может услышать. Не обесценивайте страх и не говорите «просто адаптируйтесь». Страх часто защищает ценность, которую человек собирал годами.">
+      <header class="slide-header">
+        <div><div class="slide-kicker">Пауза</div></div>
+        <img src="logo/KRIT_Logo_Grey_Color.svg" alt="КРИТ" width="90" height="51" />
+      </header>
+      <div class="slide-body">
+        <p class="quiet-line">Страх здесь — часто защита собственной ценности.</p>
+        <p class="voice">Если я десять лет училась делать это хорошо, а теперь машина делает первый результат за минуту — я могу услышать не «у тебя появился инструмент», а «твоя экспертность больше ничего не стоит».</p>
+      </div>
+      <footer class="slide-footer"><span>Когда старая карта мира перестаёт работать</span><span class="num">06</span></footer>
+    </section>
+
+    <section class="slide" data-note="Почти не читайте подписи. Покажите две картинки. То, что привело меня сюда, не факт, что приведёт дальше. Это не приговор опыту.">
       <header class="slide-header">
         <div>
           <div class="slide-kicker">Схема</div>
@@ -472,285 +416,239 @@
         <img src="logo/KRIT_Logo_Grey_Color.svg" alt="КРИТ" width="90" height="51" />
       </header>
       <div class="rail" aria-hidden="true"></div>
-      <div class="slide-body">
-        <div class="split">
-          <article class="card">
-            <div class="num-label">Карта, которая работала</div>
-            <p>Знание копится.</p>
-            <p>Роль устойчива.</p>
-            <p>Чем больше знаешь, тем спокойнее.</p>
-          </article>
-          <div class="split-gap">не совпадает</div>
-          <article class="card">
-            <div class="num-label">Местность сейчас</div>
-            <p>Знание быстро устаревает.</p>
-            <p>Роль собирается заново.</p>
-            <p>Опора — обновлять картину мира.</p>
-          </article>
-        </div>
-      </div>
-      <footer class="slide-footer"><span>Когда старая карта мира перестаёт работать</span><span class="num">06</span></footer>
-    </section>
-
-    <section class="slide" data-note="Самый пустой ход — встроить AI в процесс, который и раньше был лишним. Получится быстрее делать то, что можно было не делать.">
-      <header class="slide-header">
-        <div>
-          <div class="slide-kicker">Разворот</div>
-          <h2 class="slide-title">Разворот не в инструментах. В картине мира</h2>
-        </div>
-        <img src="logo/KRIT_Logo_Grey_Color.svg" alt="КРИТ" width="90" height="51" />
-      </header>
-      <div class="rail" aria-hidden="true"></div>
-      <div class="slide-body">
-        <div class="pairs">
-          <div class="pair">
-            <article class="card was"><p>Копить знание и охранять его</p></article>
-            <div class="chev" aria-hidden="true"></div>
-            <article class="card"><p>Быстрее обновлять картину мира</p></article>
-          </div>
-          <div class="pair">
-            <article class="card was"><p>Эксперт — тот, кто не бывает новичком</p></article>
-            <div class="chev" aria-hidden="true"></div>
-            <article class="card"><p>Эксперт умеет снова им стать</p></article>
-          </div>
-          <div class="pair">
-            <article class="card was"><p>Ускорить старый шаг</p></article>
-            <div class="chev" aria-hidden="true"></div>
-            <article class="card"><p>Решить, какой шаг ещё нужен</p></article>
-          </div>
+      <div class="slide-body fill">
+        <div class="diptych">
+          <figure>
+            <img src="assets/map.jpg" alt="Старая карта мира, 1700 год" />
+            <figcaption><strong>Карта</strong>Знание копится. Роль устойчива. Опыт даёт определённость.</figcaption>
+          </figure>
+          <figure>
+            <img src="assets/road.jpg" alt="Дорога расходится на две" />
+            <figcaption><strong>Местность</strong>Знание быстрее устаревает. Роль пересобирается. Опора — обновлять картину мира.</figcaption>
+            <span class="credit">Dietmar Rabich, CC BY-SA 4.0</span>
+          </figure>
         </div>
       </div>
       <footer class="slide-footer"><span>Когда старая карта мира перестаёт работать</span><span class="num">07</span></footer>
     </section>
 
-    <section class="slide" data-note="Человек остаётся там, где суждение, ответственность, контекст и право сказать: это нельзя отдавать.">
+    <section class="slide" data-note="Три смены маршрута, не три лозунга. Самый пустой ход — ускорить шаг, который можно было не делать.">
       <header class="slide-header">
         <div>
-          <div class="slide-kicker">Схема</div>
-          <h2 class="slide-title">К любой задаче теперь три вопроса</h2>
+          <div class="slide-kicker">Разворот</div>
+          <h2 class="slide-title">Меняется не инструмент. Маршрут</h2>
         </div>
         <img src="logo/KRIT_Logo_Grey_Color.svg" alt="КРИТ" width="90" height="51" />
       </header>
       <div class="rail" aria-hidden="true"></div>
       <div class="slide-body">
-        <div class="trio">
-          <div class="kpi">
-            <div class="kpi-label">01</div>
-            <div class="step-name">Это всё ещё должен делать человек?</div>
+        <div class="reroute">
+          <div class="reroute-row">
+            <div class="from">Копить знание и охранять его</div>
+            <div class="bend" aria-hidden="true"></div>
+            <div class="to">Быстрее обновлять картину мира</div>
           </div>
-          <div class="chev" aria-hidden="true"></div>
-          <div class="kpi">
-            <div class="kpi-label">02</div>
-            <div class="step-name">Это может делать AI — и где ему нельзя?</div>
+          <div class="reroute-row">
+            <div class="from">Эксперт не бывает новичком</div>
+            <div class="bend" aria-hidden="true"></div>
+            <div class="to">Эксперт умеет снова им стать</div>
           </div>
-          <div class="chev" aria-hidden="true"></div>
-          <div class="kpi">
-            <div class="kpi-label">03</div>
-            <div class="step-name">Это вообще ещё нужно делать так?</div>
+          <div class="reroute-row">
+            <div class="from">Ускорить старый шаг</div>
+            <div class="bend" aria-hidden="true"></div>
+            <div class="to">Решить, нужен ли этот шаг вообще</div>
           </div>
         </div>
       </div>
       <footer class="slide-footer"><span>Когда старая карта мира перестаёт работать</span><span class="num">08</span></footer>
     </section>
 
-    <section class="slide" data-note="Подставьте живой пример из КРИТ, если он есть. Не называйте проценты, которых не считали.">
+    <section class="slide" data-note="Это рабочий инструмент. К своей задаче: что остаётся человеку, где AI можно и где нельзя, и что больше не нужно делать по старой схеме.">
       <header class="slide-header">
         <div>
-          <div class="slide-kicker">Кейс</div>
-          <h2 class="slide-title">Исчез не отчёт. Исчез способ его собирать</h2>
+          <div class="slide-kicker">Развилка</div>
+          <h2 class="slide-title">К любой задаче — три направления</h2>
         </div>
         <img src="logo/KRIT_Logo_Grey_Color.svg" alt="КРИТ" width="90" height="51" />
       </header>
       <div class="rail" aria-hidden="true"></div>
       <div class="slide-body">
-        <div class="cols-2">
-          <article class="card">
-            <div class="num-label">Раньше</div>
-            <p>Десять писем, три таблицы, чат и память «как мы это делали в прошлый раз».</p>
-            <p>Ценность была в том, чтобы собрать это руками.</p>
+        <div class="fork">
+          <article>
+            <p class="big">Человек</p>
+            <p>Это всё ещё должен делать человек?</p>
           </article>
-          <article class="card">
-            <div class="num-label">Теперь</div>
-            <p>Черновик картины появляется быстро. Ценность переезжает.</p>
-            <div class="marks">
-              <div>Верно</div>
-              <div>Дырка</div>
-              <div>Не трогать</div>
-            </div>
+          <article>
+            <p class="big">AI</p>
+            <p>Это может делать AI — и где ему нельзя?</p>
+          </article>
+          <article>
+            <p class="big">Не делать</p>
+            <p>Это вообще ещё нужно делать так?</p>
           </article>
         </div>
       </div>
       <footer class="slide-footer"><span>Когда старая карта мира перестаёт работать</span><span class="num">09</span></footer>
     </section>
 
-    <section class="slide" data-note="Если узнали себя во втором круге — вы не опоздали. Старая карта называет это «я стал менее нужен».">
+    <section class="slide" data-note="Здесь ваша сцена, от первого лица. Вопрос у меня сменился: не «как автоматизировать», а «зачем процесс устроен так». Подставьте один живой контур КРИТ — договоры, подрядчики, сорсер или другой, который уже идёт. Без цифр, которых нет. TODO на слайде для вас, залу его можно не зачитывать.">
       <header class="slide-header">
         <div>
-          <div class="slide-kicker">Кейс</div>
+          <div class="slide-kicker">Из моей работы</div>
+          <h2 class="slide-title">В какой-то момент вопрос изменился</h2>
+        </div>
+        <img src="logo/KRIT_Logo_Grey_Color.svg" alt="КРИТ" width="90" height="51" />
+      </header>
+      <div class="rail" aria-hidden="true"></div>
+      <div class="slide-body">
+        <div class="ask">
+          <p><em>Раньше я спрашивала</em>как автоматизировать этот процесс?</p>
+          <p><em>Теперь всё чаще спрашиваю</em>а зачем он вообще устроен именно так?</p>
+        </div>
+        <!-- TODO: один реальный процесс КРИТ и, если можно, скриншот без чувствительных данных. Не выдумывать факты. -->
+        <p class="todo">Пример процесса — добавить перед вебинаром. Один контур, который уже идёт. Без цифр и без скриншота, пока их нет.</p>
+      </div>
+      <footer class="slide-footer"><span>Когда старая карта мира перестаёт работать</span><span class="num">10</span></footer>
+    </section>
+
+    <section class="slide" data-note="Когда черновик дешёвый, дорожает глаз. Это про разработчика, юриста, рекрутера — и про меня тоже. Экспертность не исчезла, она сдвинулась.">
+      <header class="slide-header">
+        <div>
+          <div class="slide-kicker">Сдвиг</div>
           <h2 class="slide-title">Экспертность не исчезла. Она сдвинулась</h2>
         </div>
         <img src="logo/KRIT_Logo_Grey_Color.svg" alt="КРИТ" width="90" height="51" />
       </header>
       <div class="rail" aria-hidden="true"></div>
       <div class="slide-body">
-        <div class="cols-2">
-          <article class="card">
-            <div class="num-label">Было ценно</div>
-            <p>Помнить, как устроено.</p>
-            <p>Быть тем, кто может проверить.</p>
-            <p>Держать историю решений в голове.</p>
-          </article>
-          <article class="card here">
-            <div class="num-label">Стало ценно</div>
-            <p>Увидеть, где черновик врёт.</p>
-            <p>Знать, что нельзя автоматизировать.</p>
-            <p>Понять, что на самом деле было нужно.</p>
-          </article>
-        </div>
-      </div>
-      <footer class="slide-footer"><span>Когда старая карта мира перестаёт работать</span><span class="num">10</span></footer>
-    </section>
-
-    <section class="slide" data-note="Если спросят про «неграмотных XXI века»: Тоффлер так не писал. Фразу потом склеили с цитатой Герберта Герджуоя. У него точнее — учиться, разучиваться и переучиваться.">
-      <header class="slide-header">
-        <div>
-          <div class="slide-kicker">Цитата</div>
-          <h2 class="slide-title">Alvin Toffler, Future Shock, 1970</h2>
-        </div>
-        <img src="logo/KRIT_Logo_Grey_Color.svg" alt="КРИТ" width="90" height="51" />
-      </header>
-      <div class="rail" aria-hidden="true"></div>
-      <div class="slide-body">
-        <blockquote class="pull">Научив людей учиться, разучиваться и переучиваться, можно добавить образованию новое измерение.</blockquote>
-        <p class="source">Перевод. Оригинал: “By instructing students how to learn, unlearn and relearn, a powerful new dimension can be added to education.”</p>
+        <ul class="shifts">
+          <li><b>Разработчик</b><span>не только написать — спроектировать, проверить, увидеть ограничение</span></li>
+          <li><b>Юрист</b><span>не только найти формулировку — увидеть риск, исключение, ответственность</span></li>
+          <li><b>Рекрутер</b><span>не только найти кандидата — понять качество, контекст и пригодность</span></li>
+        </ul>
+        <p class="hit">Когда черновик становится дешёвым, дорожает способность понять, хороший ли это черновик.</p>
       </div>
       <footer class="slide-footer"><span>Когда старая карта мира перестаёт работать</span><span class="num">11</span></footer>
     </section>
 
-    <section class="slide" data-note="Не «стань другим человеком к пятнице». Одна модель за раз. Разучиться — не забыть профессию и не выбросить годы.">
+    <section class="slide" data-note="Цитата Тоффлера — из Future Shock, 1970, дословно про learn, unlearn, relearn. Фразу про неграмотных XXI века он так не писал, её потом склеили. Unlearning здесь — отложить модель, не выбросить профессию и не обесценить годы.">
       <header class="slide-header">
         <div>
           <div class="slide-kicker">Unlearning</div>
-          <h2 class="slide-title">Learning уже недостаточно. Нужен unlearning</h2>
+          <h2 class="slide-title">Learning уже недостаточно</h2>
         </div>
         <img src="logo/KRIT_Logo_Grey_Color.svg" alt="КРИТ" width="90" height="51" />
       </header>
       <div class="rail" aria-hidden="true"></div>
       <div class="slide-body">
-        <div class="cols-3">
-          <article class="card">
-            <div class="num-label">Не это</div>
-            <p class="step-name">Забыть профессию</p>
-          </article>
-          <article class="card">
-            <div class="num-label">И не это</div>
-            <p class="step-name">Обесценить свои годы</p>
-          </article>
-          <article class="card here">
-            <div class="num-label">А это</div>
-            <p class="step-name">Отложить модель, которая больше не описывает работу</p>
-          </article>
+        <blockquote class="quote">Научив людей учиться, разучиваться и переучиваться, можно добавить образованию новое измерение.</blockquote>
+        <p class="source">Alvin Toffler, Future Shock, 1970. Перевод. Оригинал: “By instructing students how to learn, unlearn and relearn, a powerful new dimension can be added to education.”</p>
+        <div class="unlearn" style="margin-top:22px">
+          <p>Unlearning — не забыть профессию.</p>
+          <p>Unlearning — не обесценить свой опыт.</p>
+          <p class="hit">Отложить модель, которая больше не описывает реальность.</p>
         </div>
       </div>
       <footer class="slide-footer"><span>Когда старая карта мира перестаёт работать</span><span class="num">12</span></footer>
     </section>
 
-    <section class="slide" data-note="На старой карте новичок — тот, кто ещё ничего не стоит. На новой — человек, которому есть что обновлять. Опыт не выбрасывается.">
+    <section class="slide" data-note="Если будет ваша фотография с велосипеда, воды или бега — она здесь вместо рамки. Смысл: новичок не значит с нуля. Биография остаётся. Здесь говорите вы, без чужой цитаты.">
       <header class="slide-header">
         <div>
-          <div class="slide-kicker">Новичок с биографией</div>
-          <h2 class="slide-title">Эксперт будущего умеет снова становиться новичком</h2>
+          <div class="slide-kicker">Снова я</div>
+          <h2 class="slide-title">Новичок — не значит с нуля</h2>
         </div>
         <img src="logo/KRIT_Logo_Grey_Color.svg" alt="КРИТ" width="90" height="51" />
       </header>
       <div class="rail" aria-hidden="true"></div>
       <div class="slide-body">
-        <blockquote class="pull small">Чтобы успевать за миром 2050 года, мало придумывать новые идеи. Придётся снова и снова заново собирать себя.</blockquote>
-        <p class="source">Yuval Noah Harari, 21 Lessons for the 21st Century, 2018. Перевод. Оригинал: “In order to keep up with the world of 2050, you will need not merely to invent new ideas and products — you will above all need to reinvent yourself again and again.”</p>
+        <div class="sport">
+          <!-- TODO: положите спортивное фото в assets/elena-sport.jpg -->
+          <figure class="portrait">
+            <img src="assets/elena-sport.jpg" alt="" onerror="this.remove()" />
+            <span class="portrait-mark">ЕН</span>
+            <figcaption>Сюда — фото с тренировки</figcaption>
+          </figure>
+          <div>
+            <p>В спорте это видно буквально: можно много лет уметь бегать — и снова оказаться новичком на велосипеде или в воде.</p>
+            <p>Опыт остаётся. Но он не отменяет необходимость учиться заново.</p>
+            <p class="accent-line">Эксперт будущего умеет снова становиться новичком — не выбрасывая свою биографию.</p>
+          </div>
+        </div>
       </div>
       <footer class="slide-footer"><span>Когда старая карта мира перестаёт работать</span><span class="num">13</span></footer>
     </section>
 
-    <section class="slide" data-note="Один эксперимент на настоящей задаче, не на учебной. Пока не попробуете отдать AI то, что делаете сами, не узнаете, что он может и чего не может. Это принцип Ethan Mollick, Co-Intelligence, 2024.">
+    <section class="slide" data-note="Нам не нужна правильная карта на десять лет. Нужен способ её перерисовывать. Пять шагов — один цикл, не программа. Чужую цитату сюда не ставьте: на всю презентацию одна, и она у Тоффлера.">
       <header class="slide-header">
         <div>
-          <div class="slide-kicker">Схема</div>
-          <h2 class="slide-title">Не предсказывать будущее. Обновлять картину мира</h2>
+          <div class="slide-kicker">Практика</div>
+          <h2 class="slide-title">Не предсказывать. Перерисовывать</h2>
         </div>
         <img src="logo/KRIT_Logo_Grey_Color.svg" alt="КРИТ" width="90" height="51" />
       </header>
       <div class="rail" aria-hidden="true"></div>
       <div class="slide-body">
-        <div class="quad">
-          <article class="card">
-            <div class="num-label">01</div>
-            <p class="step-name">Назвать, что уже изменилось</p>
-          </article>
-          <article class="card">
-            <div class="num-label">02</div>
-            <p class="step-name">Разложить: человек, AI, так больше не делать</p>
-          </article>
-          <article class="card">
-            <div class="num-label">03</div>
-            <p class="step-name">Отпустить одну устаревшую модель</p>
-          </article>
-          <article class="card">
-            <div class="num-label">04</div>
-            <p class="step-name">Снова стать новичком — не пряча опыт</p>
-          </article>
-        </div>
-        <p class="source">Ethan Mollick, 2024: пока не попробуете отдать AI свою работу, не узнаете, что он может и чего не может.</p>
+        <p class="hit" style="margin-top:0">Нам не нужна правильная карта на следующие десять лет. Нам нужен хороший механизм постоянно её перерисовывать.</p>
+        <ol class="cycle">
+          <li><b>01</b>Увидеть, что уже изменилось</li>
+          <li><b>02</b>Разложить: человек, AI, больше не нужно</li>
+          <li><b>03</b>Отпустить одну устаревшую модель</li>
+          <li><b>04</b>Попробовать новую</li>
+          <li><b>05</b>Посмотреть, что вышло, и обновить карту</li>
+        </ol>
       </div>
       <footer class="slide-footer"><span>Когда старая карта мира перестаёт работать</span><span class="num">14</span></footer>
     </section>
 
-    <section class="slide" data-note="Не говорите «заменят тех, кто умеет AI». Точнее: работу всё равно пересоберут. Вопрос — будете ли вы при этом в комнате.">
+    <section class="slide" data-note="Риск — остаться зрителем своей работы. У нас можно пробовать собирать её здесь, не дожидаясь, пока её соберут снаружи. Без «мы впереди всех».">
       <header class="slide-header">
         <div>
-          <div class="slide-kicker">Возможность</div>
+          <div class="slide-kicker">Участие</div>
           <h2 class="slide-title">Риск — остаться зрителем своей же работы</h2>
         </div>
         <img src="logo/KRIT_Logo_Grey_Color.svg" alt="КРИТ" width="90" height="51" />
       </header>
       <div class="rail" aria-hidden="true"></div>
       <div class="slide-body">
-        <div class="bridge">
-          <article class="card">
-            <div class="num-label">Как было устроено</div>
-            <p>Вы это всё ещё знаете лучше инструмента.</p>
-          </article>
-          <div class="bridge-span"><span>переход</span></div>
-          <article class="card">
-            <div class="num-label">Как можно собрать</div>
-            <p>Пока вы в комнате, работу можно перепроектировать.</p>
-          </article>
+        <div class="join">
+          <div>
+            <p class="after" style="margin-top:0">Мы можем не только читать о новой работе. Мы можем пробовать её собирать.</p>
+          </div>
+          <svg class="sketch" viewBox="0 0 420 280" aria-hidden="true">
+            <g fill="none" stroke="var(--line)" stroke-width="1.5">
+              <path d="M30 40 H390 M30 100 H390 M30 160 H300 M30 220 H240"/>
+              <path d="M70 20 V250 M150 20 V250 M230 20 V190"/>
+            </g>
+            <path d="M40 230 C 110 200, 150 150, 210 140 S 300 80, 390 60" fill="none" stroke="var(--accent)" stroke-width="2.5"/>
+            <circle cx="390" cy="60" r="4" fill="var(--accent)"/>
+          </svg>
         </div>
-        <p class="after">Полная карта ни у кого не появится. Участвовать можно и без неё.</p>
       </div>
       <footer class="slide-footer"><span>Когда старая карта мира перестаёт работать</span><span class="num">15</span></footer>
     </section>
 
-    <section class="slide quiet" data-note="Не объяснять слайд. Пауза. Одной фразы достаточно: тревога не пройдёт, если скачать нужный инструмент.">
-      <header class="slide-header">
-        <div>
-          <div class="slide-kicker">Перед финалом</div>
-        </div>
-        <img src="logo/KRIT_Logo_Grey_Color.svg" alt="КРИТ" width="90" height="51" />
-      </header>
-      <div class="slide-body">
+    <section class="slide photo-slide" data-note="Молчите. Одна фраза. Не объясняйте, что тревога пройдёт от инструмента.">
+      <img class="photo-bg" src="assets/road.jpg" alt="" />
+      <img class="cover-logo" src="logo/KRIT_Logo_Grey_Color.svg" alt="КРИТ" width="90" height="51" />
+      <div class="photo-card">
         <p class="quiet-line">Интересное — не значит лёгкое.</p>
+        <p class="source">Dietmar Rabich, CC BY-SA 4.0</p>
       </div>
-      <footer class="slide-footer"><span>Когда старая карта мира перестаёт работать</span><span class="num">16</span></footer>
     </section>
 
-    <section class="slide cover final" data-note="Последним, до вопросов из зала: мы живём в очень интересное время. Не потому что всё получится само. А потому что местность всё ещё можно пройти самим.">
+    <section class="slide cover final" data-note="Последним, до вопросов: старая карта перестаёт работать — это не значит, что мы заблудились. Возможно, время нарисовать новую. И отдельно: мы живём в очень интересное время.">
       <div class="cover-geo" aria-hidden="true"></div>
       <img class="cover-logo" src="logo/KRIT_Logo_White_Color.svg" alt="КРИТ" width="90" height="51" />
       <div class="cover-body">
         <span class="badge">Финал</span>
-        <h1>Мы живём в очень интересное время</h1>
-        <p class="lede">Работу ещё можно пересобрать — и в этой пересборке есть место нам.</p>
-        <div class="route" aria-hidden="true"></div>
+        <h1>Старая карта перестаёт работать — это не значит, что мы заблудились.</h1>
+        <p class="lede">Возможно, просто пришло время нарисовать новую.</p>
+        <p class="final-line">Мы живём в очень интересное время.</p>
+        <div class="routes" aria-hidden="true">
+          <div class="route old"></div>
+          <div class="route"></div>
+        </div>
         <p class="cover-meta">Елена Никишева · КРИТ</p>
       </div>
     </section>
