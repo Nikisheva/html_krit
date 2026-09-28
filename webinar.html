@@ -267,32 +267,63 @@
     .slide.final .route-row { display: flex; align-items: flex-end; gap: 6px; }
     .slide.final .route { width: 560px; }
 
-    .bounds .slide-title { max-width: 15em; }
+    .value-path { margin: 0; display: grid; gap: 0; max-width: 920px; }
+    .value-path p { margin: 0; font-size: 26px; line-height: 1.3; }
+    .value-path .down {
+      width: 2px; height: 28px; margin: 6px 0 6px 4px; background: var(--accent); position: relative;
+    }
+    .value-path .down::after {
+      content: ""; position: absolute; left: -4px; bottom: 0; width: 10px; height: 10px;
+      border-right: 2px solid var(--accent); border-bottom: 2px solid var(--accent); transform: rotate(45deg);
+    }
+    .value-path .value-q {
+      font-family: var(--font-family-heading); font-weight: 300; font-size: 28px; line-height: 1.25;
+    }
+
+    .bounds .slide-body { justify-content: flex-start; padding-top: 10px; }
+    .bounds .slide-title { font-size: 26px; max-width: 18em; }
     .bounds-lead {
-      margin: 0;
+      margin: 0 0 12px;
       font-family: var(--font-family-heading); font-weight: 300;
-      font-size: 30px; line-height: 1.15;
+      font-size: 24px; line-height: 1.2; max-width: 28em;
     }
-    .grounds { position: relative; height: 250px; margin-top: 6px; }
-    .grounds-svg { width: 100%; height: 214px; display: block; }
-    .grounds-labels { position: absolute; inset: 0 0 36px; }
-    .grounds-labels div { position: absolute; }
-    .grounds-labels b {
-      display: block; font-family: var(--font-family-heading); font-weight: 300;
-      font-size: 26px; line-height: 1.1; margin-bottom: 6px;
+    .shift {
+      display: grid; grid-template-columns: 118px 1fr; column-gap: 14px; row-gap: 16px; align-items: center;
     }
-    .grounds-labels span { display: block; font-size: 15px; line-height: 1.3; max-width: 13em; }
-    .g-hr { left: 2%; top: 26%; }
-    .g-an { left: 32%; top: 14%; }
-    .g-dev { left: 62%; top: 12%; color: var(--color-white); }
-    .g-dev span { max-width: 16em; }
-    .vertik-cross { position: absolute; left: 39%; bottom: 56px; width: 92px; z-index: 2; }
-    .bounds-close {
-      display: grid; grid-template-columns: 1.45fr 0.7fr; gap: 28px; align-items: end;
+    .chain {
+      grid-column: 2; list-style: none; margin: 0; padding: 0;
+      display: grid; grid-template-columns: repeat(6, 1fr); gap: 8px;
     }
-    .bounds-close .hit { margin: 0; font-size: 26px; }
-    .bounds-small { margin: 8px 0 0; font-size: 16px; line-height: 1.35; }
-    .datapoint { margin: 0; font-size: 15px; line-height: 1.3; }
+    .chain li {
+      margin: 0; padding-top: 8px; border-top: 2px solid var(--accent);
+      font-family: var(--font-family-heading); font-weight: 300; font-size: 14px; line-height: 1.15;
+    }
+    .shift-label { font-size: 14px; line-height: 1.25; color: var(--muted); }
+    .bar { position: relative; height: 38px; }
+    .bar.now { height: 58px; }
+    .mine {
+      height: 100%; width: var(--at); box-sizing: border-box;
+      background: var(--accent-soft);
+      display: flex; align-items: center; padding-left: 12px;
+      font-family: var(--font-family-heading); font-weight: 300; font-size: 18px;
+    }
+    .bar.now .mine { background: color-mix(in srgb, var(--accent) 28%, var(--color-white)); }
+    .gate {
+      position: absolute; top: 4px; bottom: 4px; left: var(--at); width: 3px; background: var(--ink);
+    }
+    .gate::after {
+      content: ""; position: absolute; left: 0; top: 42%; width: 18px; height: 3px; background: var(--ink);
+    }
+    .pass {
+      position: absolute; left: calc(var(--at) + 26px); top: 50%; transform: translateY(-50%);
+      font-size: 14px; line-height: 1.25; max-width: 12em;
+    }
+    .vertik-gate {
+      position: absolute; left: calc(var(--at) - 52px); bottom: 2px; width: 60px; z-index: 2;
+    }
+    .bounds .hit { margin: 12px 0 0; font-size: 24px; }
+    .bounds-small { margin: 6px 0 0; font-size: 16px; line-height: 1.35; max-width: 40em; }
+    .datapoint { margin: 10px 0 0; font-size: 15px; line-height: 1.35; max-width: 46em; }
     .datapoint b {
       font-family: var(--font-family-heading); font-weight: 300;
       font-size: 28px; color: var(--accent); letter-spacing: -0.02em;
@@ -416,7 +447,7 @@
       <footer class="slide-footer"><span>Когда старая карта мира перестаёт работать</span><span class="num">04</span></footer>
     </section>
 
-    <section class="slide" data-note="Задачу можно отдать. Роль можно переименовать. Больно там, где под вопросом «кто я, если это больше не только моё ремесло».">
+    <section class="slide" data-note="Не разбирайте задачу, роль и идентичность как схему. Проговорите три шага как внутренний голос человека: я долго учился делать это хорошо; теперь часть этого AI делает быстро и дёшево; вопрос уже не только «как использовать AI?», а «в чём теперь моя ценность?». Поэтому смену работы переживают сильнее, чем смену инструмента. Не говорите «просто адаптируйтесь».">
       <header class="slide-header">
         <div>
           <div class="slide-kicker">Идентичность</div>
@@ -426,11 +457,14 @@
       </header>
       <div class="rail" aria-hidden="true"></div>
       <div class="slide-body">
-        <div class="depth">
-          <div><span>Задача</span><em>её можно передать</em></div>
-          <div><span>Роль</span><em>её можно собрать иначе</em></div>
-          <div class="core"><span>Кто я в работе</span><em>сюда и попадает</em></div>
+        <div class="value-path">
+          <p>Я много лет учился делать это хорошо</p>
+          <span class="down" aria-hidden="true"></span>
+          <p>Теперь часть этого AI делает быстро и дёшево</p>
+          <span class="down" aria-hidden="true"></span>
+          <p class="value-q">И вопрос становится не только «как использовать AI?», но и «в чём теперь моя ценность?»</p>
         </div>
+        <p class="hit">Поэтому изменение работы мы часто переживаем сильнее, чем обычную смену инструмента.</p>
       </div>
       <footer class="slide-footer"><span>Когда старая карта мира перестаёт работать</span><span class="num">05</span></footer>
     </section>
@@ -551,41 +585,44 @@
       <footer class="slide-footer"><span>Когда старая карта мира перестаёт работать</span><span class="num">10</span></footer>
     </section>
 
-    <section class="slide bounds" data-note="Профессии не исчезают — их границы становятся проницаемыми. AI снижает стоимость перехода в соседнюю область: раньше, чтобы пройти дальше по цепочке, часто нужен был другой человек. Сейчас можно самому довести работу дальше и сильнее влиять на результат. Это не «теперь делай работу пятерых». Глубина в своей профессии остаётся, соседние области просто ближе. 43,5% — доля occupation-specific сообщений ChatGPT у пользователей в США, которые относятся к задачам другой профессии. OpenAI Economic Research, Work at the Frontier, июль 2026. Это не статистика всего рынка труда. Для себя, не в зал: в той же выборке у HR crossover 69% occupation-specific сообщений. Microsoft Work Trend Index 2026: 58% опрошенных AI users говорят, что создают работу, которую не могли делать год назад. Мост дальше: сильный специалист снова чувствует себя новичком, потому что заходит на территорию, где раньше работал другой человек.">
+    <section class="slide bounds" data-note="Профессии не исчезают, и это не значит, что каждый должен уметь всё. AI позволяет пройти по задаче дальше, но не обязывает идти до конца одному. Граница передачи не исчезла — она сдвинулась вправо. Новое умение: понять, где продолжить самому, а где нужен специалист. Пример аналитика, не в зал дословно: с AI или Cursor можно дойти от требований до работающего web-прототипа и проверить гипотезу. Это не обязанность писать production-код. Если нужна архитектура, безопасность, поддерживаемость или специалист сделает задачу заметно быстрее и качественнее — передаём разработчику. Пример HR: можно самому разобрать процесс и собрать прототип автоматизации. Это не делает HR разработчиком. Принцип: AI уменьшает число обязательных передач между ролями, но не отменяет специализацию. 43,5% — доля профильных рабочих запросов к ChatGPT в США, которые относятся к задачам другой профессии. OpenAI Economic Research, Work at the Frontier, 2026, 800K+ сообщений. Это не статистика всего рынка труда.">
       <header class="slide-header">
         <div>
           <div class="slide-kicker">Границы</div>
-          <h2 class="slide-title">Границы профессий становятся проницаемыми</h2>
+          <h2 class="slide-title">Границы профессий не исчезают. Меняется место передачи работы</h2>
         </div>
         <img src="logo/KRIT_Logo_Grey_Color.svg" alt="КРИТ" width="90" height="51" />
       </header>
       <div class="rail" aria-hidden="true"></div>
       <div class="slide-body">
-        <p class="bounds-lead">Не исчезают. Но рядом стало гораздо ближе.</p>
-        <div class="grounds">
-          <svg class="grounds-svg" viewBox="0 0 1100 230" preserveAspectRatio="none" aria-hidden="true">
-            <polygon points="0,46 300,46 368,196 0,196" fill="var(--accent-soft)"/>
-            <polygon points="248,28 690,28 748,196 196,196" fill="none" stroke="var(--ink)" stroke-width="1.5"/>
-            <polygon points="560,12 1100,12 1100,196 492,196" fill="var(--accent)"/>
-            <path d="M8 196 H1092" fill="none" stroke="var(--ink)" stroke-width="1.5"/>
-          </svg>
-          <div class="grounds-labels">
-            <div class="g-hr"><b>HR</b><span>процесс → прототип автоматизации</span></div>
-            <div class="g-an"><b>Аналитика</b><span>требования → end-to-end<br>прототип / web-coding</span></div>
-            <div class="g-dev"><b>Разработка</b><span>код → контекст / архитектура / результат</span></div>
+        <p class="bounds-lead">AI позволяет пройти по задаче дальше. Но не обязывает идти до конца одному.</p>
+        <div class="shift">
+          <ol class="chain">
+            <li>Проблема</li>
+            <li>Понять</li>
+            <li>Сформулировать</li>
+            <li>Попробовать</li>
+            <li>Прототип</li>
+            <li>Production</li>
+          </ol>
+          <div class="shift-label">Раньше</div>
+          <div class="bar" style="--at: 34%">
+            <div class="mine">Моя роль</div>
+            <i class="gate" aria-hidden="true"></i>
+            <span class="pass">ранняя передача специалисту</span>
           </div>
-          <img class="vertik vertik-cross" src="assets/vertik.svg" alt="" />
+          <div class="shift-label">Теперь с AI</div>
+          <div class="bar now" style="--at: 68%">
+            <div class="mine">Моя роль</div>
+            <i class="gate" aria-hidden="true"></i>
+            <span class="pass">более поздняя передача специалисту</span>
+            <img class="vertik vertik-gate" src="assets/vertik.svg" alt="" />
+          </div>
         </div>
-        <div class="bounds-close">
-          <div>
-            <p class="hit">Роль шире ≠ эксперт во всём.</p>
-            <p class="bounds-small">Глубина остаётся. Порог входа в соседние области становится ниже.</p>
-          </div>
-          <div>
-            <p class="datapoint"><b>43,5%</b> за пределами традиционной границы профессии</p>
-            <p class="source">OpenAI Economic Research, Work at the Frontier, 2026.</p>
-          </div>
-        </div>
+        <p class="hit">Граница не исчезла. Она стала подвижнее.</p>
+        <p class="bounds-small">Новое умение — не делать всё самому. Новое умение — понимать, где продолжить самому, а где нужен специалист.</p>
+        <p class="datapoint"><b>43,5%</b> профильных рабочих запросов к AI относятся к задачам, традиционно связанным с другой профессией.</p>
+        <p class="source">OpenAI Economic Research, Work at the Frontier, 2026. 800K+ сообщений пользователей ChatGPT в США.</p>
       </div>
       <footer class="slide-footer"><span>Когда старая карта мира перестаёт работать</span><span class="num">11</span></footer>
     </section>
@@ -637,7 +674,7 @@
       <footer class="slide-footer"><span>Когда старая карта мира перестаёт работать</span><span class="num">13</span></footer>
     </section>
 
-    <section class="slide" data-note="Нам не нужна правильная карта на десять лет. Нужен способ её перерисовывать. Пять шагов — один цикл, не программа. Чужую цитату сюда не ставьте: на всю презентацию одна, и она у Тоффлера.">
+    <section class="slide" data-note="Нам не нужна правильная карта на десять лет. Нужен способ её перерисовывать. Пункт 02 вслух можно развернуть: решить для каждой задачи, что оставить человеку, что отдать AI, а что вообще больше не нужно делать. Это не «есть Cursor — делай всё сам»: глубина, специализация и передача специалисту остаются. Пять шагов — один цикл, не программа. Чужую цитату сюда не ставьте: на всю презентацию одна, и она у Тоффлера.">
       <header class="slide-header">
         <div>
           <div class="slide-kicker">Практика</div>
@@ -650,7 +687,7 @@
         <p class="hit" style="margin-top:0">Нам не нужна правильная карта на следующие десять лет. Нам нужен хороший механизм постоянно её перерисовывать.</p>
         <ol class="cycle">
           <li><b>01</b>Увидеть, что уже изменилось</li>
-          <li><b>02</b>Разложить: человек, AI, больше не нужно</li>
+          <li><b>02</b>Решить: человек / AI / убрать задачу совсем</li>
           <li><b>03</b>Отпустить одну устаревшую модель</li>
           <li><b>04</b>Попробовать новую</li>
           <li><b>05</b>Посмотреть, что вышло, и обновить карту</li>
