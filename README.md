@@ -6,6 +6,7 @@ AI Challenge для сотрудников ОЦО и бэкофиса: знак�
 
 - [`index.html`](index.html) — HTML-презентация AI Challenge в фирменном стиле КРИТ (16:9, 6 слайдов).
 - [`launch-plan.html`](launch-plan.html) — оценка готовности и план запуска для организаторов.
+- [`reglament.html`](reglament.html) — регламент AI Challenge: этапы, даты, роли, правила и недостающие материалы.
 - [`webinar.html`](webinar.html) — вебинар «Когда старая карта мира перестаёт работать» (16:9, 17 слайдов). Клавиша `N` показывает заметки спикера. Вертик на нескольких слайдах — фирменный стикер, `assets/vertik.svg`.
 - Источник стилей: `brand-tokens.css`, `storybook-static/krit-report-components.css`, шрифт Uncage, логотипы Grey/White.
 
