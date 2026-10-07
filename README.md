@@ -5,6 +5,7 @@ AI Challenge для сотрудников ОЦО и бэкофиса: знак�
 ## Что здесь
 
 - [`index.html`](index.html) — HTML-презентация AI Challenge в фирменном стиле КРИТ (16:9, 8 слайдов).
+- [`AI Challenge.pptx`](AI%20Challenge.pptx) — та же презентация в PowerPoint для рассылки и показа. Пересборка: `python3 build_pptx.py`.
 - [`launch-plan.html`](launch-plan.html) — оценка готовности и план запуска для организаторов.
 - [`reglament.html`](reglament.html) — регламент AI Challenge: этапы, даты, роли, правила и недостающие материалы.
 - [`Регламент AI Challenge.docx`](Регламент%20AI%20Challenge.docx) — тот же регламент в Word для рассылки.
@@ -16,6 +17,7 @@ AI Challenge для сотрудников ОЦО и бэкофиса: знак�
 1. Открыть `index.html` или `webinar.html` в браузере (удобнее через локальный сервер из этой папки).
 2. Листать стрелками, пробелом или кнопками «Назад / Дальше».
 3. Печать → «Сохранить как PDF», если нужен файл для рассылки без HTML.
+4. Для PowerPoint открыть `AI Challenge.pptx`.
 
 ## Порядок этапов
 
