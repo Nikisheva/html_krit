@@ -5,3 +5,4 @@
 !.env.example
 .cursor/credentials.local
 *.log
+~$*.docx
