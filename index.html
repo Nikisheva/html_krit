@@ -176,7 +176,40 @@
     }
     .demo-flow .card { padding: 0.8rem 0.85rem; }
     .demo-flow .card-title { font-size: 16px; margin-bottom: 4px; }
-    .prize-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px; margin-top: 12px; }
+    .step-head {
+      display: flex;
+      align-items: baseline;
+      gap: 10px;
+      margin-bottom: 2px;
+    }
+    .step-num {
+      font-family: var(--font-family-heading);
+      font-weight: 300;
+      font-size: 22px;
+      line-height: 1;
+      color: var(--accent);
+    }
+    .step-date {
+      font-size: 13px;
+      color: var(--muted);
+    }
+    .card-date {
+      display: inline-block;
+      margin-left: 8px;
+      font-family: var(--font-family-body);
+      font-size: 14px;
+      font-weight: 400;
+      color: var(--muted);
+    }
+    .prize-slide {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 16px;
+      margin-top: 20px;
+    }
+    .prize-slide .kpi { padding: 28px 24px; }
+    .prize-slide .kpi-value { font-size: 40px; }
+    .prize-slide .kpi-label { color: var(--accent); font-size: 15px; }
     .idea-points {
       display: grid;
       grid-template-columns: 1fr 1fr;
@@ -328,38 +361,38 @@
         <div class="steps-flow" style="margin-top:14px">
           <div class="steps-row">
             <div class="kpi">
-              <div class="kpi-label">01 · 9 октября</div>
+              <div class="step-head"><span class="step-num">01</span><span class="step-date">9 октября</span></div>
               <div class="step-name">Обучение</div>
               <div class="kpi-sub">Знакомимся с подходом и инструментами</div>
             </div>
             <div class="steps-join" aria-hidden="true"></div>
             <div class="kpi">
-              <div class="kpi-label">02 · 12–16 октября</div>
+              <div class="step-head"><span class="step-num">02</span><span class="step-date">12–16 октября</span></div>
               <div class="step-name">Практика</div>
               <div class="kpi-sub">Собираем свой минипроцесс в Битриксе на тестовом стенде, пока без агентов</div>
             </div>
             <div class="steps-join" aria-hidden="true"></div>
             <div class="kpi">
-              <div class="kpi-label">03 · 19–26 октября</div>
+              <div class="step-head"><span class="step-num">03</span><span class="step-date">19–26 октября</span></div>
               <div class="step-name">Идея</div>
               <div class="kpi-sub">Кто прошёл в общий тур, готовит идею для челленджа</div>
             </div>
           </div>
           <div class="steps-row">
             <div class="kpi">
-              <div class="kpi-label">04 · 26 октября</div>
+              <div class="step-head"><span class="step-num">04</span><span class="step-date">26 октября</span></div>
               <div class="step-name">Представление идей и отбор</div>
               <div class="kpi-sub">Показываем замысел, жюри выбирает проекты в MVP</div>
             </div>
             <div class="steps-join" aria-hidden="true"></div>
             <div class="kpi">
-              <div class="kpi-label">05 · 27 октября — 10 ноября</div>
+              <div class="step-head"><span class="step-num">05</span><span class="step-date">27 октября — 10 ноября</span></div>
               <div class="step-name">Создание MVP</div>
               <div class="kpi-sub">Воплощаем идею в работающем прототипе</div>
             </div>
             <div class="steps-join" aria-hidden="true"></div>
             <div class="kpi">
-              <div class="kpi-label">06 · 11 ноября</div>
+              <div class="step-head"><span class="step-num">06</span><span class="step-date">11 ноября</span></div>
               <div class="step-name">Демодень</div>
               <div class="kpi-sub">Показываем решения и выбираем победителей</div>
             </div>
@@ -382,38 +415,38 @@
         <div class="stage-grid">
           <article class="card">
             <div class="num-label">01</div>
-            <div class="card-title">Обучение · 9 октября</div>
+            <div class="card-title">Обучение <span class="card-date">9 октября</span></div>
             <p class="ink">Разбираем, как находить возможности для улучшения процессов и какие инструменты помогут реализовать идею.</p>
           </article>
           <div class="stage-arrow" aria-hidden="true"></div>
           <article class="card">
             <div class="num-label">02</div>
-            <div class="card-title">Практика · 12–16 октября</div>
+            <div class="card-title">Практика <span class="card-date">12–16 октября</span></div>
             <p class="ink">Каждый собирает свой минипроцесс в Битриксе на тестовом стенде. На этом шаге работаем без агентов.</p>
           </article>
           <div class="stage-arrow" aria-hidden="true"></div>
           <article class="card">
             <div class="num-label">03</div>
-            <div class="card-title">Идея · 19–26 октября</div>
+            <div class="card-title">Идея <span class="card-date">19–26 октября</span></div>
             <p class="ink">Выбираете процесс и предлагаете, как выстроить его иначе. Можно свой, кросс-функциональный или чужой — если понимаете, как он устроен.</p>
           </article>
 
           <article class="card">
             <div class="num-label">04</div>
-            <div class="card-title">Представление идей · 26 октября</div>
-            <p class="ink">Коротко показываем заявку. Жюри — топ-менеджмент. Во второй этап идут лучшие идеи, которые набрали минимальный балл.</p>
+            <div class="card-title">Представление идей <span class="card-date">26 октября</span></div>
+            <p class="ink">Коротко показываем заявку. Жюри — топ-менеджмент. Дальше идут те, кто набрал наибольшее количество баллов.</p>
           </article>
           <div class="stage-arrow" aria-hidden="true"></div>
           <article class="card">
             <div class="num-label">05</div>
-            <div class="card-title">MVP · 27 октября — 10 ноября</div>
+            <div class="card-title">MVP <span class="card-date">27 октября — 10 ноября</span></div>
             <p class="ink">Реализуем основной сценарий: прототип выполняет ключевую задачу, и его работу можно показать.</p>
             <p class="note">MVP — минимальная рабочая версия решения. Полная готовность к внедрению и обработка всех исключений не требуются.</p>
           </article>
           <div class="stage-arrow" aria-hidden="true"></div>
           <article class="card">
             <div class="num-label">06</div>
-            <div class="card-title">Демодень · 11 ноября</div>
+            <div class="card-title">Демодень <span class="card-date">11 ноября</span></div>
             <p class="ink">Показываем прототип, сравниваем «до» и «после», рассказываем о результате. Выбираем победителей.</p>
             <p class="note">Если эффект пока оценочный, говорим об этом прямо — не выдаём его за уже измеренный.</p>
           </article>
@@ -453,7 +486,7 @@
             </div>
             <article class="card">
               <span class="badge">Отбор</span>
-              <p class="ink">Пять критериев от 0 до 5. За кросс-функциональное решение — ещё +2 балла. Во второй этап идут лучшие идеи, которые набрали минимальный балл. Сколько проектов — зависит от заявок и их качества.</p>
+              <p class="ink">Пять критериев от 0 до 5. За кросс-функциональное решение — ещё +2 балла. Дальше идут те, кто набрал наибольшее количество баллов. Сколько проектов — зависит от заявок и их качества.</p>
             </article>
             <article class="card">
               <span class="badge">Жюри</span>
@@ -498,13 +531,40 @@
           <div class="kpi"><div class="kpi-label">15%</div><div class="kpi-value dark">Путь в PROD</div><div class="kpi-sub">Масштаб и возможность довести до рабочей среды</div></div>
           <div class="kpi"><div class="kpi-label">10%</div><div class="kpi-value dark">Демонстрация</div><div class="kpi-sub">Насколько ясно и понятно показали решение</div></div>
         </div>
-        <div class="prize-grid">
-          <div class="kpi"><div class="kpi-label">1 место</div><div class="kpi-value dark">100 000 ₽</div><div class="kpi-sub">Победитель Demo Day</div></div>
-          <div class="kpi"><div class="kpi-label">2 место</div><div class="kpi-value dark">50 000 ₽</div><div class="kpi-sub">Второе место</div></div>
-          <div class="kpi"><div class="kpi-label">3 место</div><div class="kpi-value dark">30 000 ₽</div><div class="kpi-sub">Третье место</div></div>
-        </div>
       </div>
       <footer class="slide-footer"><span>AI Challenge · ОЦО и бэкофис</span><span class="num">05</span></footer>
+    </section>
+
+    <section class="slide">
+      <header class="slide-header">
+        <div>
+          <div class="slide-kicker">Demo Day · 11 ноября</div>
+          <h2 class="slide-title">Призы</h2>
+        </div>
+        <img src="logo/KRIT_Logo_Grey_Color.svg" alt="КРИТ" width="90" height="51" />
+      </header>
+      <div class="rail" aria-hidden="true"></div>
+      <div class="slide-body">
+        <p class="lede">Три места за результат на демодне. Приз не означает внедрение: решение по каждому MVP спонсоры принимают отдельно.</p>
+        <div class="prize-slide">
+          <div class="kpi">
+            <div class="kpi-label">1 место</div>
+            <div class="kpi-value dark">100 000 ₽</div>
+            <div class="kpi-sub">Победитель Demo Day</div>
+          </div>
+          <div class="kpi">
+            <div class="kpi-label">2 место</div>
+            <div class="kpi-value dark">50 000 ₽</div>
+            <div class="kpi-sub">Второе место</div>
+          </div>
+          <div class="kpi">
+            <div class="kpi-label">3 место</div>
+            <div class="kpi-value dark">30 000 ₽</div>
+            <div class="kpi-sub">Третье место</div>
+          </div>
+        </div>
+      </div>
+      <footer class="slide-footer"><span>AI Challenge · ОЦО и бэкофис</span><span class="num">06</span></footer>
     </section>
 
     <section class="slide">
@@ -538,7 +598,7 @@
           </tbody>
         </table>
       </div>
-      <footer class="slide-footer"><span>AI Challenge · ОЦО и бэкофис</span><span class="num">06</span></footer>
+      <footer class="slide-footer"><span>AI Challenge · ОЦО и бэкофис</span><span class="num">07</span></footer>
     </section>
 
     <section class="slide">
@@ -575,17 +635,13 @@
             <h3>Можно взять процесс другой команды?</h3>
             <p>Да, если хорошо понимаете, как он устроен, и можете предложить конкретное изменение.</p>
           </article>
-          <article class="card">
-            <h3>Какие призы?</h3>
-            <p>100 000 ₽ за первое место, 50 000 ₽ за второе, 30 000 ₽ за третье.</p>
-          </article>
           <article class="card span-2">
             <h3>Что будет после демодня?</h3>
-            <p>Призы — за результат на Demo Day. По каждому MVP отдельно решим, что делать дальше: дорабатывать, внедрять или завершить эксперимент.</p>
+            <p>По каждому MVP отдельно решим, что делать дальше: дорабатывать, внедрять или завершить эксперимент.</p>
           </article>
         </div>
       </div>
-      <footer class="slide-footer"><span>AI Challenge · ОЦО и бэкофис</span><span class="num">07</span></footer>
+      <footer class="slide-footer"><span>AI Challenge · ОЦО и бэкофис</span><span class="num">08</span></footer>
     </section>
 
   </div>

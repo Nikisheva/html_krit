@@ -4,7 +4,7 @@ AI Challenge для сотрудников ОЦО и бэкофиса: знак�
 
 ## Что здесь
 
-- [`index.html`](index.html) — HTML-презентация AI Challenge в фирменном стиле КРИТ (16:9, 7 слайдов).
+- [`index.html`](index.html) — HTML-презентация AI Challenge в фирменном стиле КРИТ (16:9, 8 слайдов).
 - [`launch-plan.html`](launch-plan.html) — оценка готовности и план запуска для организаторов.
 - [`reglament.html`](reglament.html) — регламент AI Challenge: этапы, даты, роли, правила и недостающие материалы.
 - [`Регламент AI Challenge.docx`](Регламент%20AI%20Challenge.docx) — тот же регламент в Word для рассылки.
