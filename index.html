@@ -172,10 +172,54 @@
       display: grid;
       grid-template-columns: repeat(5, 1fr);
       gap: 8px;
-      margin: 8px 0 14px;
+      margin: 8px 0 16px;
     }
-    .demo-flow .card { padding: 0.8rem 0.85rem; }
-    .demo-flow .card-title { font-size: 16px; margin-bottom: 4px; }
+    .demo-flow .card {
+      padding: 0.75rem 0.8rem;
+      overflow: hidden;
+    }
+    .demo-flow .card-title {
+      font-family: var(--font-family-heading);
+      font-weight: 300;
+      font-size: 20px;
+      line-height: 1.15;
+      margin-bottom: 6px;
+    }
+    .demo-flow .card p.ink {
+      font-size: 13px;
+      line-height: 1.35;
+    }
+    .demo-weights {
+      display: grid;
+      grid-template-columns: repeat(5, 1fr);
+      gap: 10px;
+    }
+    .demo-weights .kpi {
+      background: #f4f8fc;
+      overflow: hidden;
+    }
+    .demo-weights .kpi-label {
+      font-family: var(--font-family-heading);
+      font-weight: 300;
+      font-size: 28px;
+      line-height: 1;
+      color: var(--accent);
+    }
+    .demo-weights .kpi-value {
+      font-family: var(--font-family-body);
+      font-size: 15px;
+      font-weight: 400;
+      margin-top: 8px;
+    }
+    .demo-weights .kpi-sub {
+      font-size: 12px;
+      margin-top: 4px;
+    }
+    .row-kicker {
+      font-size: 12px;
+      color: var(--muted);
+      margin: 0 0 8px;
+    }
     .step-head {
       display: flex;
       align-items: baseline;
@@ -486,7 +530,7 @@
             </div>
             <article class="card">
               <span class="badge">Отбор</span>
-              <p class="ink">Пять критериев от 0 до 5. За кросс-функциональное решение — ещё +2 балла. Дальше идут те, кто набрал наибольшее количество баллов. Сколько проектов — зависит от заявок и их качества.</p>
+              <p class="ink">Пять критериев от 0 до 5. Дальше идут те, кто набрал наибольшее количество баллов. Сколько проектов — зависит от заявок и их качества.</p>
             </article>
             <article class="card">
               <span class="badge">Жюри</span>
@@ -517,19 +561,21 @@
       <div class="rail" aria-hidden="true"></div>
       <div class="slide-body">
         <p class="lede">Формат максимально простой. Не презентация о будущем — показ того, что уже работает.</p>
+        <p class="row-kicker">Как показываем</p>
         <div class="demo-flow">
           <article class="card"><div class="num-label">01</div><div class="card-title">Было</div><p class="ink">Как процесс работал раньше.</p></article>
           <article class="card"><div class="num-label">02</div><div class="card-title">Стало</div><p class="ink">Что изменили в логике.</p></article>
-          <article class="card"><div class="num-label">03</div><div class="card-title">Как это работает</div><p class="ink">Покажите живой сценарий, который можно пройти.</p></article>
-          <article class="card"><div class="num-label">04</div><div class="card-title">Какой эффект</div><p class="ink">Что стало лучше и как это видно.</p></article>
-          <article class="card"><div class="num-label">05</div><div class="card-title">Путь в PROD</div><p class="ink">Что нужно, чтобы вывести решение в работу.</p></article>
+          <article class="card"><div class="num-label">03</div><div class="card-title">Как работает</div><p class="ink">Живой сценарий, который можно пройти.</p></article>
+          <article class="card"><div class="num-label">04</div><div class="card-title">Эффект</div><p class="ink">Что стало лучше и как это видно.</p></article>
+          <article class="card"><div class="num-label">05</div><div class="card-title">Путь в PROD</div><p class="ink">Что нужно, чтобы вывести в работу.</p></article>
         </div>
-        <div class="kpi-grid cols-5">
-          <div class="kpi"><div class="kpi-label">30%</div><div class="kpi-value dark">Эффект</div><div class="kpi-sub">Фактически полученный или честно оценённый результат</div></div>
-          <div class="kpi"><div class="kpi-label">25%</div><div class="kpi-value dark">Работоспособность MVP</div><div class="kpi-sub">Насколько реально работает прототип</div></div>
-          <div class="kpi"><div class="kpi-label">20%</div><div class="kpi-value dark">Новая логика</div><div class="kpi-sub">Насколько хорошо перепридуман сам процесс</div></div>
-          <div class="kpi"><div class="kpi-label">15%</div><div class="kpi-value dark">Путь в PROD</div><div class="kpi-sub">Масштаб и возможность довести до рабочей среды</div></div>
-          <div class="kpi"><div class="kpi-label">10%</div><div class="kpi-value dark">Демонстрация</div><div class="kpi-sub">Насколько ясно и понятно показали решение</div></div>
+        <p class="row-kicker">Как оцениваем</p>
+        <div class="demo-weights">
+          <div class="kpi"><div class="kpi-label">30%</div><div class="kpi-value dark">Эффект</div><div class="kpi-sub">Реальный или честно оценённый результат</div></div>
+          <div class="kpi"><div class="kpi-label">25%</div><div class="kpi-value dark">MVP работает</div><div class="kpi-sub">Насколько реально работает прототип</div></div>
+          <div class="kpi"><div class="kpi-label">20%</div><div class="kpi-value dark">Новая логика</div><div class="kpi-sub">Насколько хорошо перепридуман процесс</div></div>
+          <div class="kpi"><div class="kpi-label">15%</div><div class="kpi-value dark">Путь в PROD</div><div class="kpi-sub">Можно ли довести до рабочей среды</div></div>
+          <div class="kpi"><div class="kpi-label">10%</div><div class="kpi-value dark">Демонстрация</div><div class="kpi-sub">Насколько ясно показали решение</div></div>
         </div>
       </div>
       <footer class="slide-footer"><span>AI Challenge · ОЦО и бэкофис</span><span class="num">05</span></footer>
