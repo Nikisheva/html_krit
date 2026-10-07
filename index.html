@@ -177,6 +177,31 @@
     .demo-flow .card { padding: 0.8rem 0.85rem; }
     .demo-flow .card-title { font-size: 16px; margin-bottom: 4px; }
     .prize-grid { display: grid; grid-template-columns: 1.15fr repeat(3, 1fr); gap: 10px; margin-top: 12px; }
+    .idea-points {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 6px 18px;
+      margin: 8px 0 0;
+      padding: 0;
+      list-style: none;
+      counter-reset: idea;
+    }
+    .idea-points li {
+      counter-increment: idea;
+      position: relative;
+      padding-left: 22px;
+      font-size: 13px;
+      line-height: 1.35;
+      color: var(--ink);
+    }
+    .idea-points li::before {
+      content: counter(idea);
+      position: absolute;
+      left: 0;
+      top: 0;
+      color: var(--accent);
+      font-size: 12px;
+    }
     .prize-grid .kpi-value { font-size: 24px; }
     .faq-grid { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 10px; }
     .faq-grid .card { padding: 0.85rem 1rem; }
@@ -370,13 +395,13 @@
           <article class="card">
             <div class="num-label">03</div>
             <div class="card-title">Идея · 19–26 октября</div>
-            <p class="ink">19 октября объявляем тех, кто идёт в общий тур. Дальше описываем процесс, идею улучшения и ожидаемый эффект.</p>
+            <p class="ink">Выбираете процесс и предлагаете, как выстроить его иначе. Можно свой, кросс-функциональный или чужой — если понимаете, как он устроен.</p>
           </article>
 
           <article class="card">
             <div class="num-label">04</div>
             <div class="card-title">Представление идей · 26 октября</div>
-            <p class="ink">Показываем замысел и ожидаемый результат. Жюри оценивает пользу и возможность собрать прототип за время челленджа.</p>
+            <p class="ink">Коротко показываем заявку. Жюри — топ-менеджмент. Во второй этап идут лучшие идеи, которые набрали минимальный балл.</p>
           </article>
           <div class="stage-arrow" aria-hidden="true"></div>
           <article class="card">
@@ -400,45 +425,50 @@
     <section class="slide">
       <header class="slide-header">
         <div>
-          <div class="slide-kicker">Отбор</div>
-          <h2 class="slide-title">Какие идеи подходят и как их оцениваем</h2>
+          <div class="slide-kicker">Этап идея · 19–26 октября</div>
+          <h2 class="slide-title">Что писать в заявке и как оцениваем идеи</h2>
         </div>
         <img src="logo/KRIT_Logo_Grey_Color.svg" alt="КРИТ" width="90" height="51" />
       </header>
       <div class="rail" aria-hidden="true"></div>
       <div class="slide-body">
+        <p class="lede">Выбираете процесс и предлагаете, как выстроить его иначе. Можно свой, кросс-функциональный или процесс другой функции — если понимаете, как он устроен, и можете предложить конкретное изменение. Можно отказаться от процесса или его части, если ясно, как тогда решается задача.</p>
         <div class="grid-2">
           <article class="card">
-            <span class="badge success">Какие идеи подходят</span>
-            <ul class="list" style="margin-top:10px">
-              <li>Знакомый рабочий процесс с понятной задачей.</li>
-              <li>Конкретное улучшение: быстрее, удобнее, экономичнее или с меньшим количеством ошибок.</li>
-              <li>Возможность сравнить процесс и результат «до» и «после».</li>
-              <li>Работающий прототип, который реально создать за время челленджа.</li>
-            </ul>
+            <span class="badge">В заявке коротко</span>
+            <ol class="idea-points">
+              <li>Какой процесс меняем и для кого он существует.</li>
+              <li>Как он работает сейчас.</li>
+              <li>Что в нём хотим изменить.</li>
+              <li>Как предлагается выстроить новый процесс.</li>
+              <li>За счёт чего это можно сделать: Bitrix, агенты, автоматизация, интеграция. Детальной архитектуры не нужно.</li>
+              <li>Какой эффект ожидаем: время, деньги, качество, ошибки, удобство, масштаб.</li>
+              <li>Как будем измерять результат: было X, должно стать Y.</li>
+              <li>Кто автор.</li>
+            </ol>
           </article>
           <div style="display:grid;gap:10px">
             <div class="alert info">
-              <div class="alert-text">Можно изменить процесс целиком или улучшить один этап. Масштаб идеи выбираете вы.</div>
+              <div class="alert-text">До заявки можно прийти к Никишевой Елене: помочь подумать и направить, не придумать решение за вас.</div>
             </div>
             <article class="card">
-              <span class="badge">Что важно</span>
-              <p class="ink">У идеи должна быть практическая польза, а у финального проекта — работающий прототип. Одной демонстрации возможностей AI или описания концепции недостаточно.</p>
+              <span class="badge">Отбор</span>
+              <p class="ink">Пять критериев от 0 до 5. За кросс-функциональное решение — ещё +2 балла. Во второй этап идут лучшие идеи, которые набрали минимальный балл. Сколько проектов — зависит от заявок и их качества.</p>
             </article>
             <article class="card">
-              <span class="badge">Не требуется</span>
-              <p class="ink">Готовый промышленный продукт, обработка всех исключений и обязательный запуск в рабочую эксплуатацию.</p>
+              <span class="badge">Жюри</span>
+              <p class="ink">Топ-менеджмент компании. На демодне веса другие — их разберём отдельно.</p>
             </article>
           </div>
         </div>
         <div class="kpi-grid cols-5" style="margin-top:12px">
-          <div class="kpi"><div class="kpi-label">0–5</div><div class="kpi-value dark">Эффект</div><div class="kpi-sub">Экономия времени, ресурсов или затрат</div></div>
-          <div class="kpi"><div class="kpi-label">0–5</div><div class="kpi-value dark">Удобство</div><div class="kpi-sub">Людям проще выполнять работу</div></div>
-          <div class="kpi"><div class="kpi-label">0–5</div><div class="kpi-value dark">Качество</div><div class="kpi-sub">Меньше ошибок, надёжнее результат</div></div>
-          <div class="kpi"><div class="kpi-label">0–5</div><div class="kpi-value dark">Потенциал применения</div><div class="kpi-sub">Можно использовать в похожих задачах</div></div>
-          <div class="kpi"><div class="kpi-label">0–5</div><div class="kpi-value dark">Реализуемость MVP</div><div class="kpi-sub">Основной сценарий можно собрать за время челленджа</div></div>
+          <div class="kpi"><div class="kpi-label">0–5</div><div class="kpi-value dark">Бизнес-эффект</div><div class="kpi-sub">Время, деньги, результат для компании</div></div>
+          <div class="kpi"><div class="kpi-label">0–5</div><div class="kpi-value dark">Ценность</div><div class="kpi-sub">Удобство для пользователей процесса</div></div>
+          <div class="kpi"><div class="kpi-label">0–5</div><div class="kpi-value dark">Качество</div><div class="kpi-sub">Меньше ошибок и рисков</div></div>
+          <div class="kpi"><div class="kpi-label">0–5</div><div class="kpi-value dark">Масштаб</div><div class="kpi-sub">Можно применять шире, чем в одном участке</div></div>
+          <div class="kpi"><div class="kpi-label">0–5</div><div class="kpi-value dark">Глубина и реализм</div><div class="kpi-sub">Насколько сильно меняется процесс и насколько идея реалистична</div></div>
         </div>
-        <p class="muted" style="margin-top:10px;font-size:13px">Это критерии отбора идей, каждый от 0 до 5. На демодне веса другие — их разберём отдельно.</p>
+        <p class="muted" style="margin-top:8px;font-size:13px">Кросс-функциональное решение получает ещё +2 балла сверх этих пяти оценок.</p>
       </div>
       <footer class="slide-footer"><span>AI Challenge · ОЦО и бэкофис</span><span class="num">04</span></footer>
     </section>
@@ -544,7 +574,7 @@
           </article>
           <article class="card">
             <h3>Можно взять процесс другой команды?</h3>
-            <p>Главное — хорошо знать процесс. Условия работы с процессами других команд нужно уточнить до старта.</p>
+            <p>Да, если хорошо понимаете, как он устроен, и можете предложить конкретное изменение.</p>
           </article>
           <article class="card">
             <h3>Какой призовой фонд?</h3>
