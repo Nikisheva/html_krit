@@ -6,6 +6,7 @@ AI Challenge для сотрудников ОЦО и бэкофиса: знак�
 
 - [`index.html`](index.html) — HTML-презентация AI Challenge в фирменном стиле КРИТ (16:9, 8 слайдов).
 - [`AI Challenge.pptx`](AI%20Challenge.pptx) — та же презентация в PowerPoint для рассылки и показа. Пересборка: `python3 build_pptx.py`.
+- [`Cursor для AI Challenge.pptx`](Cursor%20для%20AI%20Challenge.pptx) — короткая инструкция по Cursor для участников ОЦО и бэкофиса: 6 слайдов, как ставить задачу, режимы Agent / Ask / Plan, правила данных. Пересборка: `python3 build_cursor_pptx.py`.
 - [`launch-plan.html`](launch-plan.html) — оценка готовности и план запуска для организаторов.
 - [`reglament.html`](reglament.html) — регламент AI Challenge: этапы, даты, роли, правила и недостающие материалы.
 - [`Регламент AI Challenge.docx`](Регламент%20AI%20Challenge.docx) — тот же регламент в Word для рассылки.
