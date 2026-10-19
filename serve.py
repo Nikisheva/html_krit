@@ -35,9 +35,8 @@ LOCK = threading.Lock()
 
 EMAIL_RE = re.compile(r"^[^@\s]+@[^@\s]+\.[^@\s]+$")
 TRAINING = {
-    "yes": "Буду на обучении 20 октября",
-    "no": "Не смогу быть на обучении",
-    "done": "Уже прошёл обучение",
+    "passed": "Прошёл",
+    "missed": "Не прошёл",
 }
 FIELDS = {
     "name": (2, 120),
@@ -132,10 +131,10 @@ def validate(body: dict) -> tuple[dict | None, str | None]:
 
     training = str(body.get("training") or "")
     if training not in TRAINING:
-        return None, "Укажите, будете ли на обучении 20 октября."
+        return None, "Укажите, прошли обучение или нет."
     item["training"] = training
 
-    for key in ("solo", "rules", "data_rules"):
+    for key in ("solo", "rules"):
         if body.get(key) is not True:
             return None, "Нужно подтвердить правила участия."
         item[key] = True

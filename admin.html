@@ -15,7 +15,8 @@
     .wrap { padding: 32px 0 64px; }
     h1 { font-family: var(--font-family-heading); font-weight: 300; font-size: 34px; margin: 8px 0 8px; }
     .kicker { color: var(--accent); font-size: 13px; }
-    .bar { display: flex; justify-content: space-between; gap: 12px; align-items: center; margin: 18px 0; flex-wrap: wrap; }
+    .bar { display: flex; justify-content: space-between; gap: 12px; align-items: end; margin: 18px 0; flex-wrap: wrap; }
+    .stats { display: flex; gap: 10px; flex-wrap: wrap; }
     table.mtable { background: #fff; }
     table.mtable td, table.mtable th { vertical-align: top; }
     .process { max-width: 280px; color: var(--muted); }
@@ -31,14 +32,18 @@
     </div>
   </header>
   <main class="wrap">
-    <div class="kicker">Для организатора · только с компьютера, где запущен сервер</div>
+    <div class="kicker">Сводка для организатора · только с этого компьютера</div>
     <h1>Заявки на участие</h1>
-    <p>Срок приёма — 21 октября 2026, 23:59 мск. В тестовый тур выходят те, кто в этом списке.</p>
+    <p>Сюда попадают все отправленные заявки. Срок приёма — 21 октября 2026, 23:59 мск. Процесс в таблице предварительный.</p>
     <div class="alert warn" id="denied" hidden>
       <div class="alert-text">Список открывается на компьютере, где запущена форма. С другого адреса он недоступен.</div>
     </div>
     <div class="bar">
-      <div class="kpi"><div class="kpi-label">Заявок</div><div class="kpi-value dark" id="count">—</div></div>
+      <div class="stats">
+        <div class="kpi"><div class="kpi-label">Всего</div><div class="kpi-value dark" id="count">—</div></div>
+        <div class="kpi"><div class="kpi-label">Прошли обучение</div><div class="kpi-value dark" id="passed">—</div></div>
+        <div class="kpi"><div class="kpi-label">Не прошли</div><div class="kpi-value dark" id="missed">—</div></div>
+      </div>
       <div style="display:flex;gap:8px">
         <button class="sb-btn ghost" type="button" id="reload">Обновить</button>
         <a class="sb-btn primary" href="/api/applications.csv">Скачать CSV</a>
@@ -52,7 +57,7 @@
             <th>Участник</th>
             <th>Контакты</th>
             <th>Обучение</th>
-            <th>Процесс</th>
+            <th>Процесс, предварительно</th>
           </tr>
         </thead>
         <tbody id="rows"></tbody>
@@ -62,9 +67,8 @@
   </main>
   <script>
     const training = {
-      yes: "Будет 20 октября",
-      no: "Не сможет",
-      done: "Уже прошёл",
+      passed: "Прошёл",
+      missed: "Не прошёл",
     };
 
     function cell(text) {
@@ -90,6 +94,8 @@
       const data = await res.json();
       const items = data.items || [];
       document.getElementById("count").textContent = String(items.length);
+      document.getElementById("passed").textContent = String(items.filter((item) => item.training === "passed").length);
+      document.getElementById("missed").textContent = String(items.filter((item) => item.training === "missed").length);
       const body = document.getElementById("rows");
       body.replaceChildren();
       document.getElementById("empty").hidden = items.length > 0;

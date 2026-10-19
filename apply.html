@@ -103,23 +103,20 @@
             <input id="contact" name="contact" type="text" autocomplete="tel" required maxlength="160" />
           </div>
           <div class="field">
-            <label for="training">Обучение 20 октября <span class="req">*</span></label>
+            <label for="training">Обучение <span class="req">*</span></label>
             <select id="training" name="training" required>
               <option value="">Выберите</option>
-              <option value="yes">Буду</option>
-              <option value="no">Не смогу</option>
-              <option value="done">Уже прошёл</option>
+              <option value="passed">Прошёл</option>
+              <option value="missed">Не прошёл</option>
             </select>
           </div>
           <div class="field">
-            <label for="process">Какой процесс рассматриваете</label>
+            <label for="process">Какой процесс рассматриваете (предварительно, можно будет изменить)</label>
             <textarea id="process" name="process" maxlength="500" placeholder="Коротко, одним-двумя предложениями. Можно оставить пустым."></textarea>
-            <span class="muted">Это не заявка на идею. Восемь пунктов понадобятся к 6 ноября.</span>
           </div>
           <div class="checks">
             <label class="check"><input type="checkbox" name="solo" required /> Участие одиночное: один человек — один проект.</label>
-            <label class="check"><input type="checkbox" name="rules" required /> Ознакомился с <a href="reglament.html">регламентом</a>. Срок заявки — 21 октября, 23:59 мск.</label>
-            <label class="check"><input type="checkbox" name="data_rules" required /> Не выношу боевые, персональные и финансовые данные в прототип и Cursor без разрешения ИТ и ИБ.</label>
+            <label class="check"><input type="checkbox" name="rules" required /> Ознакомился с <a href="reglament.html">регламентом.</a> Срок заявки — 21 октября, 23:59 мск.</label>
           </div>
           <p class="error" id="error" hidden></p>
           <div class="actions">
@@ -197,12 +194,11 @@
       const data = Object.fromEntries(new FormData(form).entries());
       data.solo = form.solo.checked;
       data.rules = form.rules.checked;
-      data.data_rules = form.data_rules.checked;
       if (!data.name || !data.unit || !data.position || !data.email || !data.contact || !data.training) {
         showError("Заполните все обязательные поля.");
         return;
       }
-      if (!data.solo || !data.rules || !data.data_rules) {
+      if (!data.solo || !data.rules) {
         showError("Нужно подтвердить правила участия.");
         return;
       }
