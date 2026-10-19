@@ -1,0 +1,242 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Заявка на участие — AI Challenge</title>
+  <link rel="stylesheet" href="brand-tokens.css" />
+  <link rel="stylesheet" href="storybook-static/krit-report-components.css" />
+  <style>
+    body { margin: 0; background: #f4f7fb; color: var(--ink); font-family: var(--font-family-body); line-height: 1.5; }
+    a { color: var(--accent); display: inline; }
+    .top {
+      background: var(--bg);
+      border-bottom: 1px solid var(--line);
+    }
+    .top-inner, .wrap { width: min(1040px, calc(100% - 32px)); margin: 0 auto; }
+    .top-inner { display: flex; align-items: center; justify-content: space-between; min-height: 72px; gap: 16px; }
+    .wrap { padding: 36px 0 72px; }
+    h1, h2 { font-family: var(--font-family-heading); font-weight: 300; }
+    h1 { font-size: 40px; line-height: 1.1; margin: 8px 0 12px; }
+    h2 { font-size: 22px; margin: 0 0 14px; }
+    .kicker { color: var(--accent); font-size: 13px; }
+    .lede { font-size: 18px; max-width: 40rem; margin: 0 0 22px; }
+    .layout { display: grid; grid-template-columns: minmax(0, 1.45fr) minmax(260px, 0.7fr); gap: 16px; align-items: start; }
+    .card h2 { font-size: 20px; }
+    .side { display: grid; gap: 12px; }
+    .side p, .side li { font-size: 14px; }
+    .side ul { margin: 8px 0 0; padding-left: 18px; }
+    .side li { margin: 6px 0; }
+    form { display: grid; gap: 14px; }
+    .field { display: grid; gap: 6px; }
+    label { font-size: 14px; color: var(--ink); }
+    .req { color: var(--accent); }
+    input[type="text"], input[type="email"], textarea, select {
+      width: 100%;
+      box-sizing: border-box;
+      border: 1px solid var(--line);
+      border-radius: 3px;
+      background: #fff;
+      color: var(--ink);
+      font: 16px/1.4 var(--font-family-body);
+      padding: 10px 12px;
+    }
+    textarea { min-height: 96px; resize: vertical; }
+    input:focus, textarea:focus, select:focus { outline: 2px solid color-mix(in srgb, var(--accent) 45%, white); border-color: var(--accent); }
+    .checks { display: grid; gap: 10px; }
+    .check { display: flex; gap: 10px; align-items: flex-start; font-size: 14px; }
+    .check input { margin-top: 3px; }
+    .hp { position: absolute; left: -9999px; height: 0; overflow: hidden; }
+    .actions { display: flex; gap: 10px; align-items: center; flex-wrap: wrap; }
+    .sb-btn { font-size: 15px; min-height: 42px; padding: 0.5rem 1rem; text-decoration: none; }
+    .error { color: var(--danger); font-size: 14px; margin: 0; }
+    .muted { color: var(--muted); font-size: 13px; }
+    .success-id { font-family: var(--font-family-heading); font-size: 28px; letter-spacing: 0.04em; margin: 8px 0; }
+    @media (max-width: 800px) {
+      h1 { font-size: 32px; }
+      .layout { grid-template-columns: 1fr; }
+    }
+  </style>
+</head>
+<body>
+  <header class="top">
+    <div class="top-inner">
+      <img src="logo/KRIT_Logo_Grey_Color.svg" alt="КРИТ" width="90" height="51" />
+      <a href="reglament.html">Регламент</a>
+    </div>
+  </header>
+  <main class="wrap">
+    <div class="kicker">ОЦО и бэкофис · до 21 октября, 23:59 мск</div>
+    <h1>Заявка на участие</h1>
+    <p class="lede">Один человек — один проект. Заявка открывает тестовый тур. Подробную идею из восьми пунктов опишете после него, к просмотру 6 ноября.</p>
+
+    <div id="offline" class="alert warn" hidden>
+      <div class="alert-text">Форма принимает заявки по ссылке сервера. Если страница открыта как файл, отправка не сохранится.</div>
+    </div>
+
+    <div class="layout">
+      <article class="card" id="form-card">
+        <h2>Кто участвует</h2>
+        <form id="form" novalidate>
+          <div class="hp" hidden>
+            <label for="company_website">Сайт</label>
+            <input id="company_website" name="company_website" type="text" tabindex="-1" autocomplete="off" />
+          </div>
+          <div class="field">
+            <label for="name">Фамилия и имя <span class="req">*</span></label>
+            <input id="name" name="name" type="text" autocomplete="name" required maxlength="120" />
+          </div>
+          <div class="field">
+            <label for="unit">Подразделение <span class="req">*</span></label>
+            <input id="unit" name="unit" type="text" required maxlength="160" />
+          </div>
+          <div class="field">
+            <label for="position">Должность <span class="req">*</span></label>
+            <input id="position" name="position" type="text" autocomplete="organization-title" required maxlength="160" />
+          </div>
+          <div class="field">
+            <label for="email">Корпоративная почта <span class="req">*</span></label>
+            <input id="email" name="email" type="email" autocomplete="email" required maxlength="160" />
+          </div>
+          <div class="field">
+            <label for="contact">Телефон или Telegram <span class="req">*</span></label>
+            <input id="contact" name="contact" type="text" autocomplete="tel" required maxlength="160" />
+          </div>
+          <div class="field">
+            <label for="training">Обучение 20 октября <span class="req">*</span></label>
+            <select id="training" name="training" required>
+              <option value="">Выберите</option>
+              <option value="yes">Буду</option>
+              <option value="no">Не смогу</option>
+              <option value="done">Уже прошёл</option>
+            </select>
+          </div>
+          <div class="field">
+            <label for="process">Какой процесс рассматриваете</label>
+            <textarea id="process" name="process" maxlength="500" placeholder="Коротко, одним-двумя предложениями. Можно оставить пустым."></textarea>
+            <span class="muted">Это не заявка на идею. Восемь пунктов понадобятся к 6 ноября.</span>
+          </div>
+          <div class="checks">
+            <label class="check"><input type="checkbox" name="solo" required /> Участие одиночное: один человек — один проект.</label>
+            <label class="check"><input type="checkbox" name="rules" required /> Ознакомился с <a href="reglament.html">регламентом</a>. Срок заявки — 21 октября, 23:59 мск.</label>
+            <label class="check"><input type="checkbox" name="data_rules" required /> Не выношу боевые, персональные и финансовые данные в прототип и Cursor без разрешения ИТ и ИБ.</label>
+          </div>
+          <p class="error" id="error" hidden></p>
+          <div class="actions">
+            <button class="sb-btn primary" type="submit" id="submit">Отправить заявку</button>
+            <span class="muted">Повторная отправка с той же почтой обновляет заявку.</span>
+          </div>
+        </form>
+      </article>
+
+      <article class="card" id="done" hidden>
+        <span class="badge success">Принято</span>
+        <h2 id="done-title">Заявка принята</h2>
+        <p id="done-text">Вы в списке на тестовый тур. 22 октября выдадим задания.</p>
+        <div class="success-id" id="done-id"></div>
+        <p class="muted">Номер заявки. Если нужно поправить данные до 21 октября, отправьте форму ещё раз с той же почтой.</p>
+        <p style="margin-top:16px"><button class="sb-btn ghost" type="button" id="again">Изменить заявку</button></p>
+      </article>
+
+      <aside class="side">
+        <article class="card">
+          <span class="badge">Срок</span>
+          <p>Заявки принимаются до <strong>21 октября 2026, 23:59 мск</strong>. Без заявки в тестовый тур не выходим.</p>
+        </article>
+        <article class="card">
+          <span class="badge">Дальше</span>
+          <ul>
+            <li>20 октября — обучение.</li>
+            <li>22 октября — задания тестового тура.</li>
+            <li>до 30 октября — минипроцесс в Битриксе на тестовом стенде, без агентов.</li>
+            <li>6 ноября — просмотр идей.</li>
+          </ul>
+        </article>
+        <div class="alert info">
+          <div class="alert-text">До идеи можно прийти к Никишевой Елене: помочь подумать и направить, не придумать решение за вас.</div>
+        </div>
+      </aside>
+    </div>
+  </main>
+  <script>
+    const form = document.getElementById("form");
+    const error = document.getElementById("error");
+    const done = document.getElementById("done");
+    const formCard = document.getElementById("form-card");
+    const deadline = new Date("2026-10-21T23:59:59+03:00");
+
+    function showError(text) {
+      error.hidden = !text;
+      error.textContent = text || "";
+    }
+
+    function closed() {
+      formCard.hidden = true;
+      done.hidden = false;
+      document.getElementById("done-title").textContent = "Приём заявок закрыт";
+      document.getElementById("done-text").textContent = "Срок был 21 октября 2026, 23:59 мск. Новые заявки не принимаются.";
+      document.getElementById("done-id").hidden = true;
+      document.getElementById("again").hidden = true;
+      done.querySelector(".badge").textContent = "Закрыто";
+    }
+
+    if (Date.now() > deadline.getTime()) closed();
+
+    fetch("/api/health").then((res) => {
+      if (!res.ok) throw new Error("offline");
+      return res.json();
+    }).then((data) => {
+      if (!data.open) closed();
+    }).catch(() => {
+      document.getElementById("offline").hidden = false;
+    });
+
+    form.addEventListener("submit", async (event) => {
+      event.preventDefault();
+      showError("");
+      const data = Object.fromEntries(new FormData(form).entries());
+      data.solo = form.solo.checked;
+      data.rules = form.rules.checked;
+      data.data_rules = form.data_rules.checked;
+      if (!data.name || !data.unit || !data.position || !data.email || !data.contact || !data.training) {
+        showError("Заполните все обязательные поля.");
+        return;
+      }
+      if (!data.solo || !data.rules || !data.data_rules) {
+        showError("Нужно подтвердить правила участия.");
+        return;
+      }
+      const button = document.getElementById("submit");
+      button.disabled = true;
+      try {
+        const res = await fetch("/api/applications", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify(data),
+        });
+        const payload = await res.json().catch(() => ({}));
+        if (!res.ok) {
+          showError(payload.error || "Не удалось отправить заявку.");
+          return;
+        }
+        formCard.hidden = true;
+        done.hidden = false;
+        document.getElementById("done-title").textContent = payload.updated ? "Заявка обновлена" : "Заявка принята";
+        document.getElementById("done-text").textContent = payload.updated
+          ? "Данные по этой почте заменены. Вы по-прежнему в списке на тестовый тур."
+          : "Вы в списке на тестовый тур. 22 октября выдадим задания.";
+        document.getElementById("done-id").textContent = payload.id || "";
+      } catch (err) {
+        showError("Сервер не отвечает. Откройте форму по ссылке, которую прислали организаторы.");
+      } finally {
+        button.disabled = false;
+      }
+    });
+
+    document.getElementById("again").addEventListener("click", () => {
+      done.hidden = true;
+      formCard.hidden = false;
+    });
+  </script>
+</body>
+</html>
