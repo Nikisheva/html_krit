@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Short Cursor briefing for AI Challenge participants (back office and SSC)."""
+"""Training deck from the KRIT back-office Cursor instruction."""
 
 from pptx import Presentation
 from pptx.dml.color import RGBColor
@@ -19,6 +19,7 @@ LINE = RGBColor(0xE0, 0xE3, 0xE8)
 SOFT = RGBColor(0xF4, 0xF8, 0xFC)
 HEAD = "Uncage"
 BODY = "Arial"
+FOOTER = "Бэк-офис и ОЦО · AI Challenge"
 
 
 def set_run(run, text, size, color, font=BODY, bold=False):
@@ -65,10 +66,24 @@ def add_text(slide, l, t, w, h, text, size, color, font=BODY, bold=False, align=
     return sh
 
 
+def add_lines(slide, l, t, w, h, lines, size, color, font=BODY, bold=False, space_after=8, anchor=MSO_ANCHOR.TOP):
+    sh = slide.shapes.add_textbox(l, t, w, h)
+    tf = sh.text_frame
+    tf.word_wrap = True
+    tf.auto_size = None
+    tf._txBody.bodyPr.set("anchor", {MSO_ANCHOR.TOP: "t", MSO_ANCHOR.MIDDLE: "ctr", MSO_ANCHOR.BOTTOM: "b"}[anchor])
+    for i, line in enumerate(lines):
+        p = tf.paragraphs[0] if i == 0 else tf.add_paragraph()
+        p.alignment = PP_ALIGN.LEFT
+        p.space_after = Pt(space_after)
+        run = p.add_run()
+        set_run(run, line, size, color, font=font, bold=bold)
+    return sh
+
+
 def card(slide, l, t, w, h, fill=WHITE):
     add_box(slide, l, t, w, h, fill, LINE)
     add_bar(slide, l, t, w)
-    return l, t, w, h
 
 
 def header(slide, kicker, title, num):
@@ -76,7 +91,7 @@ def header(slide, kicker, title, num):
     add_text(slide, Inches(0.55), Inches(0.22), Inches(10.4), Inches(0.32), kicker, 12, ACCENT)
     add_text(slide, Inches(0.55), Inches(0.48), Inches(10.6), Inches(0.55), title, 26, INK, font=HEAD)
     slide.shapes.add_picture("assets/pptx/logo-grey.png", Inches(11.85), Inches(0.28), height=Inches(0.42))
-    add_text(slide, Inches(0.55), Inches(7.12), Inches(9), Inches(0.28), "AI Challenge · ОЦО и бэкофис", 11, ACCENT)
+    add_text(slide, Inches(0.55), Inches(7.12), Inches(9), Inches(0.28), FOOTER, 11, ACCENT)
     add_text(slide, Inches(12.15), Inches(7.12), Inches(0.7), Inches(0.28), num, 11, MUTED, align=PP_ALIGN.RIGHT)
 
 
@@ -86,186 +101,222 @@ def blank(prs):
     return s
 
 
-def cover(prs):
-    s = blank(prs)
-    builder = s.shapes.build_freeform(Inches(10.55), Inches(0))
+def blue_panel(slide):
+    builder = slide.shapes.build_freeform(Inches(10.55), Inches(0))
     builder.add_line_segments([(W, Inches(0)), (W, H), (Inches(8.82), H)], close=True)
     geo = builder.convert_to_shape()
     geo.shadow.inherit = False
     geo.fill.solid()
     geo.fill.fore_color.rgb = ACCENT
     geo.line.fill.background()
-    s.shapes.add_picture("assets/pptx/logo-white.png", Inches(11.85), Inches(0.32), height=Inches(0.42))
-    add_box(s, Inches(0.7), Inches(1.35), Inches(4.7), Inches(0.36), SOFT)
-    add_text(s, Inches(0.82), Inches(1.37), Inches(4.45), Inches(0.32), "AI Challenge · ОЦО и бэкофис", 13, ACCENT, anchor=MSO_ANCHOR.MIDDLE)
-    add_text(s, Inches(0.7), Inches(1.95), Inches(8.2), Inches(1.5), "Как работать\nв Cursor", 40, INK, font=HEAD)
+    slide.shapes.add_picture("assets/pptx/logo-white.png", Inches(11.85), Inches(0.32), height=Inches(0.42))
+
+
+def cover(prs):
+    s = blank(prs)
+    blue_panel(s)
+    add_box(s, Inches(0.7), Inches(1.35), Inches(5.35), Inches(0.36), SOFT)
+    add_text(s, Inches(0.82), Inches(1.37), Inches(5.1), Inches(0.32), "Обучение · бэк-офис и ОЦО", 13, ACCENT, anchor=MSO_ANCHOR.MIDDLE)
+    add_text(s, Inches(0.7), Inches(1.95), Inches(8.2), Inches(1.5), "Работа\nс Cursor", 40, INK, font=HEAD)
     add_text(
         s,
         Inches(0.7),
         Inches(4.15),
-        Inches(7.6),
-        Inches(1.15),
-        "Ставите задачу обычным языком. Агент готовит черновик в файлах проекта. Вы проверяете, что процесс и правда стал лучше.",
+        Inches(7.5),
+        Inches(1.35),
+        "Помощник на вашем компьютере: разбирает задачу, готовит правки и помогает проверить результат. За то, что попросили, согласовали и проверили, отвечаете вы.",
         18,
         INK,
     )
-    add_text(s, Inches(0.7), Inches(6.85), Inches(6), Inches(0.3), "Обучение · 20 октября", 14, MUTED)
+    add_text(s, Inches(0.7), Inches(6.85), Inches(7), Inches(0.3), "Откройте инструкцию перед началом задачи", 14, MUTED)
 
 
 def what(prs):
     s = blank(prs)
-    header(s, "С чего начать", "Cursor работает в папке проекта", "02")
+    header(s, "С чего начать", "Помощник внутри вашей папки", "02")
     add_text(
         s,
         Inches(0.55),
-        Inches(1.22),
+        Inches(1.2),
         Inches(12.2),
-        Inches(0.62),
-        "Это не отдельный чат «просто поговорить». Откройте папку, которую выдали на обучение: агент читает файлы и может их изменить. Что оставить — решаете вы.",
+        Inches(0.55),
+        "Описываете задачу обычными словами. Cursor помогает выполнить её в открытом проекте на вашем компьютере.",
         16,
         INK,
     )
     items = [
-        ("01", "Говорите о процессе", "Что сейчас болит, кто делает шаг и какой результат можно показать коллегам."),
-        ("02", "Агент делает черновик", "Ищет файлы, предлагает правки и вносит их. Новая тема — новый чат."),
-        ("03", "Вы принимаете работу", "Откройте результат и пройдите сценарий. Не сошлось — напишите, что поправить."),
+        ("01", "Найти", "Инструкцию или описание процесса в проекте."),
+        ("02", "Подготовить", "Правку во внутренней системе или автоматизации."),
+        ("03", "Показать", "Что именно изменилось после работы."),
+        ("04", "Сохранить", "Понятную историю этих изменений."),
     ]
-    gap, cw, ch = Inches(0.2), Inches(3.95), Inches(3.2)
-    x0, y0 = Inches(0.55), Inches(2.0)
+    cw, ch, gap = Inches(2.95), Inches(2.35), Inches(0.16)
+    y = Inches(1.9)
     for i, (num, title, body) in enumerate(items):
-        x = x0 + i * (cw + gap)
-        card(s, x, y0, cw, ch)
-        add_text(s, x + Inches(0.28), y0 + Inches(0.35), Inches(3.3), Inches(0.5), num, 22, ACCENT, font=HEAD)
-        add_text(s, x + Inches(0.28), y0 + Inches(1.05), Inches(3.4), Inches(0.8), title, 20, INK, font=HEAD)
-        add_text(s, x + Inches(0.28), y0 + Inches(1.85), Inches(3.4), Inches(1.1), body, 15, MUTED)
-    add_box(s, Inches(0.55), Inches(5.42), Inches(12.22), Inches(1.1), SOFT)
+        x = Inches(0.55) + i * (cw + gap)
+        card(s, x, y, cw, ch)
+        add_text(s, x + Inches(0.18), y + Inches(0.22), Inches(2.5), Inches(0.32), num, 14, ACCENT, font=HEAD)
+        add_text(s, x + Inches(0.18), y + Inches(0.58), Inches(2.55), Inches(0.4), title, 20, INK, font=HEAD)
+        add_text(s, x + Inches(0.18), y + Inches(1.15), Inches(2.58), Inches(0.95), body, 14, MUTED)
+    add_box(s, Inches(0.55), Inches(4.5), Inches(12.22), Inches(2.15), SOFT)
+    add_text(s, Inches(0.8), Inches(4.68), Inches(11.7), Inches(0.35), "Работаем локально, не в Cloud", 18, INK, font=HEAD)
     add_text(
         s,
-        Inches(0.78),
-        Inches(5.55),
-        Inches(11.8),
-        Inches(0.85),
-        "На тестовом туре агенты не используются: там свой минипроцесс в Битриксе. Cursor берите, чтобы разобрать задачу и собрать MVP.",
+        Inches(0.8),
+        Inches(5.15),
+        Inches(11.7),
+        Inches(1.25),
+        "Файлы лежат на вашем компьютере. Cloud для рабочих проектов и корпоративной информации не используем: на одной учётной записи могут работать несколько человек. Не уверены, где вы сейчас, — остановитесь и спросите IT.",
         16,
         INK,
-        anchor=MSO_ANCHOR.MIDDLE,
     )
 
 
-def task(prs):
+def plan(prs):
     s = blank(prs)
-    header(s, "Главный навык", "Одна задача — четыре части", "03")
-    parts = [
-        ("01", "Как сейчас", "Процесс своими словами: кто, какой шаг, где теряется время."),
-        ("02", "Что получить", "Что должно появиться: форма, статус, маршрут, письмо, отчёт."),
-        ("03", "Чего нельзя", "Боевые данные, лишние системы, то, что трогать не просили."),
-        ("04", "Когда готово", "Один сценарий, который вы сами можете пройти от начала до конца."),
-    ]
-    cw = Inches(2.95)
-    gap = Inches(0.16)
-    x0, y0, ch = Inches(0.55), Inches(1.28), Inches(2.15)
-    for i, (num, title, body) in enumerate(parts):
-        x = x0 + i * (cw + gap)
-        card(s, x, y0, cw, ch, SOFT)
-        add_text(s, x + Inches(0.16), y0 + Inches(0.18), Inches(2.6), Inches(0.32), num, 14, ACCENT, font=HEAD)
-        add_text(s, x + Inches(0.16), y0 + Inches(0.5), Inches(2.6), Inches(0.4), title, 16, INK, font=HEAD)
-        add_text(s, x + Inches(0.16), y0 + Inches(1.0), Inches(2.62), Inches(0.95), body, 13, MUTED)
-
-    card(s, Inches(0.55), Inches(3.62), Inches(12.22), Inches(2.05), WHITE)
-    add_text(s, Inches(0.78), Inches(3.78), Inches(2), Inches(0.3), "Так", 13, ACCENT, bold=True)
-    add_text(
+    header(s, "Как начинать задачу", "Сначала план, потом изменения", "03")
+    card(s, Inches(0.55), Inches(1.25), Inches(7.55), Inches(4.15))
+    add_lines(
         s,
-        Inches(0.78),
-        Inches(4.12),
-        Inches(11.75),
-        Inches(1.35),
-        "«Согласование счёта идёт письмами и таблицей. Собери прототип: заявка, маршрут из трёх шагов и статус. Боевые данные не используй. Готово, когда я пройду путь от заявки до „согласовано“.»",
+        Inches(0.8),
+        Inches(1.5),
+        Inches(7.05),
+        Inches(3.7),
+        [
+            "01   Опишите задачу своими словами.",
+            "02   Попросите изучить, как сделано сейчас, и пока не менять файлы.",
+            "03   Попросите пошаговый план.",
+            "04   Сами прочитайте план: всё ли понятно и нет ли лишнего.",
+            "05   Только после этого разрешите изменения.",
+        ],
         16,
         INK,
+        space_after=14,
     )
-    add_text(
+    card(s, Inches(8.28), Inches(1.25), Inches(4.5), Inches(4.15), SOFT)
+    add_text(s, Inches(8.5), Inches(1.48), Inches(4.1), Inches(0.7), "Задача сложная, если", 18, INK, font=HEAD)
+    add_lines(
         s,
-        Inches(0.55),
-        Inches(5.85),
-        Inches(12.2),
-        Inches(0.95),
-        "Не так: «Сделай автоматизацию». Новая тема — новый чат. Если вышло не то, напишите, что именно поправить. Нужный файл укажите через @.",
+        Inches(8.5),
+        Inches(2.25),
+        Inches(4.05),
+        Inches(2.9),
+        [
+            "Затронуто несколько файлов, систем или отделов.",
+            "Можно сломать уже работающий процесс.",
+            "Нужно менять доступы, данные или настройки.",
+            "Вы сами не до конца понимаете, что изменится.",
+        ],
         14,
         MUTED,
+        space_after=10,
     )
-
-
-def modes(prs):
-    s = blank(prs)
-    header(s, "Панель агента", "Три режима, больше пока не нужно", "04")
     add_text(
         s,
         Inches(0.55),
-        Inches(1.22),
+        Inches(5.6),
         Inches(12.2),
-        Inches(0.55),
-        "Открыть панель: Ctrl+I в Windows, Cmd+I на Mac. Режим — внизу панели или Shift+Tab.",
+        Inches(1.15),
+        "Формула запроса: контекст → что сделать → где можно менять → что нельзя → как проверить. Простую задачу можно пройти короче. Сложную разбирайте самым сильным помощником.",
         16,
         INK,
     )
+
+
+def bounds(prs):
+    s = blank(prs)
+    header(s, "Границы", "Что помощнику не отдаём", "04")
     items = [
-        ("Agent", "Собирает и правит", "Основной режим. Просите сделать форму, маршрут, текст, правку. Смотрите, какие файлы он затронул."),
-        ("Ask", "Только объясняет", "Файлы не меняет. Спрашивайте, как устроен шаг, что означает поле, где искать. Удобно, прежде чем что-то переписывать."),
-        ("Plan", "Сначала план", "Для большой задачи. Агент уточняет, пишет план, ждёт вашего «да» и только потом собирает. План можно поправить."),
+        (
+            "Секреты",
+            "Пароли, коды и ключи не пишем в чат, не вставляем в запрос и не кладём в историю проекта. Даже если попросите показать пароль. Нужен доступ — Cursor готовит пустой локальный файл, значения вносите вы.",
+        ),
+        (
+            "Рабочая система",
+            "DEV — здесь пробуем. TEST — здесь проверяем. PROD — система, в которой идёт реальная работа. В неё без отдельного процесса не лезем. Неясно, где вы, — остановитесь и спросите IT.",
+        ),
+        (
+            "Ядро",
+            "Заводскую часть системы, чужие библиотеки и файлы не по вашей задаче не меняем. Если без этого никак, Cursor останавливается, объясняет риск и ждёт вашего решения или решения IT.",
+        ),
     ]
-    cw, ch = Inches(3.95), Inches(3.2)
-    gap = Inches(0.2)
-    y0 = Inches(1.95)
-    for i, (name, title, body) in enumerate(items):
+    cw, ch, gap = Inches(3.95), Inches(4.15), Inches(0.18)
+    y = Inches(1.28)
+    for i, (title, body) in enumerate(items):
         x = Inches(0.55) + i * (cw + gap)
-        card(s, x, y0, cw, ch)
-        add_text(s, x + Inches(0.28), y0 + Inches(0.32), Inches(3.4), Inches(0.4), name, 14, ACCENT, bold=True)
-        add_text(s, x + Inches(0.28), y0 + Inches(0.85), Inches(3.4), Inches(0.7), title, 22, INK, font=HEAD)
-        add_text(s, x + Inches(0.28), y0 + Inches(1.7), Inches(3.4), Inches(1.3), body, 15, MUTED)
+        card(s, x, y, cw, ch)
+        add_text(s, x + Inches(0.24), y + Inches(0.28), Inches(3.45), Inches(0.7), title, 22, INK, font=HEAD)
+        add_text(s, x + Inches(0.24), y + Inches(1.15), Inches(3.45), Inches(2.7), body, 15, MUTED)
     add_text(
         s,
         Inches(0.55),
-        Inches(5.4),
+        Inches(5.65),
         Inches(12.2),
-        Inches(1.2),
-        "Не знаете, с чего начать: откройте Ask и попросите объяснить задачу обычным языком. Когда понятно, что должно получиться, переключайтесь в Plan или сразу в Agent.",
+        Inches(1.1),
+        "Тоже стоп: много удалений, смена доступов, база данных, массовое изменение данных. Если остаётся вопрос «а можно ли это менять?» — менять ещё нельзя.",
         16,
         INK,
     )
 
 
-def rules(prs):
+def close(prs):
     s = blank(prs)
-    header(s, "Границы", "Четыре правила на всё время челленджа", "05")
-    items = [
-        ("01", "Секреты", "Пароли, ключи доступа и коды из писем в сообщение не вставляем. Даже «на один раз» и даже если агент просит."),
-        ("02", "Боевые данные", "Персональные и финансовые данные, выгрузки из рабочих систем и реальные договоры в проект и в чат не выносим."),
-        ("03", "Только Dev", "Прототип собираем на тестовых стендах: Bitrix Dev и Work IT Dev. На рабочий контур сами не переносим."),
-        ("04", "Проверка", "Результат открываете сами и проходите сценарий. Доступы выдаёт ИТ, права в обход не настраиваем."),
-    ]
-    positions = [(0, 0), (1, 0), (0, 1), (1, 1)]
-    cw, ch = Inches(6.0), Inches(2.35)
-    gap_x, gap_y = Inches(0.22), Inches(0.18)
-    x0, y0 = Inches(0.55), Inches(1.28)
-    for (num, title, body), (col, row) in zip(items, positions):
-        x = x0 + col * (cw + gap_x)
-        y = y0 + row * (ch + gap_y)
-        card(s, x, y, cw, ch)
-        add_text(s, x + Inches(0.28), y + Inches(0.28), Inches(0.7), Inches(0.4), num, 18, ACCENT, font=HEAD)
-        add_text(s, x + Inches(1.05), y + Inches(0.3), Inches(4.6), Inches(0.4), title, 20, INK, font=HEAD)
-        add_text(s, x + Inches(0.28), y + Inches(0.95), Inches(5.45), Inches(1.15), body, 15, MUTED)
+    header(s, "Как заканчиваем", "«Готово» ещё не значит готово", "05")
+    card(s, Inches(0.55), Inches(1.25), Inches(6.0), Inches(4.35))
+    add_text(s, Inches(0.8), Inches(1.45), Inches(5.5), Inches(0.4), "Перед началом", 18, INK, font=HEAD)
+    add_lines(
+        s,
+        Inches(0.8),
+        Inches(2.0),
+        Inches(5.5),
+        Inches(3.3),
+        [
+            "Работаю локально, не в Cloud.",
+            "Понимаю: это DEV, TEST или PROD.",
+            "История проекта подключена. Её настраивает IT.",
+            "Правило про пароли и ключи включено.",
+            "Для сложной задачи сначала есть план.",
+            "Понимаю, что именно собираюсь менять.",
+        ],
+        15,
+        INK,
+        space_after=8,
+    )
+    card(s, Inches(6.75), Inches(1.25), Inches(6.02), Inches(4.35), SOFT)
+    add_text(s, Inches(7.0), Inches(1.45), Inches(5.5), Inches(0.4), "После изменений", 18, INK, font=HEAD)
+    add_lines(
+        s,
+        Inches(7.0),
+        Inches(2.0),
+        Inches(5.5),
+        Inches(3.3),
+        [
+            "Посмотрел, какие файлы изменились.",
+            "Секреты в историю не попали.",
+            "Основная функция работает.",
+            "Соседние процессы не сломались.",
+            "Ядро и чужие файлы не тронуты.",
+            "Версия сохранена и отправлена в общий проект.",
+        ],
+        15,
+        INK,
+        space_after=8,
+    )
+    add_text(
+        s,
+        Inches(0.55),
+        Inches(5.8),
+        Inches(12.2),
+        Inches(1.0),
+        "Сообщение «готово» не заменяет проверку. Список изменений, сохранение версии и отправка в общий проект — это diff, commit и push. Сомневаетесь — зовём IT.",
+        16,
+        INK,
+    )
 
 
 def quote(prs):
     s = blank(prs)
-    builder = s.shapes.build_freeform(Inches(10.55), Inches(0))
-    builder.add_line_segments([(W, Inches(0)), (W, H), (Inches(8.82), H)], close=True)
-    geo = builder.convert_to_shape()
-    geo.shadow.inherit = False
-    geo.fill.solid()
-    geo.fill.fore_color.rgb = ACCENT
-    geo.line.fill.background()
-    s.shapes.add_picture("assets/pptx/logo-white.png", Inches(11.85), Inches(0.32), height=Inches(0.42))
+    blue_panel(s)
     add_text(s, Inches(0.7), Inches(1.15), Inches(8), Inches(0.35), "Вместо заключения", 14, ACCENT)
     add_text(
         s,
@@ -286,7 +337,7 @@ def quote(prs):
         Inches(5.7),
         Inches(7.8),
         Inches(0.9),
-        "На AI Challenge это ваш знакомый процесс: будущее, которое можно открыть и показать.",
+        "Помощник может смениться. Проект остаётся на вашем компьютере, а ответственность за результат — на вас.",
         16,
         INK,
     )
@@ -296,13 +347,13 @@ def main():
     prs = Presentation()
     prs.slide_width = W
     prs.slide_height = H
-    prs.core_properties.title = "Как работать в Cursor"
-    prs.core_properties.subject = "AI Challenge · ОЦО и бэкофис"
+    prs.core_properties.title = "Работа с Cursor"
+    prs.core_properties.subject = "Обучение для бэк-офиса и ОЦО"
     cover(prs)
     what(prs)
-    task(prs)
-    modes(prs)
-    rules(prs)
+    plan(prs)
+    bounds(prs)
+    close(prs)
     quote(prs)
     out = "Cursor для AI Challenge.pptx"
     prs.save(out)
