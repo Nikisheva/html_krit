@@ -50,12 +50,7 @@
     }
 
     if (location.hostname.endsWith("github.io")) {
-      fetch("api-base.json", { cache: "no-store" })
-        .then((res) => res.json())
-        .then((data) => {
-          if (data.api) location.replace(String(data.api).replace(/\/$/, "") + "/login.html");
-        })
-        .catch(() => {});
+      location.replace("apply.html");
     }
 
     fetch("/api/me", { credentials: "same-origin" })

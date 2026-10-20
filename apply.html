@@ -181,6 +181,10 @@
 
     if (Date.now() > deadline.getTime()) closed();
 
+    function apiOpts(extra) {
+      return Object.assign({ credentials: apiBase ? "omit" : "same-origin" }, extra || {});
+    }
+
     const onPages = location.hostname.endsWith("github.io");
     const healthReady = (onPages
       ? fetch("api-base.json", { cache: "no-store" })
@@ -188,12 +192,11 @@
           .catch(() => ({}))
           .then((data) => {
             if (data && data.api) {
-              location.replace(String(data.api).replace(/\/$/, "") + "/apply.html");
-              return Promise.reject(new Error("redirect"));
+              apiBase = String(data.api).replace(/\/$/, "");
             }
           })
       : Promise.resolve()
-    ).then(() => fetch(apiUrl("/api/health"), { credentials: "same-origin" }))
+    ).then(() => fetch(apiUrl("/api/health"), apiOpts()))
       .then((res) => {
         if (!res.ok) throw new Error("offline");
         return res.json();
@@ -201,7 +204,7 @@
       .then((data) => {
         if (!data.open) closed();
         if (data.auth === "entra") {
-          return fetch(apiUrl("/api/me"), { credentials: "same-origin" }).then((res) => {
+          return fetch(apiUrl("/api/me"), apiOpts()).then((res) => {
             if (res.status === 401) {
               location.replace("login.html");
               return Promise.reject(new Error("auth"));
@@ -210,7 +213,7 @@
             return res.json();
           });
         }
-        return fetch(apiUrl("/api/me"), { credentials: "same-origin" })
+        return fetch(apiUrl("/api/me"), apiOpts())
           .then((res) => (res.ok ? res.json() : null))
           .catch(() => null);
       })
@@ -224,7 +227,7 @@
         }
       })
       .catch((err) => {
-        if (err && (err.message === "redirect" || err.message === "auth")) return;
+        if (err && err.message === "auth") return;
         document.getElementById("offline").hidden = false;
       });
 
@@ -240,12 +243,11 @@
       button.disabled = true;
       try {
         await healthReady;
-        const res = await fetch(apiUrl("/api/applications"), {
+        const res = await fetch(apiUrl("/api/applications"), apiOpts({
           method: "POST",
-          credentials: "same-origin",
           headers: { "Content-Type": "application/json" },
           body: JSON.stringify(data),
-        });
+        }));
         if (res.status === 401) {
           location.replace("login.html");
           return;
