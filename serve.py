@@ -281,7 +281,8 @@ class Handler(BaseHTTPRequestHandler):
         self.end_headers()
 
     def is_local(self) -> bool:
-        return self.client_address[0] in ("127.0.0.1", "::1")
+        ip = self.client_address[0]
+        return ip in ("127.0.0.1", "::1", "localhost") or ip.endswith("127.0.0.1")
 
     def is_admin(self) -> bool:
         if self.is_local():
@@ -351,6 +352,8 @@ class Handler(BaseHTTPRequestHandler):
                 "Content-Disposition",
                 "attachment; filename=\"Cursor-backoffice-KRIT.docx\"",
             )
+        if file_path.suffix.lower() in (".html", ".json"):
+            self.send_header("Cache-Control", "no-store")
         self.send_header("Content-Length", str(len(raw)))
         self.end_headers()
         self.wfile.write(raw)

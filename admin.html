@@ -36,7 +36,7 @@
     <h1>Заявки на участие</h1>
     <p>Сюда попадают все отправленные заявки. Срок приёма — 21 октября 2026, 23:59 мск. Процесс в таблице предварительный.</p>
     <div class="alert warn" id="denied" hidden>
-      <div class="alert-text">Нужен код организатора из файла .credentials.local.</div>
+      <div class="alert-text">Не удалось загрузить список заявок.</div>
     </div>
     <div class="bar">
       <div class="stats">
@@ -80,27 +80,28 @@
 
     const localHost = location.hostname === "127.0.0.1" || location.hostname === "localhost";
 
-    function adminToken() {
-      if (localHost) return "";
-      let token = sessionStorage.getItem("apply-admin-token") || "";
-      if (!token) {
-        token = window.prompt("Код организатора из файла .credentials.local, поле APPLY_ADMIN_TOKEN") || "";
-        if (token) sessionStorage.setItem("apply-admin-token", token);
-      }
-      return token;
+    function apiOpts(extra) {
+      return Object.assign({ cache: "no-store" }, extra || {});
     }
 
-    function apiOpts(extra) {
-      const headers = Object.assign({}, extra && extra.headers ? extra.headers : {});
-      const token = adminToken();
-      if (token) headers["X-Admin-Token"] = token;
-      return Object.assign({ cache: "no-store" }, extra || {}, { headers });
+    async function fetchList(path) {
+      const urls = localHost ? [path] : [(await ready()) + path, path];
+      for (const url of urls) {
+        if (!url) continue;
+        try {
+          const res = await fetch(url, apiOpts());
+          if (res.ok) return res;
+        } catch (err) {
+          /* try next */
+        }
+      }
+      return null;
     }
 
     async function ready() {
       if (localHost) {
         apiBase = "";
-        return apiBase;
+        return "";
       }
       if (apiBase) return apiBase;
       const data = await fetch("api-base.json?t=" + Date.now(), { cache: "no-store" })
@@ -112,18 +113,11 @@
 
     async function load() {
       const denied = document.getElementById("denied");
-      const base = await ready();
-      const res = await fetch((base || "") + "/api/applications", apiOpts());
-      if (res.status === 403) {
-        sessionStorage.removeItem("apply-admin-token");
+      const res = await fetchList("/api/applications");
+      if (!res) {
         denied.hidden = false;
-        denied.querySelector(".alert-text").textContent = "Нужен код организатора из файла .credentials.local.";
+        denied.querySelector(".alert-text").textContent = "Не удалось загрузить список заявок. Откройте страницу как http://127.0.0.1:8765/admin.html и нажмите Обновить.";
         document.getElementById("count").textContent = "—";
-        return;
-      }
-      if (!res.ok) {
-        denied.hidden = false;
-        denied.querySelector(".alert-text").textContent = "Не удалось загрузить список заявок.";
         return;
       }
       denied.hidden = true;
@@ -152,9 +146,8 @@
 
     document.getElementById("reload").addEventListener("click", load);
     document.getElementById("csv").addEventListener("click", async () => {
-      const base = await ready();
-      const res = await fetch((base || "") + "/api/applications.csv", apiOpts());
-      if (!res.ok) return;
+      const res = await fetchList("/api/applications.csv");
+      if (!res) return;
       const blob = await res.blob();
       const url = URL.createObjectURL(blob);
       const link = document.createElement("a");
