@@ -73,11 +73,6 @@
   <main class="wrap">
     <div class="kicker">ОЦО и бэкофис · до 21 октября, 23:59 мск</div>
     <h1>Заявка на участие</h1>
-    <p class="lede">Один человек — один проект. Заявка открывает тестовый тур. Подробную идею из восьми пунктов опишете после него, к просмотру 6 ноября.</p>
-
-    <div id="offline" class="alert warn" hidden>
-      <div class="alert-text">Форма принимает заявки по ссылке сервера. Если страница открыта как файл, отправка не сохранится.</div>
-    </div>
 
     <div class="layout">
       <article class="card" id="form-card">
@@ -202,9 +197,7 @@
       .then((data) => {
         if (!data.open) closed();
       })
-      .catch(() => {
-        document.getElementById("offline").hidden = false;
-      });
+      .catch(() => {});
 
     form.addEventListener("submit", async (event) => {
       event.preventDefault();
