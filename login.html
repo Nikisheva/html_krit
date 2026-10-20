@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <title>Вход через AD — AI Challenge</title>
+  <title>Вход — AI Challenge</title>
   <link rel="stylesheet" href="brand-tokens.css" />
   <link rel="stylesheet" href="storybook-static/krit-report-components.css" />
   <style>
@@ -16,20 +16,10 @@
     h1 { font-family: var(--font-family-heading); font-weight: 300; font-size: 34px; margin: 8px 0 12px; }
     .kicker { color: var(--accent); font-size: 13px; }
     .lede { font-size: 17px; margin: 0 0 20px; }
-    form { display: grid; gap: 14px; }
-    .field { display: grid; gap: 6px; }
-    label { font-size: 14px; }
-    input {
-      width: 100%;
-      box-sizing: border-box;
-      border: 1px solid var(--line);
-      border-radius: 3px;
-      font: 16px/1.4 var(--font-family-body);
-      padding: 10px 12px;
-    }
-    .sb-btn { font-size: 15px; min-height: 42px; padding: 0.5rem 1rem; }
-    .error { color: var(--danger); font-size: 14px; margin: 0; }
+    .sb-btn { font-size: 15px; min-height: 42px; padding: 0.5rem 1rem; text-decoration: none; }
+    .error { color: var(--danger); font-size: 14px; }
     .muted { color: var(--muted); font-size: 13px; }
+    .actions { display: grid; gap: 12px; }
   </style>
 </head>
 <body>
@@ -40,28 +30,24 @@
     </div>
   </header>
   <main class="wrap">
-    <div class="kicker">Корпоративный вход · AD krit.pro</div>
+    <div class="kicker">Корпоративный вход · КРИТ</div>
     <h1>Войдите своей учёткой</h1>
-    <p class="lede">Заявку может подать только сотрудник КРИТ. Используйте тот же логин и пароль, что для компьютера и почты.</p>
+    <p class="lede">Заявку может подать только сотрудник КРИТ. Пароль вводится на обычной странице Microsoft, не на этой форме.</p>
     <article class="card">
-      <form id="form">
-        <div class="field">
-          <label for="username">Логин AD</label>
-          <input id="username" name="username" type="text" autocomplete="username" required maxlength="64" placeholder="ivanov.ivan" />
-        </div>
-        <div class="field">
-          <label for="password">Пароль</label>
-          <input id="password" name="password" type="password" autocomplete="current-password" required />
-        </div>
+      <div class="actions">
+        <a class="sb-btn primary" id="ms" href="/api/auth/microsoft">Войти учёткой КРИТ</a>
+        <p class="muted">Откроется вход Microsoft 365. Chrome не будет просить проверять пароль на подозрительном сайте.</p>
         <p class="error" id="error" hidden></p>
-        <button class="sb-btn primary" type="submit" id="submit">Войти через AD</button>
-        <p class="muted">Пароль на сервер заявок не сохраняется. Если контроллер домена не отвечает, подключитесь к корпоративной сети или VPN.</p>
-      </form>
+      </div>
     </article>
   </main>
   <script>
-    const form = document.getElementById("form");
+    const params = new URLSearchParams(location.search);
     const error = document.getElementById("error");
+    if (params.get("error")) {
+      error.hidden = false;
+      error.textContent = params.get("error");
+    }
 
     if (location.hostname.endsWith("github.io")) {
       fetch("api-base.json", { cache: "no-store" })
@@ -78,37 +64,6 @@
         if (data && data.login) location.replace("apply.html");
       })
       .catch(() => {});
-
-    form.addEventListener("submit", async (event) => {
-      event.preventDefault();
-      error.hidden = true;
-      const button = document.getElementById("submit");
-      button.disabled = true;
-      const username = form.username.value.trim();
-      const password = form.password.value;
-      try {
-        const res = await fetch("/api/login", {
-          method: "POST",
-          credentials: "same-origin",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({ username, password }),
-        });
-        const payload = await res.json().catch(() => ({}));
-        form.password.value = "";
-        if (!res.ok) {
-          error.hidden = false;
-          error.textContent = payload.error || "Не удалось войти.";
-          return;
-        }
-        location.replace("apply.html");
-      } catch (err) {
-        form.password.value = "";
-        error.hidden = false;
-        error.textContent = "Сервер входа не отвечает.";
-      } finally {
-        button.disabled = false;
-      }
-    });
   </script>
 </body>
 </html>

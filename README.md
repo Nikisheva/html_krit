@@ -20,7 +20,7 @@ AI Challenge для сотрудников ОЦО и бэкофиса: знак�
 
 ## Как смотреть
 
-1. Открыть `index.html` или `webinar.html` в браузере (удобнее через локальный сервер из этой папки). Заявка: [https://nikisheva.github.io/html_krit/apply.html](https://nikisheva.github.io/html_krit/apply.html). Сотрудник входит логином и паролем AD. Для приёма заявок на этом компьютере: `python3 -m pip install -r requirements.txt` и `python3 serve.py`. Нужна доступность контроллера домена `krit.pro`.
+1. Открыть `index.html` или `webinar.html` в браузере. Заявка: [https://nikisheva.github.io/html_krit/apply.html](https://nikisheva.github.io/html_krit/apply.html). Сотрудник входит корпоративной учёткой Microsoft 365, пароль вводит на странице Microsoft. Для приёма заявок: `python3 serve.py` и Client ID приложения Entra в `.credentials.local`.
 2. Листать стрелками, пробелом или кнопками «Назад / Дальше».
 3. Печать → «Сохранить как PDF», если нужен файл для рассылки без HTML.
 4. Для PowerPoint открыть `AI Challenge.pptx`.

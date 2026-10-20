@@ -21,10 +21,11 @@ from datetime import datetime, timedelta
 from http.cookies import SimpleCookie
 from http.server import BaseHTTPRequestHandler, ThreadingHTTPServer
 from pathlib import Path
-from urllib.parse import unquote, urlparse
+from urllib.parse import parse_qs, quote, unquote, urlparse
 from zoneinfo import ZoneInfo
 
 from ad_auth import authenticate
+from entra_auth import authorize_url, enabled as entra_enabled, pkce_pair, profile_from_code
 
 ROOT = Path(__file__).resolve().parent
 DATA = ROOT / "data"
@@ -36,6 +37,7 @@ PORT = int(os.environ.get("APPLY_PORT", "8765"))
 MAX_BODY = 32_768
 LOCK = threading.Lock()
 SESSIONS: dict[str, dict] = {}
+OAUTH: dict[str, dict] = {}
 LOGIN_HITS: dict[str, list[datetime]] = {}
 SESSION_HOURS = 8
 COOKIE = "apply_session"
@@ -261,6 +263,17 @@ class Handler(BaseHTTPRequestHandler):
         self.send_header("Content-Length", "0")
         self.end_headers()
 
+    def request_origin(self) -> str:
+        host = self.headers.get("Host", f"127.0.0.1:{PORT}")
+        proto = "https" if host.endswith("trycloudflare.com") or self.headers.get("X-Forwarded-Proto") == "https" else "http"
+        return f"{proto}://{host}"
+
+    def redirect(self, location: str) -> None:
+        self.send_response(302)
+        self.send_header("Location", location)
+        self.send_header("Content-Length", "0")
+        self.end_headers()
+
     def is_local(self) -> bool:
         return self.client_address[0] in ("127.0.0.1", "::1")
 
@@ -317,9 +330,41 @@ class Handler(BaseHTTPRequestHandler):
                     "ok": True,
                     "open": now_msk() <= DEADLINE,
                     "deadline": DEADLINE.isoformat(timespec="seconds"),
-                    "auth": "ad",
+                    "auth": "entra" if entra_enabled() else "ad",
                 },
             )
+            return
+        if path == "/api/auth/microsoft":
+            if not entra_enabled():
+                self.redirect("/login.html?error=" + quote("Вход Microsoft ещё не настроен. Нужен Client ID приложения в Entra."))
+                return
+            state = secrets.token_urlsafe(24)
+            verifier, challenge = pkce_pair()
+            OAUTH[state] = {
+                "verifier": verifier,
+                "origin": self.request_origin(),
+                "expires": now_msk() + timedelta(minutes=10),
+            }
+            self.redirect(authorize_url(self.request_origin(), state, challenge))
+            return
+        if path == "/api/auth/callback":
+            query = parse_qs(urlparse(self.path).query)
+            state = (query.get("state") or [""])[0]
+            code = (query.get("code") or [""])[0]
+            pending = OAUTH.pop(state, None)
+            if not pending or pending["expires"] <= now_msk() or not code:
+                self.redirect("/login.html?error=" + quote("Вход не завершён. Попробуйте ещё раз."))
+                return
+            profile, error = profile_from_code(pending["origin"], code, pending["verifier"])
+            if error or profile is None:
+                self.redirect("/login.html?error=" + quote(error or "Не удалось войти."))
+                return
+            token = create_session(profile)
+            self.send_response(302)
+            self.set_session_cookie(token)
+            self.send_header("Location", "/apply.html")
+            self.send_header("Content-Length", "0")
+            self.end_headers()
             return
         if path == "/api/me":
             user = self.current_user()
@@ -380,6 +425,9 @@ class Handler(BaseHTTPRequestHandler):
             self.wfile.write(raw)
             return
         if path == "/api/login":
+            if not self.is_local():
+                self.end_json(403, {"error": "Пароль AD на этой ссылке не принимается. Войдите через Microsoft."})
+                return
             ip = self.client_address[0]
             if not login_allowed(ip):
                 self.end_json(429, {"error": "Слишком много попыток входа. Подождите 15 минут."})
