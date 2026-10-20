@@ -90,45 +90,17 @@
             <input id="company_website" name="company_website" type="text" tabindex="-1" autocomplete="off" />
           </div>
           <div class="field">
-            <label for="name">Фамилия и имя <span class="req">*</span></label>
-            <input id="name" name="name" type="text" autocomplete="name" required maxlength="120" readonly />
-          </div>
-          <div class="field">
-            <label for="unit">Подразделение <span class="req">*</span></label>
-            <input id="unit" name="unit" type="text" required maxlength="160" />
+            <label for="name">ФИО <span class="req">*</span></label>
+            <input id="name" name="name" type="text" autocomplete="name" required maxlength="120" />
           </div>
           <div class="field">
             <label for="position">Должность <span class="req">*</span></label>
             <input id="position" name="position" type="text" autocomplete="organization-title" required maxlength="160" />
           </div>
-          <div class="field">
-            <label for="email">Корпоративная почта <span class="req">*</span></label>
-            <input id="email" name="email" type="email" autocomplete="email" required maxlength="160" readonly placeholder="имя@krit.pro" />
-          </div>
-          <div class="field">
-            <label for="contact">Телефон или Telegram <span class="req">*</span></label>
-            <input id="contact" name="phone_or_telegram" type="text" autocomplete="off" inputmode="tel" required maxlength="160" placeholder="Мобильный или Telegram" />
-          </div>
-          <div class="field">
-            <label for="training">Обучение <span class="req">*</span></label>
-            <select id="training" name="training" required>
-              <option value="">Выберите</option>
-              <option value="passed">Прошёл</option>
-              <option value="missed">Не прошёл</option>
-            </select>
-          </div>
-          <div class="field">
-            <label for="process">Какой процесс рассматриваете (предварительно, можно будет изменить)</label>
-            <textarea id="process" name="process" maxlength="500" placeholder="Коротко, одним-двумя предложениями. Можно оставить пустым."></textarea>
-          </div>
-          <div class="checks">
-            <label class="check"><input type="checkbox" name="solo" required /> Участие одиночное: один человек — один проект.</label>
-            <label class="check"><input type="checkbox" name="rules" required /> Ознакомился с <a href="reglament.html">регламентом.</a> Срок заявки — 21 октября, 23:59 мск.</label>
-          </div>
           <p class="error" id="error" hidden></p>
           <div class="actions">
             <button class="sb-btn primary" type="submit" id="submit">Отправить заявку</button>
-            <span class="muted">Повторная отправка с той же почтой обновляет заявку.</span>
+            <span class="muted">Повторная отправка с тем же ФИО обновляет заявку.</span>
           </div>
         </form>
       </article>
@@ -138,7 +110,7 @@
         <h2 id="done-title">Заявка принята</h2>
         <p id="done-text">Вы в списке на тестовый тур. 22 октября выдадим задания.</p>
         <div class="success-id" id="done-id"></div>
-        <p class="muted">Номер заявки. Если нужно поправить данные до 21 октября, отправьте форму ещё раз с той же почтой.</p>
+        <p class="muted">Номер заявки. Если нужно поправить данные до 21 октября, отправьте форму ещё раз с тем же ФИО.</p>
         <p style="margin-top:16px"><button class="sb-btn ghost" type="button" id="again">Изменить заявку</button></p>
       </article>
 
@@ -231,24 +203,8 @@
           .catch(() => null);
       })
       .then((user) => {
-        if (!user) {
-          form.name.readOnly = false;
-          form.email.readOnly = false;
-          return;
-        }
-        if (user.name) {
-          form.name.value = user.name;
-          form.name.readOnly = true;
-        } else {
-          form.name.readOnly = false;
-        }
-        if (user.email) {
-          form.email.value = user.email;
-          form.email.readOnly = true;
-        } else {
-          form.email.readOnly = false;
-        }
-        if (user.unit) form.unit.value = user.unit;
+        if (!user) return;
+        if (user.name) form.name.value = user.name;
         if (user.position) form.position.value = user.position;
         if (user.login) {
           document.getElementById("whoami").textContent = user.login;
@@ -264,19 +220,8 @@
       event.preventDefault();
       showError("");
       const data = Object.fromEntries(new FormData(form).entries());
-      data.contact = String(data.phone_or_telegram || "").trim();
-      data.solo = form.solo.checked;
-      data.rules = form.rules.checked;
-      if (!data.name || !data.unit || !data.position || !data.email || !data.contact || !data.training) {
-        showError("Заполните все обязательные поля.");
-        return;
-      }
-      if (!String(data.email).toLowerCase().endsWith("@krit.pro")) {
-        showError("Укажите корпоративную почту @krit.pro.");
-        return;
-      }
-      if (!data.solo || !data.rules) {
-        showError("Нужно подтвердить правила участия.");
+      if (!data.name || !data.position) {
+        showError("Укажите ФИО и должность.");
         return;
       }
       const button = document.getElementById("submit");
@@ -302,7 +247,7 @@
         done.hidden = false;
         document.getElementById("done-title").textContent = payload.updated ? "Заявка обновлена" : "Заявка принята";
         document.getElementById("done-text").textContent = payload.updated
-          ? "Данные по этой почте заменены. Вы по-прежнему в списке на тестовый тур."
+          ? "Данные по этому ФИО заменены. Вы по-прежнему в списке на тестовый тур."
           : "Вы в списке на тестовый тур. 22 октября выдадим задания.";
         document.getElementById("done-id").textContent = payload.id || "";
       } catch (err) {

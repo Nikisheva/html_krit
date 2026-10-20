@@ -12,7 +12,6 @@ import csv
 import io
 import json
 import os
-import re
 import secrets
 import socket
 import threading
@@ -42,18 +41,9 @@ LOGIN_HITS: dict[str, list[datetime]] = {}
 SESSION_HOURS = 8
 COOKIE = "apply_session"
 
-EMAIL_RE = re.compile(r"^[^@\s]+@[^@\s]+\.[^@\s]+$")
-TRAINING = {
-    "passed": "Прошёл",
-    "missed": "Не прошёл",
-}
 FIELDS = {
     "name": (2, 120),
-    "unit": (2, 160),
     "position": (2, 160),
-    "email": (5, 160),
-    "contact": (3, 160),
-    "process": (0, 500),
 }
 
 STATIC_TYPES = {
@@ -135,19 +125,6 @@ def validate(body: dict) -> tuple[dict | None, str | None]:
             return None, "Заполните все обязательные поля."
         item[key] = value
 
-    item["email"] = item["email"].lower()
-    if item["email"] and not EMAIL_RE.match(item["email"]):
-        return None, "Укажите почту в формате имя@домен."
-
-    training = str(body.get("training") or "")
-    if training not in TRAINING:
-        return None, "Укажите, прошли обучение или нет."
-    item["training"] = training
-
-    for key in ("solo", "rules"):
-        if body.get(key) is not True:
-            return None, "Нужно подтвердить правила участия."
-        item[key] = True
     return item, None
 
 
@@ -157,8 +134,8 @@ def upsert(item: dict) -> tuple[dict, bool]:
         rows = load_all()
         for row in rows:
             same_login = item.get("ad_login") and row.get("ad_login") == item["ad_login"]
-            same_email = item.get("email") and row.get("email") == item["email"]
-            if same_login or same_email:
+            same_name = item.get("name") and (row.get("name") or "").casefold() == item["name"].casefold()
+            if same_login or same_name:
                 row.update(item)
                 row["updated_at"] = stamp
                 save_all(rows)
@@ -177,35 +154,15 @@ def upsert(item: dict) -> tuple[dict, bool]:
 def rows_csv(rows: list[dict]) -> bytes:
     buffer = io.StringIO()
     writer = csv.writer(buffer)
-    writer.writerow(
-        [
-            "id",
-            "создана",
-            "обновлена",
-            "логин AD",
-            "имя",
-            "подразделение",
-            "должность",
-            "почта",
-            "контакт",
-            "обучение",
-            "процесс",
-        ]
-    )
+    writer.writerow(["id", "создана", "обновлена", "имя", "должность"])
     for row in rows:
         writer.writerow(
             [
                 row.get("id", ""),
                 row.get("created_at", ""),
                 row.get("updated_at", ""),
-                row.get("ad_login", ""),
                 row.get("name", ""),
-                row.get("unit", ""),
                 row.get("position", ""),
-                row.get("email", ""),
-                row.get("contact", ""),
-                TRAINING.get(row.get("training", ""), ""),
-                row.get("process", ""),
             ]
         )
     return buffer.getvalue().encode("utf-8-sig")
@@ -473,14 +430,9 @@ class Handler(BaseHTTPRequestHandler):
         if item.get("honeypot"):
             self.end_json(201, {"ok": True, "id": "00000000", "updated": False})
             return
-        if not item["email"].endswith("@krit.pro"):
-            self.end_json(400, {"error": "Укажите корпоративную почту @krit.pro."})
-            return
         if user:
             item["ad_login"] = user["login"]
             item["name"] = user["name"] or item["name"]
-            item["email"] = user["email"] or item["email"]
-            item["unit"] = user["unit"] or item["unit"]
             item["position"] = user["position"] or item["position"]
         row, updated = upsert(item)
         self.end_json(
