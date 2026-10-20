@@ -49,6 +49,7 @@ FIELDS = {
 
 STATIC_TYPES = {
     ".html": "text/html; charset=utf-8",
+    ".json": "application/json; charset=utf-8",
     ".css": "text/css; charset=utf-8",
     ".js": "text/javascript; charset=utf-8",
     ".svg": "image/svg+xml",
@@ -221,14 +222,33 @@ class Handler(BaseHTTPRequestHandler):
     def log_message(self, fmt: str, *args) -> None:
         print("%s - %s" % (self.address_string(), fmt % args))
 
+    def add_cors(self) -> None:
+        origin = self.headers.get("Origin", "")
+        if origin.startswith("https://nikisheva.github.io"):
+            self.send_header("Access-Control-Allow-Origin", origin)
+            self.send_header("Access-Control-Allow-Methods", "GET, POST, OPTIONS")
+            self.send_header("Access-Control-Allow-Headers", "Content-Type")
+            self.send_header("Vary", "Origin")
+
     def end_json(self, code: int, payload: dict) -> None:
         raw = json.dumps(payload, ensure_ascii=False).encode("utf-8")
         self.send_response(code)
         self.send_header("Content-Type", "application/json; charset=utf-8")
         self.send_header("Content-Length", str(len(raw)))
         self.send_header("Cache-Control", "no-store")
+        self.add_cors()
         self.end_headers()
         self.wfile.write(raw)
+
+    def do_OPTIONS(self) -> None:
+        path = urlparse(self.path).path
+        if path not in ("/api/health", "/api/applications"):
+            self.end_json(404, {"error": "Страница не найдена."})
+            return
+        self.send_response(204)
+        self.add_cors()
+        self.send_header("Content-Length", "0")
+        self.end_headers()
 
     def is_local(self) -> bool:
         return self.client_address[0] in ("127.0.0.1", "::1")
@@ -292,6 +312,11 @@ class Handler(BaseHTTPRequestHandler):
         raw = file_path.read_bytes()
         self.send_response(200)
         self.send_header("Content-Type", STATIC_TYPES[file_path.suffix.lower()])
+        if file_path.suffix.lower() == ".docx":
+            self.send_header(
+                "Content-Disposition",
+                "attachment; filename=\"Cursor-backoffice-KRIT.docx\"",
+            )
         self.send_header("Content-Length", str(len(raw)))
         self.end_headers()
         self.wfile.write(raw)
@@ -333,10 +358,11 @@ def lan_ip() -> str:
 def main() -> None:
     DATA.mkdir(exist_ok=True)
     httpd = ThreadingHTTPServer((HOST, PORT), Handler)
-    print(f"Форма для сотрудников: http://127.0.0.1:{PORT}/apply.html", flush=True)
+    print("Форма для сотрудников: https://nikisheva.github.io/html_krit/apply.html", flush=True)
+    print(f"Локально: http://127.0.0.1:{PORT}/apply.html", flush=True)
     ip = lan_ip()
     if ip and ip != "127.0.0.1":
-        print(f"Ссылка в сети: http://{ip}:{PORT}/apply.html", flush=True)
+        print(f"В этой сети: http://{ip}:{PORT}/apply.html", flush=True)
     print(f"Список заявок: http://127.0.0.1:{PORT}/admin.html", flush=True)
     httpd.serve_forever()
 

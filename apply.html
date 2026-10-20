@@ -15,6 +15,8 @@
     }
     .top-inner, .wrap { width: min(1040px, calc(100% - 32px)); margin: 0 auto; }
     .top-inner { display: flex; align-items: center; justify-content: space-between; min-height: 72px; gap: 16px; }
+    .top-links { display: flex; align-items: center; gap: 16px; flex-wrap: wrap; }
+    .guide { display: grid; gap: 10px; }
     .wrap { padding: 36px 0 72px; }
     h1, h2 { font-family: var(--font-family-heading); font-weight: 300; }
     h1 { font-size: 40px; line-height: 1.1; margin: 8px 0 12px; }
@@ -62,7 +64,10 @@
   <header class="top">
     <div class="top-inner">
       <img src="logo/KRIT_Logo_Grey_Color.svg" alt="КРИТ" width="90" height="51" />
-      <a href="reglament.html">Регламент</a>
+      <nav class="top-links">
+        <a href="Инструкция_работа_с_Cursor_бэк-офис_КРИТ.docx">Инструкция по Cursor</a>
+        <a href="reglament.html">Регламент</a>
+      </nav>
     </div>
   </header>
   <main class="wrap">
@@ -136,6 +141,12 @@
       </article>
 
       <aside class="side">
+        <article class="card guide">
+          <span class="badge">Cursor</span>
+          <p>Как работать с Cursor в бэк-офисе КРИТ — Word-инструкция для сотрудников.</p>
+          <a class="sb-btn primary" href="Инструкция_работа_с_Cursor_бэк-офис_КРИТ.docx">Открыть инструкцию</a>
+          <a href="Инструкция_работа_с_Cursor_бэк-офис_КРИТ.docx">Скачать Word-файл</a>
+        </article>
         <article class="card">
           <span class="badge">Срок</span>
           <p>Заявки принимаются до <strong>21 октября 2026, 23:59 мск</strong>. Без заявки в тестовый тур не выходим.</p>
@@ -161,6 +172,11 @@
     const done = document.getElementById("done");
     const formCard = document.getElementById("form-card");
     const deadline = new Date("2026-10-21T23:59:59+03:00");
+    let apiBase = "";
+
+    function apiUrl(path) {
+      return (apiBase || "") + path;
+    }
 
     function showError(text) {
       error.hidden = !text;
@@ -179,14 +195,26 @@
 
     if (Date.now() > deadline.getTime()) closed();
 
-    fetch("/api/health").then((res) => {
-      if (!res.ok) throw new Error("offline");
-      return res.json();
-    }).then((data) => {
-      if (!data.open) closed();
-    }).catch(() => {
-      document.getElementById("offline").hidden = false;
-    });
+    const onPages = location.hostname.endsWith("github.io");
+    const healthReady = (onPages
+      ? fetch("api-base.json", { cache: "no-store" })
+          .then((res) => (res.ok ? res.json() : {}))
+          .catch(() => ({}))
+          .then((data) => {
+            if (data && data.api) apiBase = String(data.api).replace(/\/$/, "");
+          })
+      : Promise.resolve()
+    ).then(() => fetch(apiUrl("/api/health")))
+      .then((res) => {
+        if (!res.ok) throw new Error("offline");
+        return res.json();
+      })
+      .then((data) => {
+        if (!data.open) closed();
+      })
+      .catch(() => {
+        document.getElementById("offline").hidden = false;
+      });
 
     form.addEventListener("submit", async (event) => {
       event.preventDefault();
@@ -205,7 +233,8 @@
       const button = document.getElementById("submit");
       button.disabled = true;
       try {
-        const res = await fetch("/api/applications", {
+        await healthReady;
+        const res = await fetch(apiUrl("/api/applications"), {
           method: "POST",
           headers: { "Content-Type": "application/json" },
           body: JSON.stringify(data),
