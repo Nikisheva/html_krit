@@ -65,8 +65,6 @@
     <div class="top-inner">
       <img src="logo/KRIT_Logo_Grey_Color.svg" alt="КРИТ" width="90" height="51" />
       <nav class="top-links">
-        <span class="muted" id="whoami"></span>
-        <button class="sb-btn ghost" type="button" id="logout" hidden>Выйти</button>
         <a href="Инструкция_работа_с_Cursor_бэк-офис_КРИТ.docx">Инструкция по Cursor</a>
         <a href="reglament.html">Регламент</a>
       </nav>
@@ -203,31 +201,8 @@
       })
       .then((data) => {
         if (!data.open) closed();
-        if (data.auth === "entra") {
-          return fetch(apiUrl("/api/me"), apiOpts()).then((res) => {
-            if (res.status === 401) {
-              location.replace("login.html");
-              return Promise.reject(new Error("auth"));
-            }
-            if (!res.ok) return null;
-            return res.json();
-          });
-        }
-        return fetch(apiUrl("/api/me"), apiOpts())
-          .then((res) => (res.ok ? res.json() : null))
-          .catch(() => null);
       })
-      .then((user) => {
-        if (!user) return;
-        if (user.name) form.name.value = user.name;
-        if (user.position) form.position.value = user.position;
-        if (user.login) {
-          document.getElementById("whoami").textContent = user.login;
-          document.getElementById("logout").hidden = false;
-        }
-      })
-      .catch((err) => {
-        if (err && err.message === "auth") return;
+      .catch(() => {
         document.getElementById("offline").hidden = false;
       });
 
@@ -248,10 +223,6 @@
           headers: { "Content-Type": "application/json" },
           body: JSON.stringify(data),
         }));
-        if (res.status === 401) {
-          location.replace("login.html");
-          return;
-        }
         const payload = await res.json().catch(() => ({}));
         if (!res.ok) {
           showError(payload.error || "Не удалось отправить заявку.");
@@ -274,11 +245,6 @@
     document.getElementById("again").addEventListener("click", () => {
       done.hidden = true;
       formCard.hidden = false;
-    });
-
-    document.getElementById("logout").addEventListener("click", async () => {
-      await fetch("/api/logout", { method: "POST", credentials: "same-origin" }).catch(() => {});
-      location.replace("apply.html");
     });
   </script>
 </body>

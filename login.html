@@ -2,79 +2,11 @@
 <html lang="ru">
 <head>
   <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <title>Вход — AI Challenge</title>
-  <link rel="stylesheet" href="brand-tokens.css" />
-  <link rel="stylesheet" href="storybook-static/krit-report-components.css" />
-  <style>
-    body { margin: 0; background: #f4f7fb; color: var(--ink); font-family: var(--font-family-body); line-height: 1.5; }
-    a { color: var(--accent); }
-    .top { background: #fff; border-bottom: 1px solid var(--line); }
-    .top-inner, .wrap { width: min(560px, calc(100% - 32px)); margin: 0 auto; }
-    .top-inner { display: flex; align-items: center; justify-content: space-between; min-height: 72px; }
-    .wrap { padding: 40px 0 72px; }
-    h1 { font-family: var(--font-family-heading); font-weight: 300; font-size: 34px; margin: 8px 0 12px; }
-    .kicker { color: var(--accent); font-size: 13px; }
-    .lede { font-size: 17px; margin: 0 0 20px; }
-    .sb-btn { font-size: 15px; min-height: 42px; padding: 0.5rem 1rem; text-decoration: none; }
-    .error { color: var(--danger); font-size: 14px; }
-    .muted { color: var(--muted); font-size: 13px; }
-    .actions { display: grid; gap: 12px; }
-  </style>
+  <meta http-equiv="refresh" content="0; url=apply.html" />
+  <title>Заявка на участие — AI Challenge</title>
+  <script>location.replace("apply.html");</script>
 </head>
 <body>
-  <header class="top">
-    <div class="top-inner">
-      <img src="logo/KRIT_Logo_Grey_Color.svg" alt="КРИТ" width="90" height="51" />
-      <a href="reglament.html">Регламент</a>
-    </div>
-  </header>
-  <main class="wrap">
-    <div class="kicker">Корпоративный вход · КРИТ</div>
-    <h1>Войдите своей учёткой</h1>
-    <p class="lede">Заявка на участие: ФИО, должность, обучение и предварительный процесс. Если вход Microsoft ещё не настроен, откроется форма.</p>
-    <article class="card">
-      <div class="actions">
-        <a class="sb-btn primary" id="ms" href="apply.html">Перейти к заявке</a>
-        <p class="muted" id="hint">Откроется форма заявки на участие.</p>
-        <p class="error" id="error" hidden></p>
-      </div>
-    </article>
-  </main>
-  <script>
-    const params = new URLSearchParams(location.search);
-    const error = document.getElementById("error");
-    if (params.get("error")) {
-      error.hidden = false;
-      error.textContent = params.get("error");
-    }
-
-    if (location.hostname.endsWith("github.io")) {
-      location.replace("apply.html");
-    }
-
-    fetch("/api/me", { credentials: "same-origin" })
-      .then((res) => (res.ok ? res.json() : null))
-      .then((data) => {
-        if (data && data.login) location.replace("apply.html");
-      })
-      .catch(() => {});
-
-    fetch("/api/health", { credentials: "same-origin" })
-      .then((res) => (res.ok ? res.json() : null))
-      .then((data) => {
-        if (!data) return;
-        if (data.auth === "entra") {
-          const button = document.getElementById("ms");
-          button.href = "/api/auth/microsoft";
-          button.textContent = "Войти учёткой КРИТ";
-          document.getElementById("hint").textContent =
-            "Откроется вход Microsoft 365. Пароль вводится на странице Microsoft, не здесь.";
-          return;
-        }
-        location.replace("apply.html");
-      })
-      .catch(() => {});
-  </script>
+  <p><a href="apply.html">Перейти к заявке</a></p>
 </body>
 </html>
