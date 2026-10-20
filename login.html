@@ -32,11 +32,11 @@
   <main class="wrap">
     <div class="kicker">Корпоративный вход · КРИТ</div>
     <h1>Войдите своей учёткой</h1>
-    <p class="lede">Заявку может подать только сотрудник КРИТ. Пароль вводится на обычной странице Microsoft, не на этой форме.</p>
+    <p class="lede">Заявку может подать сотрудник КРИТ с корпоративной почтой @krit.pro. Если вход Microsoft ещё не настроен, откроется форма заявки.</p>
     <article class="card">
       <div class="actions">
-        <a class="sb-btn primary" id="ms" href="/api/auth/microsoft">Войти учёткой КРИТ</a>
-        <p class="muted">Откроется вход Microsoft 365. Chrome не будет просить проверять пароль на подозрительном сайте.</p>
+        <a class="sb-btn primary" id="ms" href="apply.html">Перейти к заявке</a>
+        <p class="muted" id="hint">Откроется форма заявки на участие.</p>
         <p class="error" id="error" hidden></p>
       </div>
     </article>
@@ -62,6 +62,22 @@
       .then((res) => (res.ok ? res.json() : null))
       .then((data) => {
         if (data && data.login) location.replace("apply.html");
+      })
+      .catch(() => {});
+
+    fetch("/api/health", { credentials: "same-origin" })
+      .then((res) => (res.ok ? res.json() : null))
+      .then((data) => {
+        if (!data) return;
+        if (data.auth === "entra") {
+          const button = document.getElementById("ms");
+          button.href = "/api/auth/microsoft";
+          button.textContent = "Войти учёткой КРИТ";
+          document.getElementById("hint").textContent =
+            "Откроется вход Microsoft 365. Пароль вводится на странице Microsoft, не здесь.";
+          return;
+        }
+        location.replace("apply.html");
       })
       .catch(() => {});
   </script>

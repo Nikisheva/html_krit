@@ -330,7 +330,7 @@ class Handler(BaseHTTPRequestHandler):
                     "ok": True,
                     "open": now_msk() <= DEADLINE,
                     "deadline": DEADLINE.isoformat(timespec="seconds"),
-                    "auth": "entra" if entra_enabled() else "ad",
+                    "auth": "entra" if entra_enabled() else "none",
                 },
             )
             return
@@ -399,6 +399,9 @@ class Handler(BaseHTTPRequestHandler):
         if file_path is None:
             self.end_json(404, {"error": "Страница не найдена."})
             return
+        if file_path.name == "admin.html" and not self.is_local():
+            self.end_json(403, {"error": "Список заявок доступен только организатору."})
+            return
         raw = file_path.read_bytes()
         self.send_response(200)
         self.send_header("Content-Type", STATIC_TYPES[file_path.suffix.lower()])
@@ -455,8 +458,8 @@ class Handler(BaseHTTPRequestHandler):
             self.end_json(404, {"error": "Страница не найдена."})
             return
         user = self.current_user()
-        if not user:
-            self.end_json(401, {"error": "Сначала войдите через корпоративный AD."})
+        if entra_enabled() and not user:
+            self.end_json(401, {"error": "Сначала войдите корпоративной учёткой."})
             return
         body = self.read_json()
         if body is None:
@@ -470,11 +473,15 @@ class Handler(BaseHTTPRequestHandler):
         if item.get("honeypot"):
             self.end_json(201, {"ok": True, "id": "00000000", "updated": False})
             return
-        item["ad_login"] = user["login"]
-        item["name"] = user["name"] or item["name"]
-        item["email"] = user["email"] or item["email"]
-        item["unit"] = user["unit"] or item["unit"]
-        item["position"] = user["position"] or item["position"]
+        if not item["email"].endswith("@krit.pro"):
+            self.end_json(400, {"error": "Укажите корпоративную почту @krit.pro."})
+            return
+        if user:
+            item["ad_login"] = user["login"]
+            item["name"] = user["name"] or item["name"]
+            item["email"] = user["email"] or item["email"]
+            item["unit"] = user["unit"] or item["unit"]
+            item["position"] = user["position"] or item["position"]
         row, updated = upsert(item)
         self.end_json(
             200 if updated else 201,
@@ -489,7 +496,6 @@ def public_user(profile: dict) -> dict:
         "email": profile.get("email", ""),
         "unit": profile.get("unit", ""),
         "position": profile.get("position", ""),
-        "contact": profile.get("contact", ""),
     }
 
 

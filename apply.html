@@ -103,11 +103,11 @@
           </div>
           <div class="field">
             <label for="email">Корпоративная почта <span class="req">*</span></label>
-            <input id="email" name="email" type="email" autocomplete="email" required maxlength="160" readonly />
+            <input id="email" name="email" type="email" autocomplete="email" required maxlength="160" readonly placeholder="имя@krit.pro" />
           </div>
           <div class="field">
             <label for="contact">Телефон или Telegram <span class="req">*</span></label>
-            <input id="contact" name="contact" type="text" autocomplete="tel" required maxlength="160" />
+            <input id="contact" name="phone_or_telegram" type="text" autocomplete="off" inputmode="tel" required maxlength="160" placeholder="Мобильный или Telegram" />
           </div>
           <div class="field">
             <label for="training">Обучение <span class="req">*</span></label>
@@ -209,31 +209,51 @@
             }
           })
       : Promise.resolve()
-    ).then(() => fetch(apiUrl("/api/me"), { credentials: "same-origin" }))
+    ).then(() => fetch(apiUrl("/api/health"), { credentials: "same-origin" }))
       .then((res) => {
-        if (res.status === 401) {
-          location.replace("login.html");
-          return Promise.reject(new Error("auth"));
-        }
         if (!res.ok) throw new Error("offline");
-        return res.json();
-      })
-      .then((user) => {
-        form.name.value = user.name || "";
-        form.email.value = user.email || "";
-        if (user.unit) form.unit.value = user.unit;
-        if (user.position) form.position.value = user.position;
-        if (user.contact && !form.contact.value) form.contact.value = user.contact;
-        document.getElementById("whoami").textContent = user.login || "";
-        document.getElementById("logout").hidden = false;
-        return fetch(apiUrl("/api/health"), { credentials: "same-origin" });
-      })
-      .then((res) => {
-        if (!res || !res.ok) throw new Error("offline");
         return res.json();
       })
       .then((data) => {
         if (!data.open) closed();
+        if (data.auth === "entra") {
+          return fetch(apiUrl("/api/me"), { credentials: "same-origin" }).then((res) => {
+            if (res.status === 401) {
+              location.replace("login.html");
+              return Promise.reject(new Error("auth"));
+            }
+            if (!res.ok) return null;
+            return res.json();
+          });
+        }
+        return fetch(apiUrl("/api/me"), { credentials: "same-origin" })
+          .then((res) => (res.ok ? res.json() : null))
+          .catch(() => null);
+      })
+      .then((user) => {
+        if (!user) {
+          form.name.readOnly = false;
+          form.email.readOnly = false;
+          return;
+        }
+        if (user.name) {
+          form.name.value = user.name;
+          form.name.readOnly = true;
+        } else {
+          form.name.readOnly = false;
+        }
+        if (user.email) {
+          form.email.value = user.email;
+          form.email.readOnly = true;
+        } else {
+          form.email.readOnly = false;
+        }
+        if (user.unit) form.unit.value = user.unit;
+        if (user.position) form.position.value = user.position;
+        if (user.login) {
+          document.getElementById("whoami").textContent = user.login;
+          document.getElementById("logout").hidden = false;
+        }
       })
       .catch((err) => {
         if (err && (err.message === "redirect" || err.message === "auth")) return;
@@ -244,10 +264,15 @@
       event.preventDefault();
       showError("");
       const data = Object.fromEntries(new FormData(form).entries());
+      data.contact = String(data.phone_or_telegram || "").trim();
       data.solo = form.solo.checked;
       data.rules = form.rules.checked;
       if (!data.name || !data.unit || !data.position || !data.email || !data.contact || !data.training) {
         showError("Заполните все обязательные поля.");
+        return;
+      }
+      if (!String(data.email).toLowerCase().endsWith("@krit.pro")) {
+        showError("Укажите корпоративную почту @krit.pro.");
         return;
       }
       if (!data.solo || !data.rules) {
@@ -294,7 +319,7 @@
 
     document.getElementById("logout").addEventListener("click", async () => {
       await fetch("/api/logout", { method: "POST", credentials: "same-origin" }).catch(() => {});
-      location.replace("login.html");
+      location.replace("apply.html");
     });
   </script>
 </body>
