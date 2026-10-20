@@ -198,7 +198,7 @@ class Handler(BaseHTTPRequestHandler):
         if origin.startswith("https://nikisheva.github.io"):
             self.send_header("Access-Control-Allow-Origin", origin)
             self.send_header("Access-Control-Allow-Methods", "GET, POST, OPTIONS")
-            self.send_header("Access-Control-Allow-Headers", "Content-Type")
+            self.send_header("Access-Control-Allow-Headers", "Content-Type, bypass-tunnel-reminder")
             self.send_header("Vary", "Origin")
 
     def end_json(self, code: int, payload: dict) -> None:

@@ -175,7 +175,11 @@
     if (Date.now() > deadline.getTime()) closed();
 
     function apiOpts(extra) {
-      return Object.assign({ credentials: apiBase ? "omit" : "same-origin" }, extra || {});
+      const headers = Object.assign(
+        { "bypass-tunnel-reminder": "1" },
+        extra && extra.headers ? extra.headers : {},
+      );
+      return Object.assign({ credentials: apiBase ? "omit" : "same-origin" }, extra || {}, { headers });
     }
 
     const onPages = location.hostname.endsWith("github.io");
