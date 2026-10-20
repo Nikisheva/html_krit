@@ -104,7 +104,7 @@
         const when = (item.updated_at || item.created_at || "").replace("T", " ").replace("+03:00", "");
         tr.append(
           cell(when),
-          cell([item.name, item.position, item.unit].filter(Boolean).join("\n")),
+          cell([item.name, item.ad_login, item.position, item.unit].filter(Boolean).join("\n")),
           cell([item.email, item.contact, item.id].filter(Boolean).join("\n")),
           cell(training[item.training] || item.training || ""),
           cell(item.process || "—"),

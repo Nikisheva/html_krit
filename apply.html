@@ -65,6 +65,8 @@
     <div class="top-inner">
       <img src="logo/KRIT_Logo_Grey_Color.svg" alt="КРИТ" width="90" height="51" />
       <nav class="top-links">
+        <span class="muted" id="whoami"></span>
+        <button class="sb-btn ghost" type="button" id="logout" hidden>Выйти</button>
         <a href="Инструкция_работа_с_Cursor_бэк-офис_КРИТ.docx">Инструкция по Cursor</a>
         <a href="reglament.html">Регламент</a>
       </nav>
@@ -89,7 +91,7 @@
           </div>
           <div class="field">
             <label for="name">Фамилия и имя <span class="req">*</span></label>
-            <input id="name" name="name" type="text" autocomplete="name" required maxlength="120" />
+            <input id="name" name="name" type="text" autocomplete="name" required maxlength="120" readonly />
           </div>
           <div class="field">
             <label for="unit">Подразделение <span class="req">*</span></label>
@@ -101,7 +103,7 @@
           </div>
           <div class="field">
             <label for="email">Корпоративная почта <span class="req">*</span></label>
-            <input id="email" name="email" type="email" autocomplete="email" required maxlength="160" />
+            <input id="email" name="email" type="email" autocomplete="email" required maxlength="160" readonly />
           </div>
           <div class="field">
             <label for="contact">Телефон или Telegram <span class="req">*</span></label>
@@ -201,18 +203,40 @@
           .then((res) => (res.ok ? res.json() : {}))
           .catch(() => ({}))
           .then((data) => {
-            if (data && data.api) apiBase = String(data.api).replace(/\/$/, "");
+            if (data && data.api) {
+              location.replace(String(data.api).replace(/\/$/, "") + "/apply.html");
+              return Promise.reject(new Error("redirect"));
+            }
           })
       : Promise.resolve()
-    ).then(() => fetch(apiUrl("/api/health")))
+    ).then(() => fetch(apiUrl("/api/me"), { credentials: "same-origin" }))
       .then((res) => {
+        if (res.status === 401) {
+          location.replace("login.html");
+          return Promise.reject(new Error("auth"));
+        }
         if (!res.ok) throw new Error("offline");
+        return res.json();
+      })
+      .then((user) => {
+        form.name.value = user.name || "";
+        form.email.value = user.email || "";
+        if (user.unit) form.unit.value = user.unit;
+        if (user.position) form.position.value = user.position;
+        if (user.contact && !form.contact.value) form.contact.value = user.contact;
+        document.getElementById("whoami").textContent = user.login || "";
+        document.getElementById("logout").hidden = false;
+        return fetch(apiUrl("/api/health"), { credentials: "same-origin" });
+      })
+      .then((res) => {
+        if (!res || !res.ok) throw new Error("offline");
         return res.json();
       })
       .then((data) => {
         if (!data.open) closed();
       })
-      .catch(() => {
+      .catch((err) => {
+        if (err && (err.message === "redirect" || err.message === "auth")) return;
         document.getElementById("offline").hidden = false;
       });
 
@@ -236,9 +260,14 @@
         await healthReady;
         const res = await fetch(apiUrl("/api/applications"), {
           method: "POST",
+          credentials: "same-origin",
           headers: { "Content-Type": "application/json" },
           body: JSON.stringify(data),
         });
+        if (res.status === 401) {
+          location.replace("login.html");
+          return;
+        }
         const payload = await res.json().catch(() => ({}));
         if (!res.ok) {
           showError(payload.error || "Не удалось отправить заявку.");
@@ -261,6 +290,11 @@
     document.getElementById("again").addEventListener("click", () => {
       done.hidden = true;
       formCard.hidden = false;
+    });
+
+    document.getElementById("logout").addEventListener("click", async () => {
+      await fetch("/api/logout", { method: "POST", credentials: "same-origin" }).catch(() => {});
+      location.replace("login.html");
     });
   </script>
 </body>

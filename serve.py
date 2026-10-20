@@ -17,11 +17,14 @@ import secrets
 import socket
 import threading
 import uuid
-from datetime import datetime
+from datetime import datetime, timedelta
+from http.cookies import SimpleCookie
 from http.server import BaseHTTPRequestHandler, ThreadingHTTPServer
 from pathlib import Path
 from urllib.parse import unquote, urlparse
 from zoneinfo import ZoneInfo
+
+from ad_auth import authenticate
 
 ROOT = Path(__file__).resolve().parent
 DATA = ROOT / "data"
@@ -32,6 +35,10 @@ HOST = os.environ.get("APPLY_HOST", "0.0.0.0")
 PORT = int(os.environ.get("APPLY_PORT", "8765"))
 MAX_BODY = 32_768
 LOCK = threading.Lock()
+SESSIONS: dict[str, dict] = {}
+LOGIN_HITS: dict[str, list[datetime]] = {}
+SESSION_HOURS = 8
+COOKIE = "apply_session"
 
 EMAIL_RE = re.compile(r"^[^@\s]+@[^@\s]+\.[^@\s]+$")
 TRAINING = {
@@ -127,7 +134,7 @@ def validate(body: dict) -> tuple[dict | None, str | None]:
         item[key] = value
 
     item["email"] = item["email"].lower()
-    if not EMAIL_RE.match(item["email"]):
+    if item["email"] and not EMAIL_RE.match(item["email"]):
         return None, "Укажите почту в формате имя@домен."
 
     training = str(body.get("training") or "")
@@ -147,7 +154,9 @@ def upsert(item: dict) -> tuple[dict, bool]:
     with LOCK:
         rows = load_all()
         for row in rows:
-            if row.get("email") == item["email"]:
+            same_login = item.get("ad_login") and row.get("ad_login") == item["ad_login"]
+            same_email = item.get("email") and row.get("email") == item["email"]
+            if same_login or same_email:
                 row.update(item)
                 row["updated_at"] = stamp
                 save_all(rows)
@@ -171,6 +180,7 @@ def rows_csv(rows: list[dict]) -> bytes:
             "id",
             "создана",
             "обновлена",
+            "логин AD",
             "имя",
             "подразделение",
             "должность",
@@ -186,6 +196,7 @@ def rows_csv(rows: list[dict]) -> bytes:
                 row.get("id", ""),
                 row.get("created_at", ""),
                 row.get("updated_at", ""),
+                row.get("ad_login", ""),
                 row.get("name", ""),
                 row.get("unit", ""),
                 row.get("position", ""),
@@ -242,7 +253,7 @@ class Handler(BaseHTTPRequestHandler):
 
     def do_OPTIONS(self) -> None:
         path = urlparse(self.path).path
-        if path not in ("/api/health", "/api/applications"):
+        if path not in ("/api/health", "/api/applications", "/api/login", "/api/me", "/api/logout"):
             self.end_json(404, {"error": "Страница не найдена."})
             return
         self.send_response(204)
@@ -252,6 +263,32 @@ class Handler(BaseHTTPRequestHandler):
 
     def is_local(self) -> bool:
         return self.client_address[0] in ("127.0.0.1", "::1")
+
+    def cookie_token(self) -> str:
+        jar = SimpleCookie()
+        jar.load(self.headers.get("Cookie", ""))
+        morsel = jar.get(COOKIE)
+        return morsel.value if morsel else ""
+
+    def current_user(self) -> dict | None:
+        prune_sessions()
+        item = SESSIONS.get(self.cookie_token())
+        if not item:
+            return None
+        return item["user"]
+
+    def set_session_cookie(self, token: str | None) -> None:
+        secure = " Secure;" if self.headers.get("X-Forwarded-Proto") == "https" or self.headers.get("Host", "").endswith("trycloudflare.com") else ""
+        if token:
+            self.send_header(
+                "Set-Cookie",
+                f"{COOKIE}={token}; HttpOnly; Path=/; SameSite=Lax; Max-Age={SESSION_HOURS * 3600};{secure}",
+            )
+        else:
+            self.send_header(
+                "Set-Cookie",
+                f"{COOKIE}=; HttpOnly; Path=/; SameSite=Lax; Max-Age=0;{secure}",
+            )
 
     def is_admin(self) -> bool:
         if self.is_local():
@@ -280,8 +317,16 @@ class Handler(BaseHTTPRequestHandler):
                     "ok": True,
                     "open": now_msk() <= DEADLINE,
                     "deadline": DEADLINE.isoformat(timespec="seconds"),
+                    "auth": "ad",
                 },
             )
+            return
+        if path == "/api/me":
+            user = self.current_user()
+            if not user:
+                self.end_json(401, {"error": "Нужен вход через AD."})
+                return
+            self.end_json(200, user)
             return
         if path in ("/api/applications", "/api/applications.csv"):
             if not self.is_admin():
@@ -322,8 +367,48 @@ class Handler(BaseHTTPRequestHandler):
         self.wfile.write(raw)
 
     def do_POST(self) -> None:
-        if urlparse(self.path).path != "/api/applications":
+        path = urlparse(self.path).path
+        if path == "/api/logout":
+            token = self.cookie_token()
+            SESSIONS.pop(token, None)
+            self.send_response(200)
+            self.send_header("Content-Type", "application/json; charset=utf-8")
+            self.set_session_cookie(None)
+            raw = json.dumps({"ok": True}, ensure_ascii=False).encode("utf-8")
+            self.send_header("Content-Length", str(len(raw)))
+            self.end_headers()
+            self.wfile.write(raw)
+            return
+        if path == "/api/login":
+            ip = self.client_address[0]
+            if not login_allowed(ip):
+                self.end_json(429, {"error": "Слишком много попыток входа. Подождите 15 минут."})
+                return
+            body = self.read_json()
+            if body is None:
+                self.end_json(400, {"error": "Не удалось прочитать данные входа."})
+                return
+            mark_login(ip)
+            profile, error = authenticate(str(body.get("username") or ""), str(body.get("password") or ""))
+            if error or profile is None:
+                self.end_json(401, {"error": error or "Неверный логин или пароль."})
+                return
+            token = create_session(profile)
+            raw = json.dumps({"ok": True, "user": public_user(profile)}, ensure_ascii=False).encode("utf-8")
+            self.send_response(200)
+            self.send_header("Content-Type", "application/json; charset=utf-8")
+            self.send_header("Content-Length", str(len(raw)))
+            self.send_header("Cache-Control", "no-store")
+            self.set_session_cookie(token)
+            self.end_headers()
+            self.wfile.write(raw)
+            return
+        if path != "/api/applications":
             self.end_json(404, {"error": "Страница не найдена."})
+            return
+        user = self.current_user()
+        if not user:
+            self.end_json(401, {"error": "Сначала войдите через корпоративный AD."})
             return
         body = self.read_json()
         if body is None:
@@ -337,11 +422,56 @@ class Handler(BaseHTTPRequestHandler):
         if item.get("honeypot"):
             self.end_json(201, {"ok": True, "id": "00000000", "updated": False})
             return
+        item["ad_login"] = user["login"]
+        item["name"] = user["name"] or item["name"]
+        item["email"] = user["email"] or item["email"]
+        item["unit"] = user["unit"] or item["unit"]
+        item["position"] = user["position"] or item["position"]
         row, updated = upsert(item)
         self.end_json(
             200 if updated else 201,
             {"ok": True, "id": row["id"], "updated": updated},
         )
+
+
+def public_user(profile: dict) -> dict:
+    return {
+        "login": profile.get("login", ""),
+        "name": profile.get("name", ""),
+        "email": profile.get("email", ""),
+        "unit": profile.get("unit", ""),
+        "position": profile.get("position", ""),
+        "contact": profile.get("contact", ""),
+    }
+
+
+def prune_sessions() -> None:
+    now = now_msk()
+    expired = [key for key, item in SESSIONS.items() if item["expires"] <= now]
+    for key in expired:
+        SESSIONS.pop(key, None)
+
+
+def create_session(profile: dict) -> str:
+    prune_sessions()
+    token = secrets.token_urlsafe(32)
+    SESSIONS[token] = {
+        "user": public_user(profile),
+        "expires": now_msk() + timedelta(hours=SESSION_HOURS),
+    }
+    return token
+
+
+def login_allowed(ip: str) -> bool:
+    now = now_msk()
+    window = now - timedelta(minutes=15)
+    hits = [stamp for stamp in LOGIN_HITS.get(ip, []) if stamp > window]
+    LOGIN_HITS[ip] = hits
+    return len(hits) < 8
+
+
+def mark_login(ip: str) -> None:
+    LOGIN_HITS.setdefault(ip, []).append(now_msk())
 
 
 def lan_ip() -> str:

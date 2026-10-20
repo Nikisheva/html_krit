@@ -1,0 +1,114 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Вход через AD — AI Challenge</title>
+  <link rel="stylesheet" href="brand-tokens.css" />
+  <link rel="stylesheet" href="storybook-static/krit-report-components.css" />
+  <style>
+    body { margin: 0; background: #f4f7fb; color: var(--ink); font-family: var(--font-family-body); line-height: 1.5; }
+    a { color: var(--accent); }
+    .top { background: #fff; border-bottom: 1px solid var(--line); }
+    .top-inner, .wrap { width: min(560px, calc(100% - 32px)); margin: 0 auto; }
+    .top-inner { display: flex; align-items: center; justify-content: space-between; min-height: 72px; }
+    .wrap { padding: 40px 0 72px; }
+    h1 { font-family: var(--font-family-heading); font-weight: 300; font-size: 34px; margin: 8px 0 12px; }
+    .kicker { color: var(--accent); font-size: 13px; }
+    .lede { font-size: 17px; margin: 0 0 20px; }
+    form { display: grid; gap: 14px; }
+    .field { display: grid; gap: 6px; }
+    label { font-size: 14px; }
+    input {
+      width: 100%;
+      box-sizing: border-box;
+      border: 1px solid var(--line);
+      border-radius: 3px;
+      font: 16px/1.4 var(--font-family-body);
+      padding: 10px 12px;
+    }
+    .sb-btn { font-size: 15px; min-height: 42px; padding: 0.5rem 1rem; }
+    .error { color: var(--danger); font-size: 14px; margin: 0; }
+    .muted { color: var(--muted); font-size: 13px; }
+  </style>
+</head>
+<body>
+  <header class="top">
+    <div class="top-inner">
+      <img src="logo/KRIT_Logo_Grey_Color.svg" alt="КРИТ" width="90" height="51" />
+      <a href="reglament.html">Регламент</a>
+    </div>
+  </header>
+  <main class="wrap">
+    <div class="kicker">Корпоративный вход · AD krit.pro</div>
+    <h1>Войдите своей учёткой</h1>
+    <p class="lede">Заявку может подать только сотрудник КРИТ. Используйте тот же логин и пароль, что для компьютера и почты.</p>
+    <article class="card">
+      <form id="form">
+        <div class="field">
+          <label for="username">Логин AD</label>
+          <input id="username" name="username" type="text" autocomplete="username" required maxlength="64" placeholder="ivanov.ivan" />
+        </div>
+        <div class="field">
+          <label for="password">Пароль</label>
+          <input id="password" name="password" type="password" autocomplete="current-password" required />
+        </div>
+        <p class="error" id="error" hidden></p>
+        <button class="sb-btn primary" type="submit" id="submit">Войти через AD</button>
+        <p class="muted">Пароль на сервер заявок не сохраняется. Если контроллер домена не отвечает, подключитесь к корпоративной сети или VPN.</p>
+      </form>
+    </article>
+  </main>
+  <script>
+    const form = document.getElementById("form");
+    const error = document.getElementById("error");
+
+    if (location.hostname.endsWith("github.io")) {
+      fetch("api-base.json", { cache: "no-store" })
+        .then((res) => res.json())
+        .then((data) => {
+          if (data.api) location.replace(String(data.api).replace(/\/$/, "") + "/login.html");
+        })
+        .catch(() => {});
+    }
+
+    fetch("/api/me", { credentials: "same-origin" })
+      .then((res) => (res.ok ? res.json() : null))
+      .then((data) => {
+        if (data && data.login) location.replace("apply.html");
+      })
+      .catch(() => {});
+
+    form.addEventListener("submit", async (event) => {
+      event.preventDefault();
+      error.hidden = true;
+      const button = document.getElementById("submit");
+      button.disabled = true;
+      const username = form.username.value.trim();
+      const password = form.password.value;
+      try {
+        const res = await fetch("/api/login", {
+          method: "POST",
+          credentials: "same-origin",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ username, password }),
+        });
+        const payload = await res.json().catch(() => ({}));
+        form.password.value = "";
+        if (!res.ok) {
+          error.hidden = false;
+          error.textContent = payload.error || "Не удалось войти.";
+          return;
+        }
+        location.replace("apply.html");
+      } catch (err) {
+        form.password.value = "";
+        error.hidden = false;
+        error.textContent = "Сервер входа не отвечает.";
+      } finally {
+        button.disabled = false;
+      }
+    });
+  </script>
+</body>
+</html>

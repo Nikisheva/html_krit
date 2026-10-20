@@ -1,5 +1,6 @@
 .DS_Store
 .credentials.local
+.venv/
 data/
 .env
 .env.*

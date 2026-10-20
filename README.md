@@ -8,7 +8,7 @@ AI Challenge для сотрудников ОЦО и бэкофиса: знак�
 - [`AI Challenge.pptx`](AI%20Challenge.pptx) — та же презентация в PowerPoint для рассылки и показа. Пересборка: `python3 build_pptx.py`.
 - [`Cursor для AI Challenge.pptx`](Cursor%20для%20AI%20Challenge.pptx) — обучение по инструкции «Работа с Cursor в бэк-офисе КРИТ»: 6 слайдов для ОЦО и бэкофиса. Локальная работа, план до изменений, секреты, DEV/TEST/PROD, проверка и история проекта. Пересборка: `python3 build_cursor_pptx.py`.
 - [`launch-plan.html`](launch-plan.html) — оценка готовности и план запуска для организаторов.
-- [`apply.html`](https://nikisheva.github.io/html_krit/apply.html) — заявка на участие до 21 октября, 23:59 мск. Один человек — одна заявка. Сотрудникам отправлять эту ссылку. Сводка для организатора: [http://127.0.0.1:8765/admin.html](http://127.0.0.1:8765/admin.html) после `python3 serve.py`. Заявки лежат локально в `data/` и в git не попадают.
+- [`apply.html`](https://nikisheva.github.io/html_krit/apply.html) — заявка на участие до 21 октября, 23:59 мск. Вход через корпоративный AD `krit.pro`, затем одна заявка на человека. Сводка: [http://127.0.0.1:8765/admin.html](http://127.0.0.1:8765/admin.html) после `python3 serve.py`. Настройки AD — `.credentials.local.example`. Заявки лежат локально в `data/` и в git не попадают.
 - [`Инструкция_работа_с_Cursor_бэк-офис_КРИТ.docx`](Инструкция_работа_с_Cursor_бэк-офис_КРИТ.docx) — инструкция «Работа с Cursor в бэк-офисе КРИТ». Та же ссылка стоит в форме заявки.
 - [`reglament.html`](reglament.html) — регламент AI Challenge: этапы, даты, роли, правила и недостающие материалы.
 - [`Регламент AI Challenge.docx`](Регламент%20AI%20Challenge.docx) — тот же регламент в Word для рассылки.
@@ -20,7 +20,7 @@ AI Challenge для сотрудников ОЦО и бэкофиса: знак�
 
 ## Как смотреть
 
-1. Открыть `index.html` или `webinar.html` в браузере (удобнее через локальный сервер из этой папки). Заявка для сотрудников: [https://nikisheva.github.io/html_krit/apply.html](https://nikisheva.github.io/html_krit/apply.html). Чтобы заявки сохранялись, на этом компьютере должен работать `python3 serve.py`.
+1. Открыть `index.html` или `webinar.html` в браузере (удобнее через локальный сервер из этой папки). Заявка: [https://nikisheva.github.io/html_krit/apply.html](https://nikisheva.github.io/html_krit/apply.html). Сотрудник входит логином и паролем AD. Для приёма заявок на этом компьютере: `python3 -m pip install -r requirements.txt` и `python3 serve.py`. Нужна доступность контроллера домена `krit.pro`.
 2. Листать стрелками, пробелом или кнопками «Назад / Дальше».
 3. Печать → «Сохранить как PDF», если нужен файл для рассылки без HTML.
 4. Для PowerPoint открыть `AI Challenge.pptx`.
