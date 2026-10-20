@@ -97,6 +97,18 @@
             <label for="position">Должность <span class="req">*</span></label>
             <input id="position" name="position" type="text" autocomplete="organization-title" required maxlength="160" />
           </div>
+          <div class="field">
+            <label for="training">Обучение <span class="req">*</span></label>
+            <select id="training" name="training" required>
+              <option value="">Выберите</option>
+              <option value="passed">Прошёл</option>
+              <option value="missed">Не прошёл</option>
+            </select>
+          </div>
+          <div class="field">
+            <label for="process">Какой процесс рассматриваете (предварительно, можно будет изменить)</label>
+            <textarea id="process" name="process" maxlength="500" placeholder="Коротко, одним-двумя предложениями. Можно оставить пустым."></textarea>
+          </div>
           <p class="error" id="error" hidden></p>
           <div class="actions">
             <button class="sb-btn primary" type="submit" id="submit">Отправить заявку</button>
@@ -220,8 +232,8 @@
       event.preventDefault();
       showError("");
       const data = Object.fromEntries(new FormData(form).entries());
-      if (!data.name || !data.position) {
-        showError("Укажите ФИО и должность.");
+      if (!data.name || !data.position || !data.training) {
+        showError("Укажите ФИО, должность и обучение.");
         return;
       }
       const button = document.getElementById("submit");

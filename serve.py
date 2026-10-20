@@ -41,9 +41,14 @@ LOGIN_HITS: dict[str, list[datetime]] = {}
 SESSION_HOURS = 8
 COOKIE = "apply_session"
 
+TRAINING = {
+    "passed": "Прошёл",
+    "missed": "Не прошёл",
+}
 FIELDS = {
     "name": (2, 120),
     "position": (2, 160),
+    "process": (0, 500),
 }
 
 STATIC_TYPES = {
@@ -125,6 +130,10 @@ def validate(body: dict) -> tuple[dict | None, str | None]:
             return None, "Заполните все обязательные поля."
         item[key] = value
 
+    training = str(body.get("training") or "")
+    if training not in TRAINING:
+        return None, "Укажите, прошли обучение или нет."
+    item["training"] = training
     return item, None
 
 
@@ -154,7 +163,7 @@ def upsert(item: dict) -> tuple[dict, bool]:
 def rows_csv(rows: list[dict]) -> bytes:
     buffer = io.StringIO()
     writer = csv.writer(buffer)
-    writer.writerow(["id", "создана", "обновлена", "имя", "должность"])
+    writer.writerow(["id", "создана", "обновлена", "имя", "должность", "обучение", "процесс"])
     for row in rows:
         writer.writerow(
             [
@@ -163,6 +172,8 @@ def rows_csv(rows: list[dict]) -> bytes:
                 row.get("updated_at", ""),
                 row.get("name", ""),
                 row.get("position", ""),
+                TRAINING.get(row.get("training", ""), ""),
+                row.get("process", ""),
             ]
         )
     return buffer.getvalue().encode("utf-8-sig")

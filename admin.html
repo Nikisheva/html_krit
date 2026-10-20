@@ -34,13 +34,15 @@
   <main class="wrap">
     <div class="kicker">Сводка для организатора · только с этого компьютера</div>
     <h1>Заявки на участие</h1>
-    <p>Сюда попадают все отправленные заявки. Срок приёма — 21 октября 2026, 23:59 мск. В заявке только ФИО и должность.</p>
+    <p>Сюда попадают все отправленные заявки. Срок приёма — 21 октября 2026, 23:59 мск. Процесс в таблице предварительный.</p>
     <div class="alert warn" id="denied" hidden>
       <div class="alert-text">Список открывается на компьютере, где запущена форма. С другого адреса он недоступен.</div>
     </div>
     <div class="bar">
       <div class="stats">
         <div class="kpi"><div class="kpi-label">Всего</div><div class="kpi-value dark" id="count">—</div></div>
+        <div class="kpi"><div class="kpi-label">Прошли обучение</div><div class="kpi-value dark" id="passed">—</div></div>
+        <div class="kpi"><div class="kpi-label">Не прошли</div><div class="kpi-value dark" id="missed">—</div></div>
       </div>
       <div style="display:flex;gap:8px">
         <button class="sb-btn ghost" type="button" id="reload">Обновить</button>
@@ -54,6 +56,8 @@
             <th>Когда</th>
             <th>ФИО</th>
             <th>Должность</th>
+            <th>Обучение</th>
+            <th>Процесс, предварительно</th>
           </tr>
         </thead>
         <tbody id="rows"></tbody>
@@ -62,6 +66,11 @@
     </div>
   </main>
   <script>
+    const training = {
+      passed: "Прошёл",
+      missed: "Не прошёл",
+    };
+
     function cell(text) {
       const td = document.createElement("td");
       td.textContent = text || "";
@@ -85,13 +94,21 @@
       const data = await res.json();
       const items = data.items || [];
       document.getElementById("count").textContent = String(items.length);
+      document.getElementById("passed").textContent = String(items.filter((item) => item.training === "passed").length);
+      document.getElementById("missed").textContent = String(items.filter((item) => item.training === "missed").length);
       const body = document.getElementById("rows");
       body.replaceChildren();
       document.getElementById("empty").hidden = items.length > 0;
       items.slice().reverse().forEach((item) => {
         const tr = document.createElement("tr");
         const when = (item.updated_at || item.created_at || "").replace("T", " ").replace("+03:00", "");
-        tr.append(cell(when), cell(item.name || ""), cell(item.position || ""));
+        tr.append(
+          cell(when),
+          cell(item.name || ""),
+          cell(item.position || ""),
+          cell(training[item.training] || item.training || ""),
+          cell(item.process || "—"),
+        );
         tr.querySelectorAll("td").forEach((td) => { td.style.whiteSpace = "pre-line"; });
         body.append(tr);
       });
