@@ -55,23 +55,42 @@ def normalize_login(raw: str, domain: str) -> tuple[str, str] | None:
     return account, f"{account}@{domain}"
 
 
+def _srv_hosts(domain: str) -> list[str]:
+    import subprocess
+
+    hosts: list[str] = []
+    for query in (f"_ldap._tcp.dc._msdcs.{domain}", f"_ldap._tcp.{domain}"):
+        try:
+            raw = subprocess.check_output(
+                ["dig", "+short", "-t", "SRV", query],
+                timeout=3,
+                stderr=subprocess.DEVNULL,
+                text=True,
+            )
+        except Exception:
+            continue
+        for line in raw.splitlines():
+            parts = line.split()
+            if len(parts) >= 4:
+                host = parts[3].rstrip(".")
+                if host and host not in hosts:
+                    hosts.append(host)
+        if hosts:
+            break
+    return hosts
+
+
 def discover_hosts(settings: dict[str, str]) -> list[str]:
     hosts: list[str] = []
     if settings["AD_SERVER"]:
         hosts.append(settings["AD_SERVER"])
     domain = settings["AD_DOMAIN"]
-    try:
-        import dns.resolver  # type: ignore
-        answers = dns.resolver.resolve(f"_ldap._tcp.dc._msdcs.{domain}", "SRV")
-        ranked = sorted(answers, key=lambda item: (item.priority, item.weight))
-        for item in ranked:
-            host = str(item.target).rstrip(".")
-            if host not in hosts:
-                hosts.append(host)
-    except Exception:
-        pass
-    if domain not in hosts:
-        hosts.append(domain)
+    for host in _srv_hosts(domain):
+        if host not in hosts:
+            hosts.append(host)
+    for host in (f"dcspb.{domain}", f"dc.{domain}", domain):
+        if host not in hosts:
+            hosts.append(host)
     return hosts
 
 
@@ -104,7 +123,7 @@ def authenticate(username: str, password: str) -> tuple[dict | None, str | None]
 
     try:
         from ldap3 import ALL, Connection, Server, SIMPLE
-        from ldap3.core.exceptions import LDAPBindError, LDAPException
+        from ldap3.core.exceptions import LDAPBindError, LDAPException, LDAPInvalidCredentialsResult
         from ldap3.utils.conv import escape_filter_chars
     except ImportError:
         return None, "На сервере формы не установлена библиотека ldap3."
@@ -156,7 +175,7 @@ def authenticate(username: str, password: str) -> tuple[dict | None, str | None]
                 if start_tls:
                     conn.start_tls()
                 conn.bind()
-            except LDAPBindError:
+            except (LDAPBindError, LDAPInvalidCredentialsResult):
                 return None, "Неверный логин или пароль."
             except LDAPException:
                 last_error = "Контроллер домена недоступен. Нужна корпоративная сеть или VPN."
