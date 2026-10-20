@@ -6,5 +6,7 @@ data/
 .env.*
 !.env.example
 .cursor/credentials.local
+.wrangler/
+cloud-api/.dev.vars
 *.log
 ~$*.docx

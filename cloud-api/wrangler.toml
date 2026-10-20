@@ -1,0 +1,8 @@
+name = "ai-challenge-apply"
+main = "worker.js"
+compatibility_date = "2026-10-20"
+workers_dev = true
+
+[[kv_namespaces]]
+binding = "APPS"
+id = "79350648a6834cbb967308c4b3f2378d"

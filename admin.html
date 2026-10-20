@@ -32,11 +32,11 @@
     </div>
   </header>
   <main class="wrap">
-    <div class="kicker">Сводка для организатора · только с этого компьютера</div>
+    <div class="kicker">Сводка для организатора</div>
     <h1>Заявки на участие</h1>
     <p>Сюда попадают все отправленные заявки. Срок приёма — 21 октября 2026, 23:59 мск. Процесс в таблице предварительный.</p>
     <div class="alert warn" id="denied" hidden>
-      <div class="alert-text">Список открывается на компьютере, где запущена форма. С другого адреса он недоступен.</div>
+      <div class="alert-text">Нужен код организатора из файла .credentials.local.</div>
     </div>
     <div class="bar">
       <div class="stats">
@@ -46,7 +46,7 @@
       </div>
       <div style="display:flex;gap:8px">
         <button class="sb-btn ghost" type="button" id="reload">Обновить</button>
-        <a class="sb-btn primary" href="/api/applications.csv">Скачать CSV</a>
+        <button class="sb-btn primary" type="button" id="csv">Скачать CSV</button>
       </div>
     </div>
     <div class="card" style="overflow:auto">
@@ -70,6 +70,7 @@
       passed: "Прошёл",
       missed: "Не прошёл",
     };
+    let apiBase = "";
 
     function cell(text) {
       const td = document.createElement("td");
@@ -77,17 +78,46 @@
       return td;
     }
 
+    function adminToken() {
+      let token = sessionStorage.getItem("apply-admin-token") || "";
+      if (!token) {
+        token = window.prompt("Код организатора из файла .credentials.local, поле APPLY_ADMIN_TOKEN") || "";
+        if (token) sessionStorage.setItem("apply-admin-token", token);
+      }
+      return token;
+    }
+
+    function apiOpts(extra) {
+      const headers = Object.assign(
+        { "X-Admin-Token": adminToken() },
+        extra && extra.headers ? extra.headers : {},
+      );
+      return Object.assign({ cache: "no-store" }, extra || {}, { headers });
+    }
+
+    async function ready() {
+      if (apiBase) return apiBase;
+      const data = await fetch("api-base.json?t=" + Date.now(), { cache: "no-store" })
+        .then((res) => (res.ok ? res.json() : {}))
+        .catch(() => ({}));
+      apiBase = data && data.api ? String(data.api).replace(/\/$/, "") : "";
+      return apiBase;
+    }
+
     async function load() {
       const denied = document.getElementById("denied");
-      const res = await fetch("/api/applications", { cache: "no-store" });
+      const base = await ready();
+      const res = await fetch((base || "") + "/api/applications", apiOpts());
       if (res.status === 403) {
+        sessionStorage.removeItem("apply-admin-token");
         denied.hidden = false;
+        denied.querySelector(".alert-text").textContent = "Нужен код организатора из файла .credentials.local.";
         document.getElementById("count").textContent = "—";
         return;
       }
       if (!res.ok) {
         denied.hidden = false;
-        denied.querySelector(".alert-text").textContent = "Не удалось загрузить список. Запустите python3 serve.py и откройте эту страницу с того же компьютера.";
+        denied.querySelector(".alert-text").textContent = "Не удалось загрузить список заявок.";
         return;
       }
       denied.hidden = true;
@@ -115,6 +145,18 @@
     }
 
     document.getElementById("reload").addEventListener("click", load);
+    document.getElementById("csv").addEventListener("click", async () => {
+      const base = await ready();
+      const res = await fetch((base || "") + "/api/applications.csv", apiOpts());
+      if (!res.ok) return;
+      const blob = await res.blob();
+      const url = URL.createObjectURL(blob);
+      const link = document.createElement("a");
+      link.href = url;
+      link.download = "ai-challenge-applications.csv";
+      link.click();
+      URL.revokeObjectURL(url);
+    });
     load().catch(() => {
       document.getElementById("denied").hidden = false;
     });

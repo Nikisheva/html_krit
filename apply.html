@@ -182,23 +182,14 @@
       return Object.assign({ credentials: apiBase ? "omit" : "same-origin" }, extra || {}, { headers });
     }
 
-    const onPages = location.hostname.endsWith("github.io");
-    if (onPages) {
-      apiBase = "https://anti-plug-loops-surrey.trycloudflare.com";
-    }
-    const healthReady = (onPages
-      ? fetch("api-base.json?t=" + Date.now(), { cache: "no-store" })
-          .then((res) => (res.ok ? res.json() : {}))
-          .catch(() => ({}))
-          .then((data) => {
-            const next = data && data.api ? String(data.api).replace(/\/$/, "") : "";
-            if (!next || next === apiBase) return;
-            return fetch(next + "/api/health", { credentials: "omit" })
-              .then((res) => { if (res.ok) apiBase = next; })
-              .catch(() => {});
-          })
-      : Promise.resolve()
-    ).then(() => fetch(apiUrl("/api/health"), apiOpts()))
+    const healthReady = fetch("api-base.json?t=" + Date.now(), { cache: "no-store" })
+      .then((res) => (res.ok ? res.json() : {}))
+      .catch(() => ({}))
+      .then((data) => {
+        const next = data && data.api ? String(data.api).replace(/\/$/, "") : "";
+        if (next) apiBase = next;
+      })
+      .then(() => fetch(apiUrl("/api/health"), apiOpts()))
       .then((res) => {
         if (!res.ok) throw new Error("offline");
         return res.json();
