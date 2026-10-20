@@ -179,14 +179,19 @@
     }
 
     const onPages = location.hostname.endsWith("github.io");
+    if (onPages) {
+      apiBase = "https://anti-plug-loops-surrey.trycloudflare.com";
+    }
     const healthReady = (onPages
-      ? fetch("api-base.json", { cache: "no-store" })
+      ? fetch("api-base.json?t=" + Date.now(), { cache: "no-store" })
           .then((res) => (res.ok ? res.json() : {}))
           .catch(() => ({}))
           .then((data) => {
-            if (data && data.api) {
-              apiBase = String(data.api).replace(/\/$/, "");
-            }
+            const next = data && data.api ? String(data.api).replace(/\/$/, "") : "";
+            if (!next || next === apiBase) return;
+            return fetch(next + "/api/health", { credentials: "omit" })
+              .then((res) => { if (res.ok) apiBase = next; })
+              .catch(() => {});
           })
       : Promise.resolve()
     ).then(() => fetch(apiUrl("/api/health"), apiOpts()))
@@ -229,7 +234,7 @@
           : "Вы в списке на тестовый тур. 22 октября выдадим задания.";
         document.getElementById("done-id").textContent = payload.id || "";
       } catch (err) {
-        showError("Сервер не отвечает. Откройте форму по ссылке, которую прислали организаторы.");
+        showError("Сервер не отвечает. Обновите страницу и отправьте ещё раз.");
       } finally {
         button.disabled = false;
       }
