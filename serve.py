@@ -15,6 +15,8 @@ import os
 import secrets
 import socket
 import threading
+import urllib.error
+import urllib.request
 import uuid
 from datetime import datetime
 from http.server import BaseHTTPRequestHandler, ThreadingHTTPServer
@@ -83,7 +85,43 @@ def admin_token() -> str:
     return ""
 
 
+def cloud_api() -> str:
+    path = ROOT / "api-base.json"
+    if not path.is_file():
+        return ""
+    try:
+        data = json.loads(path.read_text(encoding="utf-8"))
+    except json.JSONDecodeError:
+        return ""
+    return str((data or {}).get("api") or "").rstrip("/")
+
+
+def load_cloud() -> list[dict] | None:
+    base = cloud_api()
+    token = admin_token()
+    if not base or not token:
+        return None
+    request = urllib.request.Request(
+        base + "/api/applications",
+        headers={
+            "X-Admin-Token": token,
+            "User-Agent": "AIChallengeApply/1.0",
+        },
+    )
+    try:
+        with urllib.request.urlopen(request, timeout=8) as response:
+            payload = json.loads(response.read().decode("utf-8"))
+    except (urllib.error.URLError, TimeoutError, json.JSONDecodeError, UnicodeDecodeError):
+        return None
+    items = payload.get("items") if isinstance(payload, dict) else None
+    return items if isinstance(items, list) else None
+
+
 def load_all() -> list[dict]:
+    cloud = load_cloud()
+    if cloud is not None:
+        save_all(cloud)
+        return cloud
     if not STORE.is_file():
         return []
     rows = []
