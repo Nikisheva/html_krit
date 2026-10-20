@@ -78,7 +78,10 @@
       return td;
     }
 
+    const localHost = location.hostname === "127.0.0.1" || location.hostname === "localhost";
+
     function adminToken() {
+      if (localHost) return "";
       let token = sessionStorage.getItem("apply-admin-token") || "";
       if (!token) {
         token = window.prompt("Код организатора из файла .credentials.local, поле APPLY_ADMIN_TOKEN") || "";
@@ -88,14 +91,17 @@
     }
 
     function apiOpts(extra) {
-      const headers = Object.assign(
-        { "X-Admin-Token": adminToken() },
-        extra && extra.headers ? extra.headers : {},
-      );
+      const headers = Object.assign({}, extra && extra.headers ? extra.headers : {});
+      const token = adminToken();
+      if (token) headers["X-Admin-Token"] = token;
       return Object.assign({ cache: "no-store" }, extra || {}, { headers });
     }
 
     async function ready() {
+      if (localHost) {
+        apiBase = "";
+        return apiBase;
+      }
       if (apiBase) return apiBase;
       const data = await fetch("api-base.json?t=" + Date.now(), { cache: "no-store" })
         .then((res) => (res.ok ? res.json() : {}))
