@@ -117,11 +117,7 @@ def load_cloud() -> list[dict] | None:
     return items if isinstance(items, list) else None
 
 
-def load_all() -> list[dict]:
-    cloud = load_cloud()
-    if cloud is not None:
-        save_all(cloud)
-        return cloud
+def load_local() -> list[dict]:
     if not STORE.is_file():
         return []
     rows = []
@@ -131,6 +127,31 @@ def load_all() -> list[dict]:
             continue
         rows.append(json.loads(line))
     return rows
+
+
+def merge_rows(*groups: list[dict]) -> list[dict]:
+    by_key: dict[str, dict] = {}
+    for rows in groups:
+        for row in rows:
+            if not isinstance(row, dict):
+                continue
+            key = str(row.get("id") or "").strip() or str(row.get("name") or "").casefold()
+            if not key:
+                continue
+            prev = by_key.get(key)
+            if prev is None or str(row.get("updated_at") or "") >= str(prev.get("updated_at") or ""):
+                by_key[key] = row
+    return list(by_key.values())
+
+
+def load_all() -> list[dict]:
+    local = load_local()
+    cloud = load_cloud()
+    if cloud:
+        rows = merge_rows(local, cloud)
+        save_all(rows)
+        return rows
+    return local
 
 
 def save_all(rows: list[dict]) -> None:
