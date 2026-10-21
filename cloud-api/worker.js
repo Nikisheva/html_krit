@@ -1,4 +1,4 @@
-const DEADLINE = Date.parse("2026-10-21T23:59:59+03:00");
+const DEADLINE = Date.parse("2026-10-22T12:00:00+03:00");
 const STORE_KEY = "applications";
 const TRAINING = { passed: "Прошёл", missed: "Не прошёл" };
 const FIELDS = {
@@ -55,7 +55,7 @@ function isAdmin(request, env) {
 
 function validate(body) {
   if (Date.now() > DEADLINE) {
-    return { error: "Приём заявок закрыт. Срок — 21 октября 2026, 23:59 мск." };
+    return { error: "Приём заявок закрыт. Срок — 22 октября 2026, 12:00 мск." };
   }
   if (String(body.company_website || "").trim()) {
     return { honeypot: true };
@@ -138,7 +138,7 @@ export default {
       return json(request, 200, {
         ok: true,
         open: Date.now() <= DEADLINE,
-        deadline: "2026-10-21T23:59:59+03:00",
+        deadline: "2026-10-22T12:00:00+03:00",
         auth: "none",
       });
     }

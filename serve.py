@@ -28,7 +28,7 @@ ROOT = Path(__file__).resolve().parent
 DATA = ROOT / "data"
 STORE = DATA / "applications.jsonl"
 MSK = ZoneInfo("Europe/Moscow")
-DEADLINE = datetime(2026, 10, 21, 23, 59, 59, tzinfo=MSK)
+DEADLINE = datetime(2026, 10, 22, 12, 0, 0, tzinfo=MSK)
 HOST = os.environ.get("APPLY_HOST", "0.0.0.0")
 PORT = int(os.environ.get("APPLY_PORT", "8765"))
 MAX_BODY = 32_768
@@ -169,7 +169,7 @@ def clean_text(value: object, limit: int) -> str:
 
 def validate(body: dict) -> tuple[dict | None, str | None]:
     if now_msk() > DEADLINE:
-        return None, "Приём заявок закрыт. Срок — 21 октября 2026, 23:59 мск."
+        return None, "Приём заявок закрыт. Срок — 22 октября 2026, 12:00 мск."
     if str(body.get("company_website") or "").strip():
         return {"honeypot": True}, None
 

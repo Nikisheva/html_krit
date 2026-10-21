@@ -71,7 +71,7 @@
     </div>
   </header>
   <main class="wrap">
-    <div class="kicker">ОЦО и бэкофис · до 21 октября, 23:59 мск</div>
+    <div class="kicker">ОЦО и бэкофис · до 22 октября, 12:00 мск</div>
     <h1>Заявка на участие в AI Challenge</h1>
 
     <div class="layout">
@@ -115,7 +115,7 @@
         <h2 id="done-title">Заявка принята</h2>
         <p id="done-text">Вы в списке на тестовый тур. 22 октября выдадим задания.</p>
         <div class="success-id" id="done-id"></div>
-        <p class="muted">Номер заявки. Если нужно поправить данные до 21 октября, отправьте форму ещё раз с тем же ФИО.</p>
+        <p class="muted">Номер заявки. Если нужно поправить данные до 22 октября, 12:00, отправьте форму ещё раз с тем же ФИО.</p>
         <p style="margin-top:16px"><button class="sb-btn ghost" type="button" id="again">Изменить заявку</button></p>
       </article>
 
@@ -128,7 +128,7 @@
         </article>
         <article class="card">
           <span class="badge">Срок</span>
-          <p>Заявки принимаются до <strong>21 октября 2026, 23:59 мск</strong>. Без заявки в тестовый тур не выходим.</p>
+          <p>Заявки принимаются до <strong>22 октября 2026, 12:00 мск</strong>. Без заявки в тестовый тур не выходим.</p>
         </article>
         <article class="card">
           <span class="badge">Дальше</span>
@@ -150,7 +150,7 @@
     const error = document.getElementById("error");
     const done = document.getElementById("done");
     const formCard = document.getElementById("form-card");
-    const deadline = new Date("2026-10-21T23:59:59+03:00");
+    const deadline = new Date("2026-10-22T12:00:00+03:00");
     let apiBase = "";
 
     function apiUrl(path) {
@@ -166,7 +166,7 @@
       formCard.hidden = true;
       done.hidden = false;
       document.getElementById("done-title").textContent = "Приём заявок закрыт";
-      document.getElementById("done-text").textContent = "Срок был 21 октября 2026, 23:59 мск. Новые заявки не принимаются.";
+      document.getElementById("done-text").textContent = "Срок был 22 октября 2026, 12:00 мск. Новые заявки не принимаются.";
       document.getElementById("done-id").hidden = true;
       document.getElementById("again").hidden = true;
       done.querySelector(".badge").textContent = "Закрыто";
