@@ -4,6 +4,7 @@ const TRAINING = { passed: "Прошёл", missed: "Не прошёл" };
 const PROGRESS = {
   assignment_sent: "Отправлено задание",
   bitrix_entered: "Зашёл в Битрикс",
+  bitrix_admin: "Админ в Битрикс",
   project_started: "Начал делать проект",
   project_done: "Сделал проект",
 };

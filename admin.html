@@ -36,7 +36,7 @@
   <main class="wrap">
     <div class="kicker">Сводка для организатора</div>
     <h1>Заявки на участие</h1>
-    <p>Приём заявок закрыт 22 октября 2026, 12:00 мск. В таблице — участники тестового тура. Отмечайте ход: задание, вход в Битрикс, начало и готовность проекта.</p>
+    <p>Приём заявок закрыт 22 октября 2026, 12:00 мск. Сводка тестового тура сверяется с Bitrix Stage раз в час: вход, админские права, начало и готовность минисмарт-процесса.</p>
     <div class="alert warn" id="denied" hidden>
       <div class="alert-text">Не удалось загрузить список заявок.</div>
     </div>
@@ -46,6 +46,9 @@
         <div class="kpi"><div class="kpi-label">Прошли обучение</div><div class="kpi-value dark" id="passed">—</div></div>
         <div class="kpi"><div class="kpi-label">Не прошли</div><div class="kpi-value dark" id="missed">—</div></div>
         <div class="kpi"><div class="kpi-label">Задание отправлено</div><div class="kpi-value dark" id="sent">—</div></div>
+        <div class="kpi"><div class="kpi-label">Зашли в Битрикс</div><div class="kpi-value dark" id="entered">—</div></div>
+        <div class="kpi"><div class="kpi-label">Начали процесс</div><div class="kpi-value dark" id="started">—</div></div>
+        <div class="kpi"><div class="kpi-label">Сделали проект</div><div class="kpi-value dark" id="done">—</div></div>
       </div>
       <div style="display:flex;gap:8px">
         <button class="sb-btn ghost" type="button" id="reload">Обновить</button>
@@ -63,6 +66,7 @@
             <th>Процесс, предварительно</th>
             <th class="flag">Отправлено задание</th>
             <th class="flag">Зашёл в Битрикс</th>
+            <th class="flag">Админ в Битрикс</th>
             <th class="flag">Начал делать проект</th>
             <th class="flag">Сделал проект</th>
           </tr>
@@ -80,6 +84,7 @@
     const progress = [
       ["assignment_sent", "Отправлено задание"],
       ["bitrix_entered", "Зашёл в Битрикс"],
+      ["bitrix_admin", "Админ в Битрикс"],
       ["project_started", "Начал делать проект"],
       ["project_done", "Сделал проект"],
     ];
@@ -168,6 +173,9 @@
       document.getElementById("passed").textContent = String(items.filter((item) => item.training === "passed").length);
       document.getElementById("missed").textContent = String(items.filter((item) => item.training === "missed").length);
       document.getElementById("sent").textContent = String(items.filter((item) => item.assignment_sent).length);
+      document.getElementById("entered").textContent = String(items.filter((item) => item.bitrix_entered).length);
+      document.getElementById("started").textContent = String(items.filter((item) => item.project_started).length);
+      document.getElementById("done").textContent = String(items.filter((item) => item.project_done).length);
       const body = document.getElementById("rows");
       body.replaceChildren();
       document.getElementById("empty").hidden = items.length > 0;
