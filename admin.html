@@ -10,7 +10,7 @@
     body { margin: 0; background: #f4f7fb; color: var(--ink); font-family: var(--font-family-body); line-height: 1.45; }
     a { color: var(--accent); }
     .top { background: #fff; border-bottom: 1px solid var(--line); }
-    .top-inner, .wrap { width: min(1180px, calc(100% - 32px)); margin: 0 auto; }
+    .top-inner, .wrap { width: min(1480px, calc(100% - 32px)); margin: 0 auto; }
     .top-inner { display: flex; align-items: center; justify-content: space-between; min-height: 72px; }
     .wrap { padding: 32px 0 64px; }
     h1 { font-family: var(--font-family-heading); font-weight: 300; font-size: 34px; margin: 8px 0 8px; }
@@ -19,7 +19,9 @@
     .stats { display: flex; gap: 10px; flex-wrap: wrap; }
     table.mtable { background: #fff; }
     table.mtable td, table.mtable th { vertical-align: top; }
-    .process { max-width: 280px; color: var(--muted); }
+    table.mtable th.flag, table.mtable td.flag { text-align: center; white-space: normal; min-width: 92px; max-width: 120px; }
+    table.mtable td.flag input { width: 18px; height: 18px; }
+    .process { max-width: 240px; color: var(--muted); }
     .empty { padding: 8px 0 0; }
     .sb-btn { text-decoration: none; }
   </style>
@@ -34,7 +36,7 @@
   <main class="wrap">
     <div class="kicker">Сводка для организатора</div>
     <h1>Заявки на участие</h1>
-    <p>Сюда попадают все отправленные заявки. Срок приёма — 22 октября 2026, 12:00 мск. Процесс в таблице предварительный.</p>
+    <p>Приём заявок закрыт 22 октября 2026, 12:00 мск. В таблице — участники тестового тура. Отмечайте ход: задание, вход в Битрикс, начало и готовность проекта.</p>
     <div class="alert warn" id="denied" hidden>
       <div class="alert-text">Не удалось загрузить список заявок.</div>
     </div>
@@ -43,6 +45,7 @@
         <div class="kpi"><div class="kpi-label">Всего</div><div class="kpi-value dark" id="count">—</div></div>
         <div class="kpi"><div class="kpi-label">Прошли обучение</div><div class="kpi-value dark" id="passed">—</div></div>
         <div class="kpi"><div class="kpi-label">Не прошли</div><div class="kpi-value dark" id="missed">—</div></div>
+        <div class="kpi"><div class="kpi-label">Задание отправлено</div><div class="kpi-value dark" id="sent">—</div></div>
       </div>
       <div style="display:flex;gap:8px">
         <button class="sb-btn ghost" type="button" id="reload">Обновить</button>
@@ -58,6 +61,10 @@
             <th>Должность</th>
             <th>Обучение</th>
             <th>Процесс, предварительно</th>
+            <th class="flag">Отправлено задание</th>
+            <th class="flag">Зашёл в Битрикс</th>
+            <th class="flag">Начал делать проект</th>
+            <th class="flag">Сделал проект</th>
           </tr>
         </thead>
         <tbody id="rows"></tbody>
@@ -70,11 +77,45 @@
       passed: "Прошёл",
       missed: "Не прошёл",
     };
+    const progress = [
+      ["assignment_sent", "Отправлено задание"],
+      ["bitrix_entered", "Зашёл в Битрикс"],
+      ["project_started", "Начал делать проект"],
+      ["project_done", "Сделал проект"],
+    ];
     let apiBase = "";
 
     function cell(text) {
       const td = document.createElement("td");
       td.textContent = text || "";
+      return td;
+    }
+
+    function flagCell(item, key) {
+      const td = document.createElement("td");
+      td.className = "flag";
+      const input = document.createElement("input");
+      input.type = "checkbox";
+      input.checked = Boolean(item[key]);
+      input.setAttribute("aria-label", (progress.find((pair) => pair[0] === key) || [key, key])[1]);
+      input.addEventListener("change", async () => {
+        input.disabled = true;
+        const res = await fetch("/api/applications", apiOpts({
+          method: "PATCH",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ id: item.id, [key]: input.checked }),
+        })).catch(() => null);
+        input.disabled = false;
+        if (!res || !res.ok) {
+          input.checked = !input.checked;
+          return;
+        }
+        item[key] = input.checked;
+        document.getElementById("sent").textContent = String(
+          [...document.querySelectorAll('#rows input[aria-label="Отправлено задание"]')].filter((box) => box.checked).length,
+        );
+      });
+      td.append(input);
       return td;
     }
 
@@ -126,20 +167,26 @@
       document.getElementById("count").textContent = String(items.length);
       document.getElementById("passed").textContent = String(items.filter((item) => item.training === "passed").length);
       document.getElementById("missed").textContent = String(items.filter((item) => item.training === "missed").length);
+      document.getElementById("sent").textContent = String(items.filter((item) => item.assignment_sent).length);
       const body = document.getElementById("rows");
       body.replaceChildren();
       document.getElementById("empty").hidden = items.length > 0;
       items.slice().reverse().forEach((item) => {
         const tr = document.createElement("tr");
-        const when = (item.updated_at || item.created_at || "").replace("T", " ").replace("+03:00", "");
+        const when = (item.created_at || item.updated_at || "").replace("T", " ").replace("+03:00", "");
+        const process = cell(item.process || "—");
+        process.className = "process";
         tr.append(
           cell(when),
           cell(item.name || ""),
           cell(item.position || ""),
           cell(training[item.training] || item.training || ""),
-          cell(item.process || "—"),
+          process,
+          ...progress.map(([key]) => flagCell(item, key)),
         );
-        tr.querySelectorAll("td").forEach((td) => { td.style.whiteSpace = "pre-line"; });
+        tr.querySelectorAll("td").forEach((td) => {
+          if (!td.classList.contains("flag")) td.style.whiteSpace = "pre-line";
+        });
         body.append(tr);
       });
     }

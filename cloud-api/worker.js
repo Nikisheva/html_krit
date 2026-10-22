@@ -1,6 +1,12 @@
 const DEADLINE = Date.parse("2026-10-22T12:00:00+03:00");
 const STORE_KEY = "applications";
 const TRAINING = { passed: "Прошёл", missed: "Не прошёл" };
+const PROGRESS = {
+  assignment_sent: "Отправлено задание",
+  bitrix_entered: "Зашёл в Битрикс",
+  project_started: "Начал делать проект",
+  project_done: "Сделал проект",
+};
 const FIELDS = {
   name: [2, 120],
   position: [2, 160],
@@ -17,7 +23,7 @@ function corsHeaders(request) {
   const headers = { Vary: "Origin" };
   if (ALLOWED_ORIGINS.some((item) => origin === item || origin.startsWith(item + "/"))) {
     headers["Access-Control-Allow-Origin"] = origin;
-    headers["Access-Control-Allow-Methods"] = "GET, POST, OPTIONS";
+    headers["Access-Control-Allow-Methods"] = "GET, POST, PATCH, DELETE, OPTIONS";
     headers["Access-Control-Allow-Headers"] = "Content-Type, X-Admin-Token, bypass-tunnel-reminder";
   }
   return headers;
@@ -105,7 +111,7 @@ function upsert(rows, item) {
 }
 
 function toCsv(rows) {
-  const header = ["id", "создана", "обновлена", "имя", "должность", "обучение", "процесс"];
+  const header = ["id", "создана", "обновлена", "имя", "должность", "обучение", "процесс", ...Object.values(PROGRESS)];
   const lines = [header.join(",")];
   for (const row of rows) {
     const values = [
@@ -116,6 +122,7 @@ function toCsv(rows) {
       row.position,
       TRAINING[row.training] || "",
       row.process,
+      ...Object.keys(PROGRESS).map((key) => (row[key] ? "да" : "")),
     ].map((value) => `"${String(value || "").replace(/"/g, '""')}"`);
     lines.push(values.join(","));
   }
@@ -161,6 +168,36 @@ export default {
         });
       }
       return json(request, 200, { items: rows, count: rows.length });
+    }
+
+    if ((request.method === "PATCH" || request.method === "DELETE") && path === "/api/applications") {
+      if (!isAdmin(request, env)) {
+        return json(request, 403, { error: "Список заявок доступен только организатору." });
+      }
+      let body;
+      try {
+        body = await request.json();
+      } catch {
+        return json(request, 400, { error: "Не удалось прочитать заявку." });
+      }
+      const appId = String((body && body.id) || "").trim();
+      if (!appId) return json(request, 400, { error: "Не указана заявка." });
+      const rows = await loadAll(env);
+      const index = rows.findIndex((row) => String(row.id || "") === appId);
+      if (index < 0) return json(request, 404, { error: "Заявка не найдена." });
+      if (request.method === "DELETE") {
+        const removed = rows.splice(index, 1)[0];
+        await saveAll(env, rows);
+        return json(request, 200, { ok: true, id: removed.id });
+      }
+      const flags = {};
+      for (const key of Object.keys(PROGRESS)) {
+        if (Object.prototype.hasOwnProperty.call(body, key)) flags[key] = Boolean(body[key]);
+      }
+      if (!Object.keys(flags).length) return json(request, 400, { error: "Нечего обновлять." });
+      Object.assign(rows[index], flags, { updated_at: nowMsk() });
+      await saveAll(env, rows);
+      return json(request, 200, { ok: true, id: rows[index].id, item: rows[index] });
     }
 
     if (request.method === "POST" && path === "/api/applications") {

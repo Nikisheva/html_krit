@@ -38,6 +38,12 @@ TRAINING = {
     "passed": "Прошёл",
     "missed": "Не прошёл",
 }
+PROGRESS = {
+    "assignment_sent": "Отправлено задание",
+    "bitrix_entered": "Зашёл в Битрикс",
+    "project_started": "Начал делать проект",
+    "project_done": "Сделал проект",
+}
 FIELDS = {
     "name": (2, 120),
     "position": (2, 160),
@@ -140,7 +146,11 @@ def merge_rows(*groups: list[dict]) -> list[dict]:
                 continue
             prev = by_key.get(key)
             if prev is None or str(row.get("updated_at") or "") >= str(prev.get("updated_at") or ""):
-                by_key[key] = row
+                keep = prev or {}
+                merged = dict(row)
+                for flag in PROGRESS:
+                    merged[flag] = bool(row.get(flag) or keep.get(flag))
+                by_key[key] = merged
     return list(by_key.values())
 
 
@@ -209,10 +219,62 @@ def upsert(item: dict) -> tuple[dict, bool]:
         return row, False
 
 
+def cloud_admin(method: str, payload: dict) -> dict | None:
+    base = cloud_api()
+    token = admin_token()
+    if not base or not token:
+        return None
+    request = urllib.request.Request(
+        base + "/api/applications",
+        data=json.dumps(payload, ensure_ascii=False).encode("utf-8"),
+        method=method,
+        headers={
+            "Content-Type": "application/json",
+            "X-Admin-Token": token,
+            "User-Agent": "AIChallengeApply/1.0",
+        },
+    )
+    try:
+        with urllib.request.urlopen(request, timeout=8) as response:
+            return json.loads(response.read().decode("utf-8"))
+    except (urllib.error.URLError, TimeoutError, json.JSONDecodeError, UnicodeDecodeError):
+        return None
+
+
+def update_progress(app_id: str, flags: dict) -> dict | None:
+    stamp = now_msk().isoformat(timespec="seconds")
+    with LOCK:
+        rows = load_all()
+        for row in rows:
+            if str(row.get("id") or "") != app_id:
+                continue
+            for key in PROGRESS:
+                if key in flags:
+                    row[key] = bool(flags[key])
+            row["updated_at"] = stamp
+            save_all(rows)
+            cloud_admin("PATCH", {"id": app_id, **{key: row.get(key, False) for key in PROGRESS}})
+            return row
+        return None
+
+
+def delete_application(app_id: str) -> bool:
+    with LOCK:
+        rows = load_all()
+        next_rows = [row for row in rows if str(row.get("id") or "") != app_id]
+        if len(next_rows) == len(rows):
+            return False
+        save_all(next_rows)
+        cloud_admin("DELETE", {"id": app_id})
+        return True
+
+
 def rows_csv(rows: list[dict]) -> bytes:
     buffer = io.StringIO()
     writer = csv.writer(buffer)
-    writer.writerow(["id", "создана", "обновлена", "имя", "должность", "обучение", "процесс"])
+    writer.writerow(
+        ["id", "создана", "обновлена", "имя", "должность", "обучение", "процесс", *PROGRESS.values()]
+    )
     for row in rows:
         writer.writerow(
             [
@@ -223,6 +285,7 @@ def rows_csv(rows: list[dict]) -> bytes:
                 row.get("position", ""),
                 TRAINING.get(row.get("training", ""), ""),
                 row.get("process", ""),
+                *["да" if row.get(key) else "" for key in PROGRESS],
             ]
         )
     return buffer.getvalue().encode("utf-8-sig")
@@ -256,8 +319,8 @@ class Handler(BaseHTTPRequestHandler):
         origin = self.headers.get("Origin", "")
         if origin.startswith("https://nikisheva.github.io"):
             self.send_header("Access-Control-Allow-Origin", origin)
-            self.send_header("Access-Control-Allow-Methods", "GET, POST, OPTIONS")
-            self.send_header("Access-Control-Allow-Headers", "Content-Type, bypass-tunnel-reminder")
+            self.send_header("Access-Control-Allow-Methods", "GET, POST, PATCH, DELETE, OPTIONS")
+            self.send_header("Access-Control-Allow-Headers", "Content-Type, X-Admin-Token, bypass-tunnel-reminder")
             self.send_header("Vary", "Origin")
 
     def end_json(self, code: int, payload: dict) -> None:
@@ -272,7 +335,7 @@ class Handler(BaseHTTPRequestHandler):
 
     def do_OPTIONS(self) -> None:
         path = urlparse(self.path).path
-        if path not in ("/api/health", "/api/applications"):
+        if path not in ("/api/health", "/api/applications", "/api/applications.csv"):
             self.end_json(404, {"error": "Страница не найдена."})
             return
         self.send_response(204)
@@ -380,6 +443,47 @@ class Handler(BaseHTTPRequestHandler):
             200 if updated else 201,
             {"ok": True, "id": row["id"], "updated": updated},
         )
+
+    def do_PATCH(self) -> None:
+        path = urlparse(self.path).path
+        if path != "/api/applications":
+            self.end_json(404, {"error": "Страница не найдена."})
+            return
+        if not self.is_admin():
+            self.end_json(403, {"error": "Список заявок доступен только организатору."})
+            return
+        body = self.read_json()
+        app_id = str((body or {}).get("id") or "").strip()
+        if not app_id:
+            self.end_json(400, {"error": "Не указана заявка."})
+            return
+        flags = {key: body.get(key) for key in PROGRESS if key in body}
+        if not flags:
+            self.end_json(400, {"error": "Нечего обновлять."})
+            return
+        row = update_progress(app_id, flags)
+        if row is None:
+            self.end_json(404, {"error": "Заявка не найдена."})
+            return
+        self.end_json(200, {"ok": True, "id": row["id"], "item": row})
+
+    def do_DELETE(self) -> None:
+        path = urlparse(self.path).path
+        if path != "/api/applications":
+            self.end_json(404, {"error": "Страница не найдена."})
+            return
+        if not self.is_admin():
+            self.end_json(403, {"error": "Список заявок доступен только организатору."})
+            return
+        body = self.read_json()
+        app_id = str((body or {}).get("id") or "").strip()
+        if not app_id:
+            self.end_json(400, {"error": "Не указана заявка."})
+            return
+        if not delete_application(app_id):
+            self.end_json(404, {"error": "Заявка не найдена."})
+            return
+        self.end_json(200, {"ok": True, "id": app_id})
 
 
 def lan_ip() -> str:

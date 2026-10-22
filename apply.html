@@ -71,7 +71,7 @@
     </div>
   </header>
   <main class="wrap">
-    <div class="kicker">ОЦО и бэкофис · до 22 октября, 12:00 мск</div>
+    <div class="kicker">ОЦО и бэкофис · приём закрыт</div>
     <h1>Заявка на участие в AI Challenge</h1>
 
     <div class="layout">
@@ -115,7 +115,7 @@
         <h2 id="done-title">Заявка принята</h2>
         <p id="done-text">Вы в списке на тестовый тур. 22 октября выдадим задания.</p>
         <div class="success-id" id="done-id"></div>
-        <p class="muted">Номер заявки. Если нужно поправить данные до 22 октября, 12:00, отправьте форму ещё раз с тем же ФИО.</p>
+        <p class="muted">Номер заявки. Приём новых заявок закрыт.</p>
         <p style="margin-top:16px"><button class="sb-btn ghost" type="button" id="again">Изменить заявку</button></p>
       </article>
 
@@ -128,7 +128,7 @@
         </article>
         <article class="card">
           <span class="badge">Срок</span>
-          <p>Заявки принимаются до <strong>22 октября 2026, 12:00 мск</strong>. Без заявки в тестовый тур не выходим.</p>
+          <p>Приём заявок закрыт <strong>22 октября 2026, 12:00 мск</strong>. Новые заявки не принимаются.</p>
         </article>
         <article class="card">
           <span class="badge">Дальше</span>
@@ -169,6 +169,9 @@
       document.getElementById("done-text").textContent = "Срок был 22 октября 2026, 12:00 мск. Новые заявки не принимаются.";
       document.getElementById("done-id").hidden = true;
       document.getElementById("again").hidden = true;
+      if (document.getElementById("again").parentElement) {
+        document.getElementById("again").parentElement.hidden = true;
+      }
       done.querySelector(".badge").textContent = "Закрыто";
     }
 
