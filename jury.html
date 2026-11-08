@@ -1,0 +1,384 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Оценка идей · AI Challenge</title>
+  <link rel="stylesheet" href="brand-tokens.css" />
+  <link rel="stylesheet" href="storybook-static/krit-report-components.css" />
+  <style>
+    * { box-sizing: border-box; }
+    body { margin: 0; background: #f4f7fb; color: var(--ink); font-family: var(--font-family-body); line-height: 1.45; }
+    button, input, textarea { font: inherit; }
+    .top { background: #fff; border-bottom: 1px solid var(--line); position: sticky; top: 0; z-index: 10; }
+    .top-inner, .wrap { width: min(980px, calc(100% - 32px)); margin: 0 auto; }
+    .top-inner { min-height: 72px; display: flex; align-items: center; justify-content: space-between; gap: 20px; }
+    .event { color: var(--muted); font-size: 13px; text-align: right; }
+    .wrap { padding: 38px 0 76px; }
+    h1, h2, h3 { font-family: var(--font-family-heading); font-weight: 300; }
+    h1 { font-size: clamp(34px, 5vw, 48px); line-height: 1.05; margin: 8px 0 14px; max-width: 720px; }
+    h2 { font-size: 28px; margin: 0; }
+    h3 { font-size: 19px; margin: 0 0 5px; }
+    p { margin: 0; }
+    .kicker { color: var(--accent); font-size: 13px; }
+    .lede { color: var(--muted); font-size: 17px; max-width: 700px; margin-bottom: 24px; }
+    .intro-grid { display: grid; grid-template-columns: 1.3fr 0.7fr; gap: 16px; margin: 18px 0; }
+    .criteria { display: grid; gap: 9px; margin-top: 15px; }
+    .criterion-note { display: grid; grid-template-columns: 30px 1fr; gap: 10px; align-items: start; }
+    .criterion-note i { display: grid; place-items: center; width: 28px; height: 28px; border-radius: 50%; background: var(--accent-soft); color: var(--accent); font-style: normal; font-size: 13px; }
+    .criterion-note strong { display: block; font-size: 14px; margin-bottom: 1px; }
+    .criterion-note span { color: var(--muted); font-size: 13px; }
+    .order { margin: 12px 0 0; padding-left: 22px; columns: 2; column-gap: 30px; }
+    .order li { break-inside: avoid; margin: 5px 0; font-size: 14px; }
+    .field { display: grid; gap: 7px; margin-top: 16px; }
+    label { font-size: 14px; }
+    .req { color: var(--accent); }
+    input[type="text"], textarea {
+      width: 100%; border: 1px solid var(--line); border-radius: 3px; background: #fff;
+      color: var(--ink); padding: 11px 12px; font-size: 16px;
+    }
+    input:focus, textarea:focus { outline: 2px solid color-mix(in srgb, var(--accent) 45%, white); border-color: var(--accent); }
+    textarea { min-height: 86px; resize: vertical; }
+    .hp { position: absolute; left: -9999px; height: 0; overflow: hidden; }
+    .participant-card { padding: 0; overflow: hidden; }
+    .participant-head { padding: 22px 24px 19px; border-bottom: 1px solid var(--line); display: flex; justify-content: space-between; gap: 20px; align-items: start; }
+    .participant-no { font-family: var(--font-family-heading); color: var(--accent); font-size: 14px; white-space: nowrap; }
+    .score-body { padding: 8px 24px 24px; }
+    fieldset { border: 0; padding: 16px 0; margin: 0; border-bottom: 1px solid var(--line); }
+    fieldset:last-of-type { border-bottom: 0; }
+    legend { width: 100%; padding: 0; margin-bottom: 10px; }
+    .criterion-title { display: block; font-size: 15px; color: var(--ink); }
+    .criterion-desc { display: block; color: var(--muted); font-size: 13px; margin-top: 2px; }
+    .score-options { display: grid; grid-template-columns: repeat(6, minmax(45px, 1fr)); gap: 7px; }
+    .score-option input, .yesno input { position: absolute; opacity: 0; pointer-events: none; }
+    .score-option label, .yesno label {
+      display: grid; place-items: center; min-height: 44px; border: 1px solid var(--line);
+      border-radius: 3px; background: #fff; cursor: pointer; transition: 120ms ease;
+    }
+    .score-option input:checked + label, .yesno input:checked + label {
+      color: #fff; background: var(--accent); border-color: var(--accent); box-shadow: 0 3px 12px rgba(56,155,255,.22);
+    }
+    .score-option input:focus-visible + label, .yesno input:focus-visible + label { outline: 2px solid var(--accent); outline-offset: 2px; }
+    .scale-hints { display: flex; justify-content: space-between; color: var(--muted); font-size: 11px; margin-top: 5px; }
+    .yesno { display: grid; grid-template-columns: repeat(2, minmax(100px, 150px)); gap: 8px; }
+    .bonus { background: var(--accent-soft); padding: 14px; border-radius: 3px; }
+    .recommend { background: color-mix(in srgb, var(--success) 7%, white); padding: 14px; border-radius: 3px; }
+    .comment { border-bottom: 0; padding-bottom: 2px; }
+    .progress-wrap { margin: 0 0 14px; }
+    .progress-meta { display: flex; justify-content: space-between; gap: 12px; color: var(--muted); font-size: 13px; margin-bottom: 6px; }
+    .progress { height: 6px; background: var(--line); border-radius: 2px; overflow: hidden; }
+    .progress > div { height: 100%; background: var(--accent); transition: width 180ms ease; }
+    .actions { display: flex; justify-content: space-between; align-items: center; gap: 10px; margin-top: 16px; }
+    .action-right { display: flex; align-items: center; gap: 10px; }
+    .sb-btn { min-height: 44px; padding: .55rem 1rem; font-size: 15px; }
+    .error { color: var(--danger); font-size: 14px; margin-top: 12px; }
+    .saved { color: var(--muted); font-size: 12px; }
+    .done { text-align: center; padding: 48px 24px; }
+    .done img { margin-bottom: 18px; }
+    .done h2 { margin: 10px 0; }
+    .done p { color: var(--muted); max-width: 520px; margin: 0 auto; }
+    .total { font-family: var(--font-family-heading); font-size: 42px; color: var(--accent); margin: 10px 0 0; }
+    [hidden] { display: none !important; }
+    @media (max-width: 720px) {
+      .intro-grid { grid-template-columns: 1fr; }
+      .order { columns: 1; }
+      .participant-head { padding: 18px; }
+      .score-body { padding: 6px 18px 18px; }
+      .score-options { gap: 5px; }
+      .score-option label { min-height: 42px; }
+      .actions { align-items: stretch; }
+      .action-right { flex: 1; justify-content: flex-end; }
+      .saved { display: none; }
+    }
+  </style>
+</head>
+<body>
+  <header class="top">
+    <div class="top-inner">
+      <img src="logo/KRIT_Logo_Grey_Color.svg" alt="КРИТ" width="90" height="51" />
+      <div class="event">AI Challenge · показ идей<br />9 ноября 2026</div>
+    </div>
+  </header>
+
+  <main class="wrap">
+    <section id="intro">
+      <div class="kicker">Форма для жюри</div>
+      <h1>Оценка идей AI Challenge</h1>
+      <p class="lede">Поставьте оценки каждому выступающему по пяти критериям. Шкала — от 0 до 5. Для кросс-функциональной идеи добавляется 2 балла.</p>
+
+      <div class="intro-grid">
+        <article class="card">
+          <h3>Как оцениваем</h3>
+          <div class="criteria" id="criteria-guide"></div>
+        </article>
+        <article class="card">
+          <span class="badge">Шкала</span>
+          <p style="margin-top:12px;font-size:14px"><strong>0</strong> — критерий не раскрыт</p>
+          <p style="margin-top:7px;font-size:14px"><strong>3</strong> — убедительно, но есть вопросы</p>
+          <p style="margin-top:7px;font-size:14px"><strong>5</strong> — сильное и обоснованное решение</p>
+          <div class="alert info" style="margin-top:15px">
+            <div class="alert-text">Рекомендация в MVP ставится отдельно от баллов.</div>
+          </div>
+        </article>
+      </div>
+
+      <article class="card">
+        <h3>Порядок выступлений</h3>
+        <ol class="order" id="order"></ol>
+      </article>
+
+      <article class="card" style="margin-top:16px">
+        <div class="field" style="margin-top:0">
+          <label for="jury-name">Ваши ФИО <span class="req">*</span></label>
+          <input id="jury-name" type="text" autocomplete="name" maxlength="120" placeholder="Фамилия Имя Отчество" />
+        </div>
+        <div class="hp" aria-hidden="true">
+          <label for="company-website">Сайт</label>
+          <input id="company-website" type="text" tabindex="-1" autocomplete="off" />
+        </div>
+        <p class="error" id="intro-error" hidden></p>
+        <div class="actions" style="justify-content:flex-end">
+          <button class="sb-btn primary" type="button" id="start">Начать оценку</button>
+        </div>
+      </article>
+    </section>
+
+    <section id="scoring" hidden>
+      <div class="progress-wrap">
+        <div class="progress-meta"><span id="progress-label"></span><span id="progress-percent"></span></div>
+        <div class="progress"><div id="progress-bar"></div></div>
+      </div>
+      <form id="form" novalidate>
+        <div id="participant"></div>
+        <p class="error" id="score-error" hidden></p>
+        <div class="actions">
+          <button class="sb-btn ghost" type="button" id="back">Назад</button>
+          <div class="action-right">
+            <span class="saved" id="saved">Черновик сохраняется на этом устройстве</span>
+            <button class="sb-btn primary" type="button" id="next">Следующий</button>
+          </div>
+        </div>
+      </form>
+    </section>
+
+    <section class="card done" id="done" hidden>
+      <img src="logo/KRIT_Logo_Grey_Color.svg" alt="" width="110" />
+      <span class="badge success">Оценки приняты</span>
+      <h2>Спасибо за работу в жюри</h2>
+      <p>Оценки по всем участникам сохранены. Если отправить форму повторно с теми же ФИО, предыдущая оценка будет обновлена.</p>
+      <div class="total" id="done-id"></div>
+    </section>
+  </main>
+
+  <script>
+    const participants = [
+      { id: "shakirova.r", name: "Шакирова Регина" },
+      { id: "shchenin.i", name: "Щенин Игорь" },
+      { id: "shuteleva.a", name: "Шутелева Анна" },
+      { id: "chuvakorzin.m", name: "Чувакорзин Михаил" },
+      { id: "misiukova.d", name: "Мисиюкова Дарья" },
+      { id: "ivanova.n", name: "Иванова Наталья" },
+      { id: "kolesnikova.o", name: "Колесникова Ольга" },
+      { id: "ladkina.a", name: "Ладкина Анна" },
+      { id: "vorobeva.d", name: "Воробьёва Дарья" },
+    ];
+    const criteria = [
+      { id: "business_effect", title: "Бизнес-эффект", desc: "Время, деньги, результат для компании" },
+      { id: "value", title: "Ценность", desc: "Удобство для пользователей процесса" },
+      { id: "quality", title: "Качество", desc: "Меньше ошибок и рисков" },
+      { id: "scale", title: "Масштаб", desc: "Можно применять шире, чем в одном участке" },
+      { id: "depth_realism", title: "Глубина и реализм", desc: "Насколько сильно меняется процесс и насколько идея реалистична" },
+    ];
+    const draftKey = "ai-challenge-jury-draft-v1";
+    let apiBase = "https://ai-challenge-apply.nikisheva.workers.dev";
+    let current = 0;
+    let state = { jury_name: "", evaluations: {} };
+
+    function apiUrl(path) { return (apiBase || "") + path; }
+    function showError(element, text) {
+      element.hidden = !text;
+      element.textContent = text || "";
+    }
+    function emptyEvaluation() {
+      return { scores: {}, cross_functional: null, recommend_mvp: null, comment: "" };
+    }
+    function loadDraft() {
+      try {
+        const saved = JSON.parse(localStorage.getItem(draftKey) || "null");
+        if (saved && typeof saved === "object") state = saved;
+      } catch {}
+      document.getElementById("jury-name").value = state.jury_name || "";
+    }
+    function saveDraft() {
+      state.jury_name = document.getElementById("jury-name").value.trim();
+      localStorage.setItem(draftKey, JSON.stringify(state));
+      const saved = document.getElementById("saved");
+      saved.textContent = "Черновик сохранён";
+      window.setTimeout(() => { saved.textContent = "Черновик сохраняется на этом устройстве"; }, 1200);
+    }
+    function renderGuide() {
+      const guide = document.getElementById("criteria-guide");
+      criteria.forEach((criterion, index) => {
+        const row = document.createElement("div");
+        row.className = "criterion-note";
+        row.innerHTML = `<i>${index + 1}</i><div><strong>${criterion.title}</strong><span>${criterion.desc}</span></div>`;
+        guide.appendChild(row);
+      });
+      const order = document.getElementById("order");
+      participants.forEach((person) => {
+        const li = document.createElement("li");
+        li.textContent = person.name;
+        order.appendChild(li);
+      });
+    }
+    function scoreField(person, criterion, value) {
+      const options = [0, 1, 2, 3, 4, 5].map((score) => `
+        <span class="score-option">
+          <input type="radio" id="${person.id}-${criterion.id}-${score}" name="${criterion.id}" value="${score}" ${Number(value) === score ? "checked" : ""}>
+          <label for="${person.id}-${criterion.id}-${score}">${score}</label>
+        </span>`).join("");
+      return `<fieldset>
+        <legend><span class="criterion-title">${criterion.title}</span><span class="criterion-desc">${criterion.desc}</span></legend>
+        <div class="score-options">${options}</div>
+        <div class="scale-hints"><span>не раскрыто</span><span>сильное решение</span></div>
+      </fieldset>`;
+    }
+    function yesNoField(person, key, title, desc, value, className) {
+      return `<fieldset class="${className}">
+        <legend><span class="criterion-title">${title}</span><span class="criterion-desc">${desc}</span></legend>
+        <div class="yesno">
+          <span><input type="radio" id="${person.id}-${key}-yes" name="${key}" value="true" ${value === true ? "checked" : ""}><label for="${person.id}-${key}-yes">Да</label></span>
+          <span><input type="radio" id="${person.id}-${key}-no" name="${key}" value="false" ${value === false ? "checked" : ""}><label for="${person.id}-${key}-no">Нет</label></span>
+        </div>
+      </fieldset>`;
+    }
+    function renderParticipant() {
+      const person = participants[current];
+      const evaluation = state.evaluations[person.id] || emptyEvaluation();
+      state.evaluations[person.id] = evaluation;
+      const criteriaHtml = criteria.map((criterion) => scoreField(person, criterion, evaluation.scores[criterion.id])).join("");
+      document.getElementById("participant").innerHTML = `
+        <article class="card participant-card">
+          <div class="participant-head">
+            <div><div class="kicker">Выступающий</div><h2>${person.name}</h2></div>
+            <div class="participant-no">${String(current + 1).padStart(2, "0")} / ${participants.length}</div>
+          </div>
+          <div class="score-body">
+            ${criteriaHtml}
+            ${yesNoField(person, "cross_functional", "Кросс-функциональное решение?", "«Да» добавляет 2 балла к сумме", evaluation.cross_functional, "bonus")}
+            ${yesNoField(person, "recommend_mvp", "Рекомендуете в следующий тур — подготовку MVP?", "Отдельное решение члена жюри: да или нет", evaluation.recommend_mvp, "recommend")}
+            <fieldset class="comment">
+              <legend><span class="criterion-title">Комментарий</span><span class="criterion-desc">Необязательно. Коротко: сильная сторона или главный вопрос к идее</span></legend>
+              <textarea name="comment" maxlength="500" placeholder="Комментарий для обсуждения жюри">${evaluation.comment || ""}</textarea>
+            </fieldset>
+          </div>
+        </article>`;
+      const percent = Math.round(((current + 1) / participants.length) * 100);
+      document.getElementById("progress-label").textContent = `Участник ${current + 1} из ${participants.length}`;
+      document.getElementById("progress-percent").textContent = `${percent}%`;
+      document.getElementById("progress-bar").style.width = `${percent}%`;
+      document.getElementById("next").textContent = current === participants.length - 1 ? "Отправить оценки" : "Следующий";
+      showError(document.getElementById("score-error"), "");
+      window.scrollTo({ top: 0, behavior: "smooth" });
+    }
+    function collectCurrent() {
+      const person = participants[current];
+      const form = document.getElementById("form");
+      const evaluation = state.evaluations[person.id] || emptyEvaluation();
+      for (const criterion of criteria) {
+        const checked = form.querySelector(`input[name="${criterion.id}"]:checked`);
+        if (!checked) return { error: `Поставьте оценку: ${criterion.title}.` };
+        evaluation.scores[criterion.id] = Number(checked.value);
+      }
+      for (const key of ["cross_functional", "recommend_mvp"]) {
+        const checked = form.querySelector(`input[name="${key}"]:checked`);
+        if (!checked) return { error: "Ответьте на оба вопроса «да/нет»." };
+        evaluation[key] = checked.value === "true";
+      }
+      evaluation.comment = form.elements.comment.value.trim();
+      state.evaluations[person.id] = evaluation;
+      saveDraft();
+      return { evaluation };
+    }
+    async function submitAll() {
+      const button = document.getElementById("next");
+      button.disabled = true;
+      button.textContent = "Сохраняем…";
+      const payload = {
+        jury_name: state.jury_name,
+        company_website: document.getElementById("company-website").value,
+        evaluations: participants.map((person) => ({ participant_id: person.id, ...state.evaluations[person.id] })),
+      };
+      const response = await fetch(apiUrl("/api/jury/evaluations"), {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(payload),
+      }).catch(() => null);
+      if (!response) {
+        showError(document.getElementById("score-error"), "Не удалось связаться с сервером. Проверьте интернет и попробуйте ещё раз.");
+        button.disabled = false;
+        button.textContent = "Отправить оценки";
+        return;
+      }
+      const data = await response.json().catch(() => ({}));
+      if (!response.ok) {
+        showError(document.getElementById("score-error"), data.error || "Не удалось сохранить оценки.");
+        button.disabled = false;
+        button.textContent = "Отправить оценки";
+        return;
+      }
+      localStorage.removeItem(draftKey);
+      document.getElementById("scoring").hidden = true;
+      document.getElementById("done").hidden = false;
+      document.getElementById("done-id").textContent = `№ ${data.id}`;
+      window.scrollTo({ top: 0, behavior: "smooth" });
+    }
+
+    document.getElementById("start").addEventListener("click", () => {
+      const name = document.getElementById("jury-name").value.trim();
+      if (name.length < 3) {
+        showError(document.getElementById("intro-error"), "Укажите ваши ФИО.");
+        return;
+      }
+      state.jury_name = name;
+      saveDraft();
+      showError(document.getElementById("intro-error"), "");
+      document.getElementById("intro").hidden = true;
+      document.getElementById("scoring").hidden = false;
+      renderParticipant();
+    });
+    document.getElementById("next").addEventListener("click", async () => {
+      const result = collectCurrent();
+      if (result.error) {
+        showError(document.getElementById("score-error"), result.error);
+        return;
+      }
+      if (current < participants.length - 1) {
+        current += 1;
+        renderParticipant();
+      } else {
+        await submitAll();
+      }
+    });
+    document.getElementById("back").addEventListener("click", () => {
+      collectCurrent();
+      if (current > 0) {
+        current -= 1;
+        renderParticipant();
+      } else {
+        document.getElementById("scoring").hidden = true;
+        document.getElementById("intro").hidden = false;
+        window.scrollTo({ top: 0, behavior: "smooth" });
+      }
+    });
+    document.getElementById("jury-name").addEventListener("input", saveDraft);
+
+    fetch("api-base.json", { cache: "no-store" })
+      .then((response) => response.ok ? response.json() : {})
+      .then((config) => { apiBase = String(config.api || "").replace(/\/$/, ""); })
+      .catch(() => {});
+    renderGuide();
+    loadDraft();
+  </script>
+</body>
+</html>

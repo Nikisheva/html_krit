@@ -1,0 +1,178 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Итоги жюри · AI Challenge</title>
+  <link rel="stylesheet" href="brand-tokens.css" />
+  <link rel="stylesheet" href="storybook-static/krit-report-components.css" />
+  <style>
+    body { margin: 0; background: #f4f7fb; color: var(--ink); font-family: var(--font-family-body); line-height: 1.45; }
+    .top { background: #fff; border-bottom: 1px solid var(--line); }
+    .top-inner, .wrap { width: min(1480px, calc(100% - 32px)); margin: 0 auto; }
+    .top-inner { min-height: 72px; display: flex; align-items: center; justify-content: space-between; }
+    .wrap { padding: 32px 0 64px; }
+    h1, h2 { font-family: var(--font-family-heading); font-weight: 300; }
+    h1 { font-size: 38px; margin: 8px 0; }
+    h2 { font-size: 22px; margin: 0 0 14px; }
+    .kicker { color: var(--accent); font-size: 13px; }
+    .login { display: flex; gap: 8px; align-items: center; flex-wrap: wrap; margin: 18px 0; }
+    input { min-width: 280px; border: 1px solid var(--line); border-radius: 3px; padding: 10px 12px; font: 16px var(--font-family-body); }
+    .bar { display: flex; justify-content: space-between; align-items: end; gap: 14px; margin: 18px 0; flex-wrap: wrap; }
+    .stats { display: flex; gap: 10px; flex-wrap: wrap; }
+    .table-wrap { overflow: auto; }
+    table.mtable { min-width: 1120px; background: #fff; }
+    table.mtable th, table.mtable td { vertical-align: top; }
+    .score { text-align: center; white-space: nowrap; }
+    .total { color: var(--accent); font-family: var(--font-family-heading); font-size: 18px; }
+    .recommend { color: var(--success); white-space: nowrap; }
+    .comments { margin-top: 16px; display: grid; gap: 10px; }
+    .comment-head { display: flex; justify-content: space-between; gap: 12px; margin-bottom: 6px; }
+    .comment-body { color: var(--muted); font-size: 14px; }
+    .error { color: var(--danger); font-size: 14px; }
+    [hidden] { display: none !important; }
+  </style>
+</head>
+<body>
+  <header class="top">
+    <div class="top-inner">
+      <img src="logo/KRIT_Logo_Grey_Color.svg" alt="КРИТ" width="90" height="51" />
+      <span style="color:var(--muted);font-size:13px">Только для организатора</span>
+    </div>
+  </header>
+  <main class="wrap">
+    <div class="kicker">AI Challenge · показ идей</div>
+    <h1>Итоги оценки жюри</h1>
+    <div class="login" id="login">
+      <input id="token" type="password" autocomplete="current-password" placeholder="Код организатора" />
+      <button class="sb-btn primary" id="load" type="button">Открыть итоги</button>
+    </div>
+    <p class="error" id="error" hidden></p>
+
+    <section id="content" hidden>
+      <div class="bar">
+        <div class="stats">
+          <div class="kpi"><div class="kpi-label">Оценили</div><div class="kpi-value dark" id="jury-count">0</div></div>
+          <div class="kpi"><div class="kpi-label">Участников</div><div class="kpi-value dark" id="participant-count">9</div></div>
+        </div>
+        <div style="display:flex;gap:8px">
+          <button class="sb-btn ghost" id="reload" type="button">Обновить</button>
+          <button class="sb-btn primary" id="csv" type="button">Скачать CSV</button>
+        </div>
+      </div>
+      <article class="card table-wrap">
+        <table class="mtable">
+          <thead>
+            <tr>
+              <th>Участник</th>
+              <th class="score">Бизнес-эффект</th>
+              <th class="score">Ценность</th>
+              <th class="score">Качество</th>
+              <th class="score">Масштаб</th>
+              <th class="score">Глубина и реализм</th>
+              <th class="score">Бонус</th>
+              <th class="score">Средний итог</th>
+              <th class="score">В MVP</th>
+            </tr>
+          </thead>
+          <tbody id="rows"></tbody>
+        </table>
+      </article>
+      <section style="margin-top:22px">
+        <h2>Комментарии жюри</h2>
+        <div class="comments" id="comments"></div>
+      </section>
+    </section>
+  </main>
+  <script>
+    const criteria = ["business_effect", "value", "quality", "scale", "depth_realism"];
+    let apiBase = "https://ai-challenge-apply.nikisheva.workers.dev";
+    let adminToken = "";
+    function apiUrl(path) { return (apiBase || "") + path; }
+    function showError(text) {
+      const error = document.getElementById("error");
+      error.hidden = !text;
+      error.textContent = text || "";
+    }
+    function average(values) {
+      return values.length ? values.reduce((sum, value) => sum + value, 0) / values.length : 0;
+    }
+    function format(value) { return value.toLocaleString("ru-RU", { minimumFractionDigits: 1, maximumFractionDigits: 1 }); }
+    async function request(path) {
+      return fetch(apiUrl(path), { headers: { "X-Admin-Token": adminToken }, cache: "no-store" });
+    }
+    function render(data) {
+      const evaluationsByParticipant = new Map();
+      for (const judge of data.items || []) {
+        for (const evaluation of judge.evaluations || []) {
+          if (!evaluationsByParticipant.has(evaluation.participant_id)) evaluationsByParticipant.set(evaluation.participant_id, []);
+          evaluationsByParticipant.get(evaluation.participant_id).push({ ...evaluation, jury_name: judge.jury_name });
+        }
+      }
+      const rows = document.getElementById("rows");
+      rows.replaceChildren();
+      for (const participant of data.participants || []) {
+        const evaluations = evaluationsByParticipant.get(participant.id) || [];
+        const tr = document.createElement("tr");
+        const scoreCells = criteria.map((key) => `<td class="score">${evaluations.length ? format(average(evaluations.map((item) => Number(item.scores[key])))) : "—"}</td>`).join("");
+        const bonus = evaluations.length ? average(evaluations.map((item) => item.cross_functional ? 2 : 0)) : 0;
+        const totals = evaluations.map((item) => criteria.reduce((sum, key) => sum + Number(item.scores[key]), 0) + (item.cross_functional ? 2 : 0));
+        const recommendations = evaluations.filter((item) => item.recommend_mvp).length;
+        tr.innerHTML = `<td><strong>${participant.name}</strong><br><span style="color:var(--muted);font-size:12px">${evaluations.length} оценок</span></td>
+          ${scoreCells}
+          <td class="score">${evaluations.length ? format(bonus) : "—"}</td>
+          <td class="score total">${evaluations.length ? format(average(totals)) : "—"}</td>
+          <td class="score recommend">${evaluations.length ? `${recommendations} из ${evaluations.length}` : "—"}</td>`;
+        rows.appendChild(tr);
+      }
+      const comments = document.getElementById("comments");
+      comments.replaceChildren();
+      let commentCount = 0;
+      for (const participant of data.participants || []) {
+        for (const evaluation of evaluationsByParticipant.get(participant.id) || []) {
+          if (!evaluation.comment) continue;
+          commentCount += 1;
+          const card = document.createElement("article");
+          card.className = "card";
+          card.innerHTML = `<div class="comment-head"><strong>${participant.name}</strong><span style="color:var(--muted);font-size:12px">${evaluation.jury_name}</span></div><div class="comment-body"></div>`;
+          card.querySelector(".comment-body").textContent = evaluation.comment;
+          comments.appendChild(card);
+        }
+      }
+      if (!commentCount) comments.innerHTML = '<p style="color:var(--muted)">Комментариев пока нет.</p>';
+      document.getElementById("jury-count").textContent = String(data.count || 0);
+      document.getElementById("participant-count").textContent = String((data.participants || []).length);
+    }
+    async function load() {
+      showError("");
+      const response = await request("/api/jury/evaluations").catch(() => null);
+      if (!response) return showError("Не удалось связаться с сервером.");
+      const data = await response.json().catch(() => ({}));
+      if (!response.ok) return showError(data.error || "Не удалось загрузить оценки.");
+      render(data);
+      document.getElementById("content").hidden = false;
+      document.getElementById("login").hidden = true;
+    }
+    document.getElementById("load").addEventListener("click", () => {
+      adminToken = document.getElementById("token").value.trim();
+      if (!adminToken) return showError("Введите код организатора.");
+      load();
+    });
+    document.getElementById("reload").addEventListener("click", load);
+    document.getElementById("csv").addEventListener("click", async () => {
+      const response = await request("/api/jury/evaluations.csv").catch(() => null);
+      if (!response || !response.ok) return showError("Не удалось скачать CSV.");
+      const blob = await response.blob();
+      const link = document.createElement("a");
+      link.href = URL.createObjectURL(blob);
+      link.download = "ai-challenge-jury.csv";
+      link.click();
+      URL.revokeObjectURL(link.href);
+    });
+    fetch("api-base.json", { cache: "no-store" })
+      .then((response) => response.ok ? response.json() : {})
+      .then((config) => { apiBase = String(config.api || "").replace(/\/$/, ""); })
+      .catch(() => {});
+  </script>
+</body>
+</html>
