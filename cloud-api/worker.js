@@ -4,10 +4,10 @@ const JURY_STORE_KEY = "jury_evaluations";
 const TRAINING = { passed: "Прошёл", missed: "Не прошёл" };
 const JURY_CRITERIA = ["business_effect", "value", "quality", "scale", "depth_realism"];
 const JURY_PARTICIPANTS = [
-  { id: "shakirova.r", name: "Шакирова Регина" },
+  { id: "chuvakorzin.m", name: "Чувакорзин Михаил" },
   { id: "shchenin.i", name: "Щенин Игорь" },
   { id: "shuteleva.a", name: "Шутелева Анна" },
-  { id: "chuvakorzin.m", name: "Чувакорзин Михаил" },
+  { id: "shakirova.r", name: "Шакирова Регина" },
   { id: "misiukova.d", name: "Мисиюкова Дарья" },
   { id: "ivanova.n", name: "Иванова Наталья" },
   { id: "kolesnikova.o", name: "Колесникова Ольга" },
