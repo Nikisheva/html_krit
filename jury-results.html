@@ -25,11 +25,15 @@
     table.mtable th, table.mtable td { vertical-align: top; }
     .score { text-align: center; white-space: nowrap; }
     .total { color: var(--accent); font-family: var(--font-family-heading); font-size: 18px; }
+    .total small { display: block; color: var(--muted); font: 11px var(--font-family-body); }
     .recommend { color: var(--success); white-space: nowrap; }
+    .judge-start td { border-top: 2px solid color-mix(in srgb, var(--accent) 35%, var(--line)); }
+    .judge-name { min-width: 180px; }
     .comments { margin-top: 16px; display: grid; gap: 10px; }
     .comment-head { display: flex; justify-content: space-between; gap: 12px; margin-bottom: 6px; }
     .comment-body { color: var(--muted); font-size: 14px; }
     .error { color: var(--danger); font-size: 14px; }
+    .error.notice { color: var(--warn); }
     [hidden] { display: none !important; }
   </style>
 </head>
@@ -70,14 +74,37 @@
               <th class="score">Качество</th>
               <th class="score">Масштаб</th>
               <th class="score">Глубина и реализм</th>
-              <th class="score">Бонус</th>
-              <th class="score">Средний итог</th>
+              <th class="score">Бонусы, сумма</th>
+              <th class="score">Итоговый балл, сумма</th>
               <th class="score">В MVP</th>
             </tr>
           </thead>
           <tbody id="rows"></tbody>
         </table>
       </article>
+      <section style="margin-top:22px">
+        <h2>Оценки каждого члена жюри</h2>
+        <p style="color:var(--muted);font-size:14px;margin:-7px 0 12px">Полная расшифровка: кто, кому и сколько баллов поставил.</p>
+        <article class="card table-wrap">
+          <table class="mtable">
+            <thead>
+              <tr>
+                <th>Член жюри</th>
+                <th>Участник</th>
+                <th class="score">Бизнес-эффект</th>
+                <th class="score">Ценность</th>
+                <th class="score">Качество</th>
+                <th class="score">Масштаб</th>
+                <th class="score">Глубина и реализм</th>
+                <th class="score">Бонус</th>
+                <th class="score">Итого</th>
+                <th class="score">В MVP</th>
+              </tr>
+            </thead>
+            <tbody id="detail-rows"></tbody>
+          </table>
+        </article>
+      </section>
       <section style="margin-top:22px">
         <h2>Комментарии жюри</h2>
         <div class="comments" id="comments"></div>
@@ -89,17 +116,26 @@
     let apiBase = "https://ai-challenge-apply.nikisheva.workers.dev";
     let adminToken = "";
     function apiUrl(path) { return (apiBase || "") + path; }
-    function showError(text) {
+    function showError(text, notice = false) {
       const error = document.getElementById("error");
       error.hidden = !text;
       error.textContent = text || "";
+      error.classList.toggle("notice", Boolean(notice));
     }
     function average(values) {
       return values.length ? values.reduce((sum, value) => sum + value, 0) / values.length : 0;
     }
     function format(value) { return value.toLocaleString("ru-RU", { minimumFractionDigits: 1, maximumFractionDigits: 1 }); }
-    async function request(path) {
-      return fetch(apiUrl(path), { headers: { "X-Admin-Token": adminToken }, cache: "no-store" });
+    async function request(path, attempts = 2) {
+      for (let attempt = 0; attempt < attempts; attempt += 1) {
+        try {
+          const response = await fetch(apiUrl(path), { headers: { "X-Admin-Token": adminToken }, cache: "no-store" });
+          if (response.status < 500 || attempt === attempts - 1) return response;
+        } catch {
+          if (attempt === attempts - 1) return null;
+        }
+      }
+      return null;
     }
     function render(data) {
       const evaluationsByParticipant = new Map();
@@ -115,16 +151,58 @@
         const evaluations = evaluationsByParticipant.get(participant.id) || [];
         const tr = document.createElement("tr");
         const scoreCells = criteria.map((key) => `<td class="score">${evaluations.length ? format(average(evaluations.map((item) => Number(item.scores[key])))) : "—"}</td>`).join("");
-        const bonus = evaluations.length ? average(evaluations.map((item) => item.cross_functional ? 2 : 0)) : 0;
+        const bonus = evaluations.reduce((sum, item) => sum + (item.cross_functional ? 2 : 0), 0);
         const totals = evaluations.map((item) => criteria.reduce((sum, key) => sum + Number(item.scores[key]), 0) + (item.cross_functional ? 2 : 0));
+        const total = totals.reduce((sum, value) => sum + value, 0);
         const recommendations = evaluations.filter((item) => item.recommend_mvp).length;
         tr.innerHTML = `<td><strong>${participant.name}</strong><br><span style="color:var(--muted);font-size:12px">${evaluations.length} оценок</span></td>
           ${scoreCells}
           <td class="score">${evaluations.length ? format(bonus) : "—"}</td>
-          <td class="score total">${evaluations.length ? format(average(totals)) : "—"}</td>
+          <td class="score total">${evaluations.length ? `${format(total)}<small>из ${27 * evaluations.length}</small>` : "—"}</td>
           <td class="score recommend">${evaluations.length ? `${recommendations} из ${evaluations.length}` : "—"}</td>`;
         rows.appendChild(tr);
       }
+
+      const detailRows = document.getElementById("detail-rows");
+      detailRows.replaceChildren();
+      for (const judge of data.items || []) {
+        (judge.evaluations || []).forEach((evaluation, index) => {
+          const total = criteria.reduce((sum, key) => sum + Number(evaluation.scores[key]), 0) + (evaluation.cross_functional ? 2 : 0);
+          const tr = document.createElement("tr");
+          if (index === 0) tr.className = "judge-start";
+          const juryCell = document.createElement("td");
+          juryCell.className = "judge-name";
+          if (index === 0) {
+            const strong = document.createElement("strong");
+            strong.textContent = judge.jury_name;
+            juryCell.appendChild(strong);
+          }
+          tr.appendChild(juryCell);
+          const participantCell = document.createElement("td");
+          participantCell.textContent = evaluation.participant_name;
+          tr.appendChild(participantCell);
+          for (const key of criteria) {
+            const td = document.createElement("td");
+            td.className = "score";
+            td.textContent = String(evaluation.scores[key]);
+            tr.appendChild(td);
+          }
+          const bonusCell = document.createElement("td");
+          bonusCell.className = "score";
+          bonusCell.textContent = evaluation.cross_functional ? "2" : "0";
+          tr.appendChild(bonusCell);
+          const totalCell = document.createElement("td");
+          totalCell.className = "score total";
+          totalCell.textContent = String(total);
+          tr.appendChild(totalCell);
+          const recommendationCell = document.createElement("td");
+          recommendationCell.className = `score ${evaluation.recommend_mvp ? "recommend" : ""}`;
+          recommendationCell.textContent = evaluation.recommend_mvp ? "Да" : "Нет";
+          tr.appendChild(recommendationCell);
+          detailRows.appendChild(tr);
+        });
+      }
+
       const comments = document.getElementById("comments");
       comments.replaceChildren();
       let commentCount = 0;
@@ -134,7 +212,9 @@
           commentCount += 1;
           const card = document.createElement("article");
           card.className = "card";
-          card.innerHTML = `<div class="comment-head"><strong>${participant.name}</strong><span style="color:var(--muted);font-size:12px">${evaluation.jury_name}</span></div><div class="comment-body"></div>`;
+          card.innerHTML = '<div class="comment-head"><strong></strong><span style="color:var(--muted);font-size:12px"></span></div><div class="comment-body"></div>';
+          card.querySelector("strong").textContent = participant.name;
+          card.querySelector(".comment-head span").textContent = evaluation.jury_name;
           card.querySelector(".comment-body").textContent = evaluation.comment;
           comments.appendChild(card);
         }
@@ -145,8 +225,11 @@
     }
     async function load() {
       showError("");
-      const response = await request("/api/jury/evaluations").catch(() => null);
-      if (!response) return showError("Не удалось связаться с сервером.");
+      const response = await request("/api/jury/evaluations");
+      if (!response) {
+        const hasContent = !document.getElementById("content").hidden;
+        return showError(hasContent ? "Не удалось обновить данные. Ниже показана последняя загруженная версия." : "Не удалось связаться с сервером.", hasContent);
+      }
       const data = await response.json().catch(() => ({}));
       if (!response.ok) return showError(data.error || "Не удалось загрузить оценки.");
       render(data);
