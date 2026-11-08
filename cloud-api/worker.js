@@ -5,13 +5,13 @@ const TRAINING = { passed: "Прошёл", missed: "Не прошёл" };
 const JURY_CRITERIA = ["business_effect", "value", "quality", "scale", "depth_realism"];
 const JURY_PARTICIPANTS = [
   { id: "chuvakorzin.m", name: "Чувакорзин Михаил" },
+  { id: "ladkina.a", name: "Ладкина Анна" },
   { id: "shchenin.i", name: "Щенин Игорь" },
   { id: "shuteleva.a", name: "Шутелева Анна" },
-  { id: "shakirova.r", name: "Шакирова Регина" },
   { id: "misiukova.d", name: "Мисиюкова Дарья" },
-  { id: "ivanova.n", name: "Иванова Наталья" },
   { id: "kolesnikova.o", name: "Колесникова Ольга" },
-  { id: "ladkina.a", name: "Ладкина Анна" },
+  { id: "shakirova.r", name: "Шакирова Регина" },
+  { id: "ivanova.n", name: "Иванова Наталья" },
   { id: "vorobeva.d", name: "Воробьёва Дарья" },
 ];
 const PROGRESS = {
