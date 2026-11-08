@@ -134,7 +134,7 @@
         </div>
         <div class="hp" aria-hidden="true">
           <label for="company-website">Сайт</label>
-          <input id="company-website" type="text" tabindex="-1" autocomplete="off" />
+          <input id="company-website" type="text" tabindex="-1" autocomplete="off" readonly value="" />
         </div>
         <p class="error" id="intro-error" hidden></p>
         <div class="actions" style="justify-content:flex-end">
@@ -302,36 +302,60 @@
     }
     async function submitAll() {
       const button = document.getElementById("next");
+      const errorEl = document.getElementById("score-error");
       button.disabled = true;
       button.textContent = "Сохраняем…";
+      showError(errorEl, "");
+      const honeypot = document.getElementById("company-website");
+      if (honeypot) honeypot.value = "";
       const payload = {
         jury_name: state.jury_name,
-        company_website: document.getElementById("company-website").value,
+        company_website: honeypot ? honeypot.value : "",
         evaluations: participants.map((person) => ({ participant_id: person.id, ...state.evaluations[person.id] })),
       };
-      const response = await fetch(apiUrl("/api/jury/evaluations"), {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(payload),
-      }).catch(() => null);
-      if (!response) {
-        showError(document.getElementById("score-error"), "Не удалось связаться с сервером. Проверьте интернет и попробуйте ещё раз.");
+      if (!apiBase) {
+        showError(errorEl, "Не найден адрес сервера. Обновите страницу и попробуйте ещё раз.");
         button.disabled = false;
         button.textContent = "Отправить оценки";
         return;
       }
-      const data = await response.json().catch(() => ({}));
-      if (!response.ok) {
-        showError(document.getElementById("score-error"), data.error || "Не удалось сохранить оценки.");
-        button.disabled = false;
-        button.textContent = "Отправить оценки";
-        return;
+      const controller = typeof AbortController === "function" ? new AbortController() : null;
+      const timeoutId = window.setTimeout(() => {
+        if (controller) controller.abort();
+      }, 20000);
+      try {
+        const response = await fetch(apiUrl("/api/jury/evaluations"), {
+          method: "POST",
+          credentials: "omit",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify(payload),
+          signal: controller ? controller.signal : undefined,
+        });
+        const data = await response.json().catch(() => ({}));
+        if (!response.ok) {
+          showError(errorEl, data.error || "Не удалось сохранить оценки.");
+          return;
+        }
+        localStorage.removeItem(draftKey);
+        document.getElementById("scoring").hidden = true;
+        document.getElementById("done").hidden = false;
+        document.getElementById("done-id").textContent = `№ ${data.id}`;
+        window.scrollTo({ top: 0, behavior: "smooth" });
+      } catch (err) {
+        const timedOut = controller && controller.signal.aborted;
+        showError(
+          errorEl,
+          timedOut
+            ? "Сервер не ответил вовремя. Проверьте интернет и нажмите «Отправить оценки» ещё раз."
+            : "Не удалось связаться с сервером. Проверьте интернет и попробуйте ещё раз.",
+        );
+      } finally {
+        window.clearTimeout(timeoutId);
+        if (document.getElementById("done").hidden) {
+          button.disabled = false;
+          button.textContent = "Отправить оценки";
+        }
       }
-      localStorage.removeItem(draftKey);
-      document.getElementById("scoring").hidden = true;
-      document.getElementById("done").hidden = false;
-      document.getElementById("done-id").textContent = `№ ${data.id}`;
-      window.scrollTo({ top: 0, behavior: "smooth" });
     }
 
     document.getElementById("start").addEventListener("click", () => {
@@ -375,7 +399,10 @@
 
     fetch("api-base.json", { cache: "no-store" })
       .then((response) => response.ok ? response.json() : {})
-      .then((config) => { apiBase = String(config.api || "").replace(/\/$/, ""); })
+      .then((config) => {
+        const next = String((config && config.api) || "").replace(/\/$/, "");
+        if (next) apiBase = next;
+      })
       .catch(() => {});
     renderGuide();
     loadDraft();
