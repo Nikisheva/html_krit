@@ -289,9 +289,6 @@ export default {
     }
 
     if (request.method === "GET" && (path === "/api/jury/evaluations" || path === "/api/jury/evaluations.csv")) {
-      if (!isAdmin(request, env)) {
-        return json(request, 403, { error: "Оценки доступны только организатору." });
-      }
       const rows = (await loadJuryEvaluations(env))
         .slice()
         .sort((a, b) => String(a.created_at).localeCompare(String(b.created_at)));
