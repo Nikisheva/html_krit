@@ -242,8 +242,8 @@
     fetch("api-base.json", { cache: "no-store" })
       .then((response) => response.ok ? response.json() : {})
       .then((config) => { apiBase = String(config.api || "").replace(/\/$/, ""); })
-      .catch(() => {})
-      .finally(load);
+      .catch(() => {});
+    load();
   </script>
 </body>
 </html>
