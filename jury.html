@@ -203,6 +203,7 @@
       return { scores: {}, cross_functional: null, recommend_mvp: null, comment: "" };
     }
     function loadDraft() {
+      let timedOut = false;
       try {
         const saved = JSON.parse(localStorage.getItem(draftKey) || "null");
         if (saved && typeof saved === "object") state = saved;
@@ -319,18 +320,32 @@
         button.textContent = "Отправить оценки";
         return;
       }
-      const controller = typeof AbortController === "function" ? new AbortController() : null;
-      const timeoutId = window.setTimeout(() => {
-        if (controller) controller.abort();
-      }, 20000);
       try {
-        const response = await fetch(apiUrl("/api/jury/evaluations"), {
-          method: "POST",
-          credentials: "omit",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify(payload),
-          signal: controller ? controller.signal : undefined,
-        });
+        let response = null;
+        let lastError = null;
+        for (let attempt = 0; attempt < 3; attempt += 1) {
+          const controller = typeof AbortController === "function" ? new AbortController() : null;
+          const timeoutId = window.setTimeout(() => {
+            if (controller) controller.abort();
+          }, 20000);
+          try {
+            response = await fetch(apiUrl("/api/jury/evaluations"), {
+              method: "POST",
+              credentials: "omit",
+              headers: { "Content-Type": "text/plain;charset=UTF-8" },
+              body: JSON.stringify(payload),
+              signal: controller ? controller.signal : undefined,
+            });
+            break;
+          } catch (err) {
+            lastError = err;
+            timedOut = timedOut || Boolean(controller && controller.signal.aborted);
+            if (attempt < 2) await new Promise((resolve) => window.setTimeout(resolve, 800));
+          } finally {
+            window.clearTimeout(timeoutId);
+          }
+        }
+        if (!response) throw lastError || new Error("Network request failed");
         const data = await response.json().catch(() => ({}));
         if (!response.ok) {
           showError(errorEl, data.error || "Не удалось сохранить оценки.");
@@ -342,7 +357,6 @@
         document.getElementById("done-id").textContent = `№ ${data.id}`;
         window.scrollTo({ top: 0, behavior: "smooth" });
       } catch (err) {
-        const timedOut = controller && controller.signal.aborted;
         showError(
           errorEl,
           timedOut
@@ -350,7 +364,6 @@
             : "Не удалось связаться с сервером. Проверьте интернет и попробуйте ещё раз.",
         );
       } finally {
-        window.clearTimeout(timeoutId);
         if (document.getElementById("done").hidden) {
           button.disabled = false;
           button.textContent = "Отправить оценки";
