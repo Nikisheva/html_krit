@@ -1,6 +1,6 @@
 const DEADLINE = Date.parse("2026-10-22T12:00:00+03:00");
 const STORE_KEY = "applications";
-const JURY_STORE_KEY = "jury_evaluations";
+const JURY_STORE_KEY = "jury_evaluations_live";
 const TRAINING = { passed: "Прошёл", missed: "Не прошёл" };
 const JURY_CRITERIA = ["business_effect", "value", "quality", "scale", "depth_realism"];
 const JURY_PARTICIPANTS = [
