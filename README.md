@@ -18,6 +18,7 @@ AI Challenge для сотрудников ОЦО и бэкофиса: знак�
 - [`hr-talk/index.html`](hr-talk/index.html) — доклад «Цифровые сотрудники в HR» для СПИБА и Политеха (16:9, 13 слайдов, та же схема, что у вебинара: синее поле, рельс, бейдж, Вертик на титуле). `?event=spiba` или `?event=polytech` меняет подпись площадки. `N` — заметки, `F` — полный экран. Картинки: [`hr-talk/assets/README.md`](hr-talk/assets/README.md).
 - [`hr-talk/Цифровые сотрудники в HR.pptx`](hr-talk/Цифровые%20сотрудники%20в%20HR.pptx) — первая сборка доклада в PowerPoint.
 - [`hr-talk/Цифровые сотрудники в HR_FINAL.pptx`](hr-talk/Цифровые%20сотрудники%20в%20HR_FINAL.pptx) — версия для выступления: та же структура, сильнее собраны слайды про тендеры, 360, кросс-функциональную схему и роль HR. Рядом лежит PDF для просмотра. Пересборка pptx: `python3 hr-talk/build_pptx.py`. Исходный pptx скрипт не перезаписывает.
+- [`HR_API_KRIT_Nikisheva_2026.pptx`](HR_API_KRIT_Nikisheva_2026.pptx) — доклад Елены Никишевой на HR API, 1 декабря 2026: «HR сам себе разработчик». 14 слайдов 16:9, заметки спикера внутри файла. Рядом: [`HR_API_KRIT_Nikisheva_2026.pdf`](HR_API_KRIT_Nikisheva_2026.pdf), сценарий [`Speaker_Notes.md`](Speaker_Notes.md), обзор [`Slides_Overview.png`](Slides_Overview.png). Пересборка: `python3 hr-api-2026/build_hr_api_pptx.py`.
 - Источник стилей: `brand-tokens.css`, `storybook-static/krit-report-components.css`, шрифт Uncage, логотипы Grey/White.
 
 ## Как смотреть

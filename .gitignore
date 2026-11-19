@@ -10,3 +10,4 @@ data/
 cloud-api/.dev.vars
 *.log
 ~$*.docx
+hr-api-2026/export/
