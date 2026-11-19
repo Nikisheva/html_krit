@@ -11,9 +11,7 @@ from pathlib import Path
 from lxml import etree
 from PIL import Image
 from pptx import Presentation
-from pptx.chart.data import CategoryChartData
 from pptx.dml.color import RGBColor
-from pptx.enum.chart import XL_CHART_TYPE, XL_LEGEND_POSITION
 from pptx.enum.shapes import MSO_CONNECTOR, MSO_SHAPE
 from pptx.enum.text import MSO_ANCHOR, PP_ALIGN
 from pptx.oxml.ns import qn
@@ -38,6 +36,14 @@ NAVY = RGBColor(0x0B, 0x2A, 0x4A)
 NAVY_MID = RGBColor(0x14, 0x3D, 0x66)
 HEAD = "UNCAGE"
 BODY = "Arial"
+# Единая шкала: UNCAGE — заголовки и акценты, Arial — текст с экрана.
+T_DISPLAY = 40
+T_TITLE = 26
+T_LEAD = 18
+T_BODY = 16
+T_KICKER = 13
+T_CAPTION = 12
+T_KPI = 48
 FOOT = "КРИТ · HR API · 1 декабря 2026"
 LOGO_GREY = str(ASSETS / "logo-grey.png")
 LOGO_WHITE = str(ASSETS / "logo-white.png")
@@ -176,21 +182,22 @@ def logo_grey(slide):
 
 
 def footer(slide, num, color=ACCENT, muted=MUTED):
-    add_text(slide, Inches(0.48), Inches(7.14), Inches(9.2), Inches(0.24), FOOT, 11, color, pad=False)
-    add_text(slide, Inches(11.4), Inches(7.14), Inches(1.45), Inches(0.24), num, 11, muted, align=PP_ALIGN.RIGHT, pad=False)
+    add_text(slide, Inches(0.55), Inches(7.16), Inches(9.2), Inches(0.22), FOOT, T_CAPTION, color, pad=False)
+    add_text(slide, Inches(11.4), Inches(7.16), Inches(1.4), Inches(0.22), num, T_CAPTION, muted, align=PP_ALIGN.RIGHT, pad=False)
 
 
-def section(slide, kicker, title, num, title_size=26, title_w=Inches(10.6)):
+def section(slide, kicker, title, num, title_size=None, title_w=Inches(10.7)):
+    title_size = T_TITLE if title_size is None else title_size
     lines = title.count("\n") + 1
-    title_h = Inches(title_size * 1.38 / 72 * lines + 0.06)
-    add_text(slide, Inches(0.48), Inches(0.16), Inches(10.2), Inches(0.24), kicker, 13, ACCENT, pad=False)
+    title_h = Inches(title_size * 1.28 / 72 * lines + 0.02)
+    add_text(slide, Inches(0.55), Inches(0.22), Inches(10.2), Inches(0.24), kicker, T_KICKER, ACCENT, pad=False)
     add_text(
-        slide, Inches(0.48), Inches(0.40), title_w, title_h,
-        title, title_size, INK, font=HEAD, pad=False, spacing=0.96,
+        slide, Inches(0.55), Inches(0.46), title_w, title_h,
+        title, title_size, INK, font=HEAD, pad=False, spacing=0.98,
     )
     logo_grey(slide)
-    top = Inches(0.40) + title_h + Inches(0.16)
-    add_box(slide, Inches(0.22), top, Pt(2.25), Inches(7.08) - top, ACCENT)
+    top = Inches(0.46) + title_h + Inches(0.22)
+    add_bar(slide, Inches(0.55), top - Inches(0.12), Inches(1.45), h=Pt(2.5))
     footer(slide, num)
     return top
 
@@ -288,26 +295,26 @@ def slide_cover(prs):
     geo.line.fill.background()
     s.shapes.add_picture(LOGO_WHITE, Inches(11.88), Inches(0.28), height=Inches(0.46))
     add_box(s, Inches(0.62), Inches(0.46), Inches(1.55), Inches(0.32), BLUE_SOFT)
-    add_text(s, Inches(0.62), Inches(0.46), Inches(1.55), Inches(0.32), "HR API  ·  КРИТ", 12, ACCENT, anchor=MSO_ANCHOR.MIDDLE, align=PP_ALIGN.CENTER, pad=False)
+    add_text(s, Inches(0.62), Inches(0.46), Inches(1.55), Inches(0.32), "HR API  ·  КРИТ", T_CAPTION, ACCENT, anchor=MSO_ANCHOR.MIDDLE, align=PP_ALIGN.CENTER, pad=False)
     add_text(
-        s, Inches(0.62), Inches(1.15), Inches(8.7), Inches(2.35),
+        s, Inches(0.62), Inches(1.18), Inches(8.7), Inches(2.2),
         "HR сам себе\nразработчик",
-        42, INK, font=HEAD, spacing=0.92, pad=False,
+        T_DISPLAY, INK, font=HEAD, spacing=0.94, pad=False,
     )
-    add_box(s, Inches(0.62), Inches(3.62), Inches(1.85), Pt(3), ACCENT)
+    add_box(s, Inches(0.62), Inches(3.52), Inches(1.45), Pt(2.5), ACCENT)
     add_text(
-        s, Inches(0.62), Inches(3.88), Inches(8.3), Inches(0.95),
+        s, Inches(0.62), Inches(3.78), Inches(8.3), Inches(0.9),
         "Как мы создаём и внедряем\nИИ-инструменты в КРИТ",
-        22, INK, font=HEAD, spacing=1.05, pad=False,
+        T_LEAD, INK, font=HEAD, spacing=1.08, pad=False,
     )
     add_text(
-        s, Inches(10.15), Inches(5.85), Inches(2.85), Inches(1.05),
+        s, Inches(10.15), Inches(5.92), Inches(2.85), Inches(0.9),
         "1 декабря\n2026",
-        22, WHITE, font=HEAD, pad=False, spacing=1.05,
+        T_LEAD, WHITE, font=HEAD, pad=False, spacing=1.08,
     )
     s.shapes.add_picture(VERTIK, Inches(0.55), Inches(5.78), height=Inches(1.18))
-    add_text(s, Inches(1.92), Inches(6.02), Inches(5.4), Inches(0.38), "Елена Никишева", 22, INK, font=HEAD, pad=False)
-    add_text(s, Inches(1.92), Inches(6.42), Inches(5.4), Inches(0.28), "COO КРИТ", 16, MUTED, pad=False)
+    add_text(s, Inches(1.92), Inches(6.05), Inches(5.4), Inches(0.36), "Елена Никишева", T_LEAD, INK, font=HEAD, pad=False)
+    add_text(s, Inches(1.92), Inches(6.44), Inches(5.4), Inches(0.28), "COO КРИТ", T_BODY, MUTED, pad=False)
     notes(
         s, "01",
         "0:40. Не зачитывайте заголовок.\n\n"
@@ -324,37 +331,28 @@ def slide_cover(prs):
 # ---------------------------------------------------------------------------
 def slide_about(prs):
     s = blank(prs)
-    add_box(s, Inches(0.22), Inches(1.18), Pt(2.25), Inches(5.78), ACCENT)
-    add_text(s, Inches(0.48), Inches(0.16), Inches(10.2), Inches(0.24), "Обо мне", 13, ACCENT, pad=False)
-    add_text(
-        s, Inches(0.48), Inches(0.40), Inches(10.5), Inches(0.72),
-        "20 лет в HR. Теперь я создаю IT-решения",
-        26, INK, font=HEAD, pad=False, spacing=0.98,
-    )
-    logo_grey(s)
-    footer(s, "02")
+    top = section(s, "Обо мне", "20 лет в HR.\nТеперь я создаю IT-решения", "02")
     facts = [
         ("01", "20+ лет", "в HR и управлении людьми в IT."),
         ("02", "HRD → COO", "От HR-функции к управлению бизнес-процессами."),
-        ("03", "КРИТ", "IT-консалтинг, команда около 200 сотрудников."),
-        ("04", "AI и бэк-офис", "Сама создаю и меняю процессы, а не только заказываю их."),
+        ("03", "КРИТ", "IT-консалтинг, около 200 сотрудников."),
+        ("04", "AI и бэк-офис", "Сама создаю процессы, а не только заказываю их."),
     ]
-    y0 = Inches(1.28)
+    y0 = top + Inches(0.08)
     for i, (num, title, text) in enumerate(facts):
-        y = y0 + i * Inches(1.22)
-        add_box(s, Inches(0.48), y, Inches(8.85), Inches(1.10), SOFT if i % 2 == 0 else WHITE, LINE)
-        add_text(s, Inches(0.68), y + Inches(0.16), Inches(1.1), Inches(0.32), num, 16, ACCENT, font=HEAD, pad=False)
-        add_text(s, Inches(1.85), y + Inches(0.14), Inches(7.2), Inches(0.38), title, 22, INK, font=HEAD, pad=False)
-        add_text(s, Inches(1.85), y + Inches(0.56), Inches(7.2), Inches(0.38), text, 15, MUTED, pad=False)
-    place_image(s, SPEAKER, Inches(9.62), Inches(1.28), Inches(3.18), Inches(3.95), valign="top")
+        y = y0 + i * Inches(1.12)
+        add_text(s, Inches(0.55), y, Inches(0.7), Inches(0.36), num, T_KICKER, ACCENT, font=HEAD, pad=False)
+        add_text(s, Inches(1.35), y, Inches(7.6), Inches(0.38), title, T_LEAD, INK, font=HEAD, pad=False)
+        add_text(s, Inches(1.35), y + Inches(0.40), Inches(7.6), Inches(0.36), text, T_BODY, MUTED, pad=False)
+    place_image(s, SPEAKER, Inches(9.55), Inches(1.35), Inches(3.22), Inches(3.85), valign="top")
     add_text(
-        s, Inches(9.62), Inches(5.34), Inches(3.18), Inches(1.05),
+        s, Inches(9.55), Inches(5.32), Inches(3.22), Inches(1.05),
         "Раньше я была внутренним заказчиком IT. Сегодня сама создаю и меняю процессы.",
-        13, INK, spacing=1.05,
+        T_CAPTION, INK, spacing=1.12, pad=False,
     )
-    qr = s.shapes.add_picture(QR, Inches(9.62), Inches(6.42), height=Inches(0.62))
+    qr = s.shapes.add_picture(QR, Inches(9.55), Inches(6.42), height=Inches(0.58))
     qr.name = "QR Telegram"
-    add_text(s, Inches(10.38), Inches(6.48), Inches(2.5), Inches(0.52), "Елена Никишева\nt.me/NikishevaTeam", 11, INK, pad=False)
+    add_text(s, Inches(10.28), Inches(6.46), Inches(2.5), Inches(0.50), "Елена Никишева\nt.me/NikishevaTeam", T_CAPTION, INK, pad=False)
     notes(
         s, "02",
         "1:10. Четыре факта, без биографии.\n\n"
@@ -371,52 +369,41 @@ def slide_about(prs):
 # ---------------------------------------------------------------------------
 def slide_old_path(prs):
     s = blank(prs)
-    top = section(s, "Почему так", "От идеи до результата:\nслишком длинный путь", "03", 26)
-    add_text(s, Inches(0.48), top, Inches(12.3), Inches(0.28), "Как было", 14, MUTED, pad=False)
+    top = section(s, "Почему так", "От идеи до результата:\nслишком длинный путь", "03")
+    add_text(s, Inches(0.55), top, Inches(12.2), Inches(0.28), "Как было", T_KICKER, MUTED, pad=False)
     old = ["Идея", "ТЗ", "Подрядчик", "Бюджет", "Разработка", "Доработки", "Внедрение"]
-    n = len(old)
-    gap = Inches(0.32)
-    cw = (Inches(12.36) - (n - 1) * gap) / n
-    y = top + Inches(0.36)
-    ch = Inches(1.18)
+    y = top + Inches(0.42)
+    add_box(s, Inches(0.55), y + Inches(0.16), Inches(12.22), Pt(2), LINE)
     for i, label in enumerate(old):
-        x = Inches(0.48) + i * (cw + gap)
-        add_box(s, x, y, cw, ch, SOFT, LINE)
-        add_text(s, x, y + Inches(0.14), cw, Inches(0.28), f"{i + 1:02}", 12, MUTED, font=HEAD, align=PP_ALIGN.CENTER, pad=False)
-        add_text(s, x + Inches(0.04), y + Inches(0.46), cw - Inches(0.08), Inches(0.58), label, 12, INK, font=HEAD, align=PP_ALIGN.CENTER, pad=False, spacing=0.95)
-        if i < n - 1:
-            arrow(s, x + cw + (gap - Inches(0.22)) / 2, y + Inches(0.50), Inches(0.22), Inches(0.16), MUTED)
-    problems = [
-        "Зависимость\nот разработчиков",
-        "Длительные\nциклы",
-        "Затраты\nна подрядчиков",
-        "Чужая логика\nрешения",
-    ]
-    py = y + ch + Inches(0.16)
-    pw = (Inches(12.36) - 3 * Inches(0.12)) / 4
-    for i, text in enumerate(problems):
-        x = Inches(0.48) + i * (pw + Inches(0.12))
-        add_text(s, x, py, pw, Inches(0.70), text, 14, MUTED, align=PP_ALIGN.CENTER, pad=False, spacing=1.05)
-    ny = py + Inches(0.78)
-    add_text(s, Inches(0.48), ny, Inches(12.3), Inches(0.28), "Как стало возможным", 14, ACCENT, pad=False)
+        x = Inches(0.55) + i * Inches(1.76)
+        oval(s, x, y, Inches(0.36), Inches(0.36), MUTED)
+        add_text(s, x, y, Inches(0.36), Inches(0.36), str(i + 1), 11, WHITE, font=HEAD, align=PP_ALIGN.CENTER, anchor=MSO_ANCHOR.MIDDLE, pad=False)
+        add_text(s, x - Inches(0.55), y + Inches(0.48), Inches(1.5), Inches(0.40), label, T_CAPTION, INK, font=HEAD, align=PP_ALIGN.CENTER, pad=False)
+    add_text(
+        s, Inches(0.55), y + Inches(1.05), Inches(12.2), Inches(0.36),
+        "Зависимость от разработчиков  ·  Длинный цикл  ·  Затраты на подрядчика  ·  Чужая логика",
+        T_BODY, MUTED, pad=False,
+    )
+    add_text(s, Inches(0.55), y + Inches(1.62), Inches(12.2), Inches(0.28), "Как стало возможным", T_KICKER, ACCENT, pad=False)
     new = ["Идея", "Прототип с AI", "Проверка", "Рабочий процесс"]
     nn = len(new)
-    ngap = Inches(0.38)
-    nw = (Inches(12.36) - (nn - 1) * ngap) / nn
-    by = ny + Inches(0.34)
-    bh = Inches(1.22)
+    ngap = Inches(0.22)
+    nw = (Inches(12.22) - (nn - 1) * ngap) / nn
+    by = y + Inches(2.02)
+    bh = Inches(1.35)
     for i, label in enumerate(new):
-        x = Inches(0.48) + i * (nw + ngap)
-        add_box(s, x, by, nw, bh, BLUE_SOFT if i < 3 else ACCENT)
-        color = INK if i < 3 else WHITE
-        add_text(s, x, by + Inches(0.16), nw, Inches(0.28), f"{i + 1:02}", 12, ACCENT if i < 3 else WHITE, font=HEAD, align=PP_ALIGN.CENTER, pad=False)
-        add_text(s, x + Inches(0.1), by + Inches(0.50), nw - Inches(0.2), Inches(0.55), label, 18, color, font=HEAD, align=PP_ALIGN.CENTER, pad=False)
+        x = Inches(0.55) + i * (nw + ngap)
+        fill = ACCENT if i == 3 else BLUE_SOFT
+        color = WHITE if i == 3 else INK
+        add_box(s, x, by, nw, bh, fill)
+        add_text(s, x, by + Inches(0.22), nw, Inches(0.28), f"{i + 1:02}", T_KICKER, WHITE if i == 3 else ACCENT, font=HEAD, align=PP_ALIGN.CENTER, pad=False)
+        add_text(s, x + Inches(0.1), by + Inches(0.58), nw - Inches(0.2), Inches(0.55), label, T_LEAD, color, font=HEAD, align=PP_ALIGN.CENTER, pad=False)
         if i < nn - 1:
-            arrow(s, x + nw + (ngap - Inches(0.28)) / 2, by + Inches(0.52), Inches(0.28), Inches(0.18), ACCENT)
+            arrow(s, x + nw + Inches(0.01), by + Inches(0.58), Inches(0.20), Inches(0.16), ACCENT)
     add_text(
-        s, Inches(0.48), Inches(6.62), Inches(12.36), Inches(0.42),
-        "Сравнивать месяцы и бюджеты не будем. Меняется не цифра в смете — меняется, кто вправе сделать первый шаг.",
-        14, MUTED, pad=False,
+        s, Inches(0.55), Inches(6.58), Inches(12.22), Inches(0.42),
+        "Сроки и бюджеты сравнивать не будем. Меняется не смета — меняется, кто вправе сделать первый шаг.",
+        T_CAPTION, MUTED, pad=False,
     )
     notes(
         s, "03",
@@ -434,47 +421,44 @@ def slide_old_path(prs):
 # ---------------------------------------------------------------------------
 def slide_360_case(prs):
     s = blank(prs)
-    top = section(s, "Кейс 1  ·  Оценка 360", "Готовое решение не подошло. Мы сделали своё", "04", 24)
-    add_box(s, Inches(0.48), top, Inches(6.05), Inches(5.42), SOFT)
-    add_box(s, Inches(6.80), top, Inches(6.04), Inches(5.42), BLUE_SOFT)
-    add_bar(s, Inches(0.48), top, Inches(6.05), MUTED, h=Pt(4))
-    add_bar(s, Inches(6.80), top, Inches(6.04), ACCENT, h=Pt(4))
-    add_text(s, Inches(0.70), top + Inches(0.22), Inches(5.6), Inches(0.36), "Чужая логика", 14, MUTED, pad=False)
-    add_text(s, Inches(7.02), top + Inches(0.22), Inches(5.6), Inches(0.36), "Своя логика", 14, ACCENT, pad=False)
+    top = section(s, "Кейс 1  ·  Оценка 360", "Готовое решение не подошло.\nМы сделали своё", "04")
+    add_text(s, Inches(0.55), top, Inches(5.7), Inches(0.28), "Чужая логика", T_KICKER, MUTED, pad=False)
     add_text(
-        s, Inches(0.70), top + Inches(0.62), Inches(5.6), Inches(1.35),
+        s, Inches(0.55), top + Inches(0.36), Inches(5.7), Inches(1.05),
         "Готовое решение\nподрядчика",
-        26, INK, font=HEAD, pad=False, spacing=0.98,
-    )
-    add_text(
-        s, Inches(7.02), top + Inches(0.62), Inches(5.6), Inches(1.35),
-        "Процесс под\nIT-консалтинг",
-        26, INK, font=HEAD, pad=False, spacing=0.98,
+        T_TITLE, INK, font=HEAD, pad=False, spacing=0.98,
     )
     add_lines(
-        s, Inches(0.70), top + Inches(2.15), Inches(5.55), Inches(2.4),
+        s, Inches(0.55), top + Inches(1.55), Inches(5.5), Inches(2.4),
         [
             "Шаблон «как принято в продукте».",
-            "HR должен подстроиться под систему.",
-            "Нужная нам логика не совпала.",
-            "Зависимость от доработок подрядчика.",
+            "HR подстраивается под систему.",
+            "Нужная логика не совпала.",
+            "Каждое изменение — через подрядчика.",
         ],
-        16, INK, space=10,
+        T_BODY, MUTED, space=12, spacing=1.08,
+    )
+    add_box(s, Inches(6.70), top, Inches(6.08), Inches(5.18), BLUE_SOFT)
+    add_text(s, Inches(6.98), top + Inches(0.22), Inches(5.55), Inches(0.28), "Своя логика", T_KICKER, ACCENT, pad=False)
+    add_text(
+        s, Inches(6.98), top + Inches(0.56), Inches(5.55), Inches(1.05),
+        "Процесс под\nIT-консалтинг",
+        T_TITLE, INK, font=HEAD, pad=False, spacing=0.98,
     )
     add_lines(
-        s, Inches(7.02), top + Inches(2.15), Inches(5.55), Inches(1.55),
+        s, Inches(6.98), top + Inches(1.72), Inches(5.5), Inches(1.35),
         [
             "Оценщики из реальных проектов.",
             "Задачи, статусы и дашборды в Bitrix24.",
-            "Мы сами задаём правила процесса.",
+            "Правила процесса задаём сами.",
         ],
-        16, INK, space=10,
+        T_BODY, INK, space=10, spacing=1.08,
     )
-    add_text(s, Inches(7.02), top + Inches(3.72), Inches(5.55), Inches(0.70), "2 месяца", 36, ACCENT, font=HEAD, pad=False)
+    add_text(s, Inches(6.98), top + Inches(3.22), Inches(5.5), Inches(0.78), "2 месяца", T_KPI, ACCENT, font=HEAD, pad=False)
     add_text(
-        s, Inches(7.02), top + Inches(4.42), Inches(5.55), Inches(0.72),
-        "вместо года, который планировали.\nСрок пересборки процесса, не финансовая экономия.",
-        13, MUTED, pad=False, spacing=1.05,
+        s, Inches(6.98), top + Inches(4.05), Inches(5.5), Inches(0.85),
+        "вместо года, который планировали.\nСрок пересборки процесса, не экономия в деньгах.",
+        T_CAPTION, MUTED, pad=False, spacing=1.12,
     )
     notes(
         s, "04",
@@ -484,7 +468,7 @@ def slide_360_case(prs):
         "Собрали сами в рабочей среде, в которой уже живёт компания, — в Bitrix24. "
         "То, что первоначально планировали на год, пересобрали за два месяца. Произнесите явно: это срок пересборки процесса, не подтверждённая экономия в деньгах.\n\n"
         "И сразу оговорка: 360 — не автономный AI-агент. Это пересобранный HR-процесс, который мы смогли сделать сами.\n\n"
-        "Переход: что именно соединилось вокруг оценки.",
+        "Переход: как устроена автоматизация — от данных проектов до дашбордов, которые собираем сами.",
     )
 
 
@@ -493,138 +477,104 @@ def slide_360_case(prs):
 # ---------------------------------------------------------------------------
 def slide_360_system(prs):
     s = blank(prs)
-    top = section(s, "Кейс 1  ·  Оценка 360", "360 стала частью операционной системы компании", "05", 22)
-    add_text(
-        s, Inches(0.48), top, Inches(12.3), Inches(0.28),
-        "Рабочая среда — Bitrix24. Синие узлы уже работают. Серая полоса внизу — направление развития, не готовая интеграция.",
-        13, MUTED, pad=False,
-    )
-    oy = top + Inches(0.36)
-    hub_l, hub_w, hub_h = Inches(4.85), Inches(3.62), Inches(1.32)
-    hub_t = oy + Inches(1.58)
-    spokes = [
-        (4.85, 0.00, "УПЗ и проекты", "Оценщики из реальных проектов"),
-        (0.48, 0.72, "Назначение оценщиков", "Кто кого оценивает в волне"),
-        (9.30, 0.72, "Анкеты и статусы", "Сдача, отказ, контроль волны"),
-        (0.48, 3.08, "Задачи и напоминания", "Ход оценки не в отдельной таблице"),
-        (9.30, 3.08, "Аналитика и дашборды", "Свод, срезы, отчёт для решений"),
-        (4.85, 3.82, "Управленческие решения", "Бонус, ИПР, разговор с руководителем"),
+    top = section(s, "Кейс 1  ·  Оценка 360", "От данных проектов\nдо решений, которые видим сами", "05")
+    add_text(s, Inches(0.55), top, Inches(12.2), Inches(0.26), "Работает сейчас", T_KICKER, ACCENT, pad=False)
+    steps = [
+        ("01", "УПЗ", "Кто с кем\nработал на проектах"),
+        ("02", "Назначение", "Список оценщиков\nна эту волну"),
+        ("03", "Задачи", "Напоминания\nи статусы в Bitrix24"),
+        ("04", "Анкеты", "Сбор обратной связи\nв одном контуре"),
+        ("05", "Аналитика", "Дашборды, которые\nсобираем сами"),
     ]
-    nw, nh = Inches(3.62), Inches(1.08)
-    cx, cy = hub_l + hub_w / 2, hub_t + hub_h / 2
-    for x, y, _, _ in spokes:
-        connector(s, Inches(x) + nw / 2, oy + Inches(y) + nh / 2, cx, cy, LINE)
-    add_box(s, hub_l, hub_t, hub_w, hub_h, ACCENT)
-    add_text(s, hub_l, hub_t + Inches(0.22), hub_w, Inches(0.48), "Оценка 360", 22, WHITE, font=HEAD, align=PP_ALIGN.CENTER, pad=False)
-    add_text(s, hub_l, hub_t + Inches(0.72), hub_w, Inches(0.32), "в Bitrix24", 14, WHITE, align=PP_ALIGN.CENTER, pad=False)
-    for x, y, title, text in spokes:
-        yy = oy + Inches(y)
-        add_box(s, Inches(x), yy, nw, nh, WHITE, LINE)
-        add_bar(s, Inches(x), yy, nw)
-        add_text(s, Inches(x + 0.14), yy + Inches(0.12), Inches(3.34), Inches(0.32), title, 14, INK, font=HEAD, pad=False)
-        add_text(s, Inches(x + 0.14), yy + Inches(0.46), Inches(3.34), Inches(0.50), text, 12, MUTED, pad=False)
-    add_box(s, Inches(0.48), Inches(6.52), Inches(12.36), Inches(0.50), SOFT)
+    n = len(steps)
+    gap = Inches(0.18)
+    cw = (Inches(12.22) - (n - 1) * gap) / n
+    y = top + Inches(0.38)
+    ch = Inches(2.28)
+    for i, (num, title, text) in enumerate(steps):
+        x = Inches(0.55) + i * (cw + gap)
+        fill = ACCENT if i == 4 else BLUE_SOFT
+        tcol = WHITE if i == 4 else INK
+        scol = WHITE if i == 4 else MUTED
+        ncol = WHITE if i == 4 else ACCENT
+        add_box(s, x, y, cw, ch, fill)
+        add_text(s, x + Inches(0.12), y + Inches(0.14), cw - Inches(0.24), Inches(0.28), num, T_KICKER, ncol, font=HEAD, pad=False)
+        add_text(s, x + Inches(0.12), y + Inches(0.48), cw - Inches(0.24), Inches(0.52), title, T_LEAD, tcol, font=HEAD, pad=False)
+        add_text(s, x + Inches(0.12), y + Inches(1.12), cw - Inches(0.24), Inches(0.95), text, T_CAPTION, scol, pad=False, spacing=1.12)
+        if i < n - 1:
+            arrow(s, x + cw + Inches(0.01), y + Inches(1.02), Inches(0.16), Inches(0.14), ACCENT)
     add_text(
-        s, Inches(0.62), Inches(6.52), Inches(12.08), Inches(0.50),
-        "В развитии: утилизация  ·  рекомендации по живой коммуникации (почта и Teams). Это цель, не утверждение, что контур уже связан.",
-        13, MUTED, anchor=MSO_ANCHOR.MIDDLE, pad=False,
+        s, Inches(0.55), y + ch + Inches(0.18), Inches(12.2), Inches(0.26),
+        "Подключаем дальше — ещё не готово", T_KICKER, MUTED, pad=False,
+    )
+    add_text(
+        s, Inches(0.55), y + ch + Inches(0.48), Inches(12.2), Inches(0.42),
+        "Утилизация — дорабатываем правила и источники.  ·  Рекомендации по живой коммуникации — почта и Teams.",
+        T_BODY, MUTED, pad=False,
+    )
+    band_t = y + ch + Inches(1.12)
+    add_box(s, Inches(0.55), band_t, Inches(12.22), Inches(0.82), NAVY)
+    add_text(
+        s, Inches(0.78), band_t, Inches(11.76), Inches(0.82),
+        "Нужный срез и логику процесса собираем сами. Добавить дашборд — не заявка подрядчику.",
+        T_LEAD, WHITE, font=HEAD, anchor=MSO_ANCHOR.MIDDLE, pad=False,
     )
     notes(
         s, "05",
         "1:40. Это схема процесса, не техническая архитектура. Не говорите, что все блоки уже связаны API.\n\n"
-        "В центре — оценка 360 в Bitrix24. Что уже работает: список оценщиков из управления проектами, назначение, анкеты и статусы, задачи и напоминания, дашборды, решения по бонусу и ИПР.\n\n"
-        "Серым оставьте отдельно: утилизацию мы ещё донастраиваем, рекомендации по живой коммуникации — почта и Teams — следующий шаг. "
-        "Это направление развития, не сделанный контур.\n\n"
-        "Тезис: 360 стала частью операционной системы компании, а не отдельной HR-таблицей.\n\n"
-        "Переход: что это дало на цифрах последней волны.",
+        "Пройдите цепочку слева направо. УПЗ даёт, кто с кем работал на проектах. Дальше назначение оценщиков, задачи со статусами, анкеты. "
+        "Последний шаг — аналитика: дашборды собираем сами под нужный срез, а не ждём отчёт от вендора.\n\n"
+        "Утилизацию на слайде не ставьте в один ряд с работающим контуром. Колонка в отчёте уже есть, но правила и источники мы ещё дорабатываем. "
+        "Рекомендации по живой коммуникации — почта и Teams — следующий шаг. Это не сделанный контур.\n\n"
+        "Тезис нижней полосы: нужный дашборд и логику процесса мы задаём сами.\n\n"
+        "Переход: как это выглядит в рабочей среде — не процентами сдачи, а управляемостью.",
     )
 
 
 # ---------------------------------------------------------------------------
 # 06 360 results
 # ---------------------------------------------------------------------------
-def _style_chart(chart):
-    chart.has_legend = False
-    try:
-        chart.has_title = False
-    except Exception:
-        pass
-    plot = chart.plots[0]
-    plot.has_data_labels = True
-    plot.gap_width = 70
-    labels = plot.data_labels
-    labels.font.size = Pt(11)
-    labels.font.color.rgb = INK
-    labels.font.name = BODY
-    series = chart.series[0]
-    series.format.fill.solid()
-    series.format.fill.fore_color.rgb = ACCENT
-    series.format.line.fill.background()
-    value = chart.value_axis
-    value.has_major_gridlines = False
-    value.visible = False
-    cat = chart.category_axis
-    cat.has_major_gridlines = False
-    cat.tick_labels.font.size = Pt(11)
-    cat.tick_labels.font.color.rgb = MUTED
-    cat.tick_labels.font.name = BODY
-    try:
-        chart.chart_style = 10
-    except Exception:
-        pass
-
-
 def slide_360_results(prs):
     s = blank(prs)
-    top = section(s, "Кейс 1  ·  Оценка 360", "Меньше ручной работы. Больше управляемости", "06", 24)
-    kpis = [
-        ("91,4%", "сданных анкет", "сентябрь 2026"),
-        ("16", "проигнорированных", "против 142 весной"),
-        ("11,3", "человеко-дня на волну", "было 19,1"),
-        ("−41%", "трудозатрат на волну", "весна → осень"),
+    top = section(s, "Кейс 1  ·  Оценка 360", "Ход оценки виден.\nЛогику меняем сами", "06")
+    points = [
+        ("01", "Ход волны", "Календарь, статусы и задачи живут в Bitrix24, а не в отдельной таблице."),
+        ("02", "Свои дашборды", "Свод, срезы и отчёт для бонуса и ИПР собираем под нужное решение."),
+        ("03", "Своя логика", "Правила процесса меняем сами. Это не заявка подрядчику и не новый IT-проект."),
     ]
-    kw = (Inches(12.36) - 3 * Inches(0.14)) / 4
-    kh = Inches(2.05)
-    for i, (num, label, sub) in enumerate(kpis):
-        x = Inches(0.48) + i * (kw + Inches(0.14))
-        add_box(s, x, top, kw, kh, BLUE_SOFT if i in (0, 3) else WHITE, LINE)
-        add_text(s, x + Inches(0.14), top + Inches(0.16), kw - Inches(0.28), Inches(0.85), num, 32, ACCENT, font=HEAD, pad=False)
-        add_text(s, x + Inches(0.14), top + Inches(1.05), kw - Inches(0.28), Inches(0.42), label, 14, INK, pad=False)
-        add_text(s, x + Inches(0.14), top + Inches(1.48), kw - Inches(0.28), Inches(0.36), sub, 12, MUTED, pad=False)
-    chart_top = top + kh + Inches(0.18)
-    add_text(s, Inches(0.48), chart_top, Inches(6.4), Inches(0.28), "Проигнорированные анкеты по волнам", 13, MUTED, pad=False)
-    data = CategoryChartData()
-    data.categories = ["Осень 2025", "Весна 2026", "Сентябрь 2026"]
-    data.add_series("Проигнорировано", (113, 142, 16))
-    chart_frame = s.shapes.add_chart(
-        XL_CHART_TYPE.COLUMN_CLUSTERED,
-        Inches(0.40), chart_top + Inches(0.22),
-        Inches(6.55), Inches(2.05),
-        data,
-    )
-    _style_chart(chart_frame.chart)
-    # Right: two reasons, not "AI did it"
-    rx = Inches(7.18)
-    add_box(s, rx, chart_top + Inches(0.22), Inches(5.66), Inches(2.05), SOFT)
-    add_text(s, rx + Inches(0.22), chart_top + Inches(0.36), Inches(5.22), Inches(0.32), "Почему волна стала дешевле", 14, INK, font=HEAD, pad=False)
+    y = top
+    for num, title, text in points:
+        add_text(s, Inches(0.55), y, Inches(0.55), Inches(0.32), num, T_KICKER, ACCENT, font=HEAD, pad=False)
+        add_text(s, Inches(1.18), y, Inches(4.85), Inches(0.34), title, T_LEAD, INK, font=HEAD, pad=False)
+        add_text(s, Inches(1.18), y + Inches(0.38), Inches(4.85), Inches(0.72), text, T_BODY, MUTED, pad=False, spacing=1.08)
+        y += Inches(1.22)
     add_text(
-        s, rx + Inches(0.22), chart_top + Inches(0.74), Inches(5.22), Inches(1.32),
-        "Меньше работы на одного участника\nи меньше людей в самой волне.\n\nВесь эффект нельзя приписать AI.",
-        15, INK, pad=False, spacing=1.05,
+        s, Inches(0.55), Inches(6.28), Inches(5.5), Inches(0.68),
+        "Контур оставляем. Дальше делаем честнее то, что стоит рядом: утилизацию и список оценивающих по живой работе.",
+        T_CAPTION, MUTED, pad=False, spacing=1.12,
     )
+    shot_l, shot_t = Inches(6.55), top
+    shot_w, shot_h = Inches(6.22), Inches(4.48)
+    add_box(s, shot_l, shot_t, shot_w, shot_h, SOFT)
+    pic = place_image(
+        s, SHOT_360_DASH,
+        shot_l + Inches(0.08), shot_t + Inches(0.08),
+        shot_w - Inches(0.16), shot_h - Inches(0.16),
+        mode="contain", valign="top",
+    )
+    pic.name = "Сводный отчёт оценки 360"
     add_text(
-        s, Inches(0.48), Inches(6.62), Inches(12.36), Inches(0.40),
-        "Сравнимы весна и сентябрь 2026. Осень 2025 на тех же часах шла ещё и аттестация — её не читаем как «время на 360».",
-        12, MUTED, pad=False,
+        s, Inches(6.55), Inches(6.28), Inches(6.22), Inches(0.42),
+        "Сводный отчёт 360 в Bitrix24. Имена и баллы скрыты.",
+        T_CAPTION, MUTED, pad=False,
     )
     notes(
         s, "06",
-        "1:40. Цифры только из волны сентября 2026, снимок сдачи на 16 октября.\n\n"
-        "Сдача 91,4%. Проигнорированных 16 против 142 весной: список оценщиков берётся из проектов, люди знают, куда заходить. "
-        "Трудозатраты 19,1 → 11,3 человеко-дня, минус 41%.\n\n"
-        "Обязательная оговорка: волна стала дешевле и потому, что меньше работы на одного, и потому, что сама волна меньше. "
-        "Не приписывайте весь эффект AI. И отказы около 7,5% почти не сдвинулись — это дисциплина, не автоматизация.\n\n"
-        "Если спросите про рубли: ставки в Bitrix пустые, в деньгах волну не считали.\n\n"
+        "1:40. Не читайте проценты сдачи и не сравнивайте волны цифрами. На слайде этого нет — и в зале это не нужно.\n\n"
+        "Покажите экран: ход оценки виден в той же среде, где работает компания. Дашборды собираем сами под бонус, ИПР и разговор с руководителем. "
+        "Если нужна другая логика или другой срез — меняем сами.\n\n"
+        "Контур 360 оставляем. Следующий шаг не «изобрести оценку заново», а сделать честнее то, что стоит рядом: утилизацию и список оценивающих по живой коммуникации. "
+        "Следующая волна — июнь 2027.\n\n"
         "Переход: второй кейс — совсем другого масштаба. Не год и не два месяца. Полдня.",
     )
 
@@ -636,41 +586,40 @@ def slide_bonus_case(prs):
     s = blank(prs)
     add_box(s, 0, 0, Inches(4.85), H, ACCENT)
     s.shapes.add_picture(LOGO_WHITE, Inches(0.42), Inches(0.28), height=Inches(0.42))
-    add_text(s, Inches(0.42), Inches(1.15), Inches(4.05), Inches(0.32), "Кейс 2  ·  Бонусные письма", 13, WHITE, pad=False)
-    add_text(s, Inches(0.38), Inches(1.85), Inches(4.15), Inches(2.15), "½", 92, WHITE, font=HEAD, pad=False)
+    add_text(s, Inches(0.42), Inches(1.15), Inches(4.05), Inches(0.32), "Кейс 2  ·  Бонусные письма", T_KICKER, WHITE, pad=False)
+    add_text(s, Inches(0.38), Inches(1.85), Inches(4.15), Inches(1.85), "½", 72, WHITE, font=HEAD, pad=False)
     add_text(
-        s, Inches(0.42), Inches(4.15), Inches(4.05), Inches(1.1),
+        s, Inches(0.42), Inches(3.85), Inches(4.05), Inches(1.05),
         "рабочего дня\nна первую версию",
-        22, WHITE, font=HEAD, pad=False, spacing=1.05,
+        T_LEAD, WHITE, font=HEAD, pad=False, spacing=1.08,
     )
     add_text(
-        s, Inches(0.42), Inches(5.55), Inches(4.05), Inches(1.15),
+        s, Inches(0.42), Inches(5.22), Inches(4.05), Inches(1.35),
         "Не полный цикл тестирования и внедрения. Первая рабочая версия, которую можно было открыть и пройти.",
-        13, WHITE, pad=False, spacing=1.08,
+        T_CAPTION, WHITE, pad=False, spacing=1.12,
     )
-    add_text(s, Inches(5.28), Inches(0.18), Inches(6.4), Inches(0.24), "Личная история", 13, ACCENT, pad=False)
+    add_text(s, Inches(5.28), Inches(0.22), Inches(6.4), Inches(0.24), "Личная история", T_KICKER, ACCENT, pad=False)
     add_text(
-        s, Inches(5.28), Inches(0.42), Inches(7.5), Inches(0.78),
+        s, Inches(5.28), Inches(0.48), Inches(7.5), Inches(0.85),
         "Полдня, чтобы создать\nсобственный процесс",
-        26, INK, font=HEAD, pad=False, spacing=0.98,
+        T_TITLE, INK, font=HEAD, pad=False, spacing=0.98,
     )
-    add_text(s, Inches(12.55), Inches(0.18), Inches(0.4), Inches(0.24), "07", 11, MUTED, align=PP_ALIGN.RIGHT, pad=False)
-    add_box(s, Inches(5.28), Inches(1.42), Inches(3.72), Inches(5.28), SOFT)
-    add_box(s, Inches(9.16), Inches(1.42), Inches(3.72), Inches(5.28), BLUE_SOFT)
-    add_text(s, Inches(5.48), Inches(1.58), Inches(3.32), Inches(0.40), "Было", 20, INK, font=HEAD, pad=False)
-    add_text(s, Inches(9.36), Inches(1.58), Inches(3.32), Inches(0.40), "Стало", 20, INK, font=HEAD, pad=False)
+    add_text(s, Inches(12.55), Inches(0.22), Inches(0.4), Inches(0.24), "07", T_CAPTION, MUTED, align=PP_ALIGN.RIGHT, pad=False)
+    add_text(s, Inches(5.28), Inches(1.62), Inches(3.55), Inches(0.36), "Было", T_LEAD, MUTED, font=HEAD, pad=False)
     add_lines(
-        s, Inches(5.48), Inches(2.15), Inches(3.32), Inches(4.2),
+        s, Inches(5.28), Inches(2.15), Inches(3.4), Inches(4.2),
         [
             "Excel-файлы.",
             "Разные модули.",
             "Отдельные операции.",
-            "Неудобная связка\nдействий.",
+            "Связка действий\nдержится на памяти.",
         ],
-        16, INK, space=12,
+        T_BODY, INK, space=14, spacing=1.08,
     )
+    add_box(s, Inches(8.95), Inches(1.55), Inches(3.85), Inches(5.15), BLUE_SOFT)
+    add_text(s, Inches(9.16), Inches(1.74), Inches(3.45), Inches(0.36), "Стало", T_LEAD, ACCENT, font=HEAD, pad=False)
     add_lines(
-        s, Inches(9.36), Inches(2.15), Inches(3.32), Inches(4.2),
+        s, Inches(9.16), Inches(2.22), Inches(3.45), Inches(4.2),
         [
             "Свой смарт-процесс\nв Bitrix24.",
             "Постановка целей.",
@@ -678,7 +627,7 @@ def slide_bonus_case(prs):
             "Согласование.",
             "Единый маршрут.",
         ],
-        16, INK, space=10,
+        T_BODY, INK, space=12, spacing=1.08,
     )
     notes(
         s, "07",
@@ -697,47 +646,46 @@ def slide_bonus_case(prs):
 # ---------------------------------------------------------------------------
 def slide_bonus_change(prs):
     s = blank(prs)
-    top = section(s, "Кейс 2  ·  Бонусные письма", "Теперь изменение процесса — часть моей работы", "08", 22)
+    top = section(s, "Кейс 2  ·  Бонусные письма", "Изменение процесса —\nтеперь часть моей работы", "08")
     steps = [
         ("01", "Проблема"),
         ("02", "Идея"),
-        ("03", "AI помогает\nреализовать"),
+        ("03", "С AI"),
         ("04", "Проверка"),
-        ("05", "Рабочий\nпроцесс"),
+        ("05", "Запуск"),
         ("06", "Улучшение"),
     ]
     n = len(steps)
-    gap = Inches(0.28)
-    cw = (Inches(12.36) - (n - 1) * gap) / n
+    gap = Inches(0.16)
+    cw = (Inches(12.22) - (n - 1) * gap) / n
     y = top
-    ch = Inches(1.42)
+    ch = Inches(1.28)
     for i, (num, label) in enumerate(steps):
-        x = Inches(0.48) + i * (cw + gap)
-        add_box(s, x, y, cw, ch, ACCENT if i in (2, 5) else BLUE_SOFT)
-        color = WHITE if i in (2, 5) else INK
-        ncolor = WHITE if i in (2, 5) else ACCENT
-        add_text(s, x + Inches(0.08), y + Inches(0.10), cw - Inches(0.16), Inches(0.28), num, 12, ncolor, font=HEAD, pad=False)
-        add_text(s, x + Inches(0.08), y + Inches(0.42), cw - Inches(0.16), Inches(0.88), label, 14, color, font=HEAD, pad=False, spacing=0.98)
+        x = Inches(0.55) + i * (cw + gap)
+        live = i in (2, 5)
+        add_box(s, x, y, cw, ch, ACCENT if live else BLUE_SOFT)
+        color = WHITE if live else INK
+        ncolor = WHITE if live else ACCENT
+        add_text(s, x + Inches(0.08), y + Inches(0.10), cw - Inches(0.16), Inches(0.26), num, T_KICKER, ncolor, font=HEAD, pad=False)
+        add_text(s, x + Inches(0.08), y + Inches(0.48), cw - Inches(0.16), Inches(0.58), label, T_BODY, color, font=HEAD, pad=False)
         if i < n - 1:
-            arrow(s, x + cw + (gap - Inches(0.22)) / 2, y + Inches(0.62), Inches(0.22), Inches(0.16), ACCENT)
+            arrow(s, x + cw + Inches(0.01), y + Inches(0.56), Inches(0.14), Inches(0.14), ACCENT)
     add_text(
-        s, Inches(0.48), y + ch + Inches(0.12), Inches(5.7), Inches(0.72),
-        "Правила, поля, маршруты и логику согласований можно менять самим. Отдельный IT-проект для небольшого изменения больше не обязателен.",
-        14, INK, pad=False, spacing=1.05,
+        s, Inches(0.55), y + ch + Inches(0.28), Inches(5.55), Inches(1.15),
+        "Правила, поля и маршрут согласования меняем сами. Небольшой сдвиг больше не обязан быть IT-проектом.",
+        T_BODY, INK, pad=False, spacing=1.08,
     )
-    add_text(
-        s, Inches(0.48), y + ch + Inches(0.88), Inches(5.7), Inches(0.28),
-        "Страница бонусного письма в Bitrix24",
-        12, MUTED, pad=False,
-    )
-    shot_top = y + ch + Inches(1.18)
-    shot_h = Inches(6.95) - shot_top
-    add_box(s, Inches(6.55), y + ch + Inches(0.12), Inches(6.28), Inches(6.95) - (y + ch + Inches(0.12)), WHITE, LINE)
+    shot_top = y + ch + Inches(0.18)
     pic = place_image(
         s, SHOT_BONUS,
-        Inches(6.62), y + ch + Inches(0.20),
-        Inches(6.14), Inches(6.88) - (y + ch + Inches(0.20)),
+        Inches(6.45), shot_top,
+        Inches(6.32), Inches(6.72) - shot_top,
         mode="contain", valign="top",
+    )
+    add_text(
+        s, Inches(6.45), Inches(6.72), Inches(6.32), Inches(0.24),
+        "Страница бонусного письма в Bitrix24",
+        T_CAPTION, MUTED, pad=False,
     )
     pic.name = "Бонусное письмо — цели и маршрут"
     notes(
@@ -756,33 +704,32 @@ def slide_bonus_change(prs):
 # ---------------------------------------------------------------------------
 def slide_cv_problems(prs):
     s = blank(prs)
-    top = section(s, "Кейс 3  ·  CV-сервис", "Резюме должны работать на бизнес,\nа не лежать в папках", "09", 24)
+    top = section(s, "Кейс 3  ·  CV-сервис", "Резюме должны работать на бизнес,\nа не лежать в папках", "09")
     add_text(
-        s, Inches(0.48), top, Inches(12.3), Inches(0.42),
-        "КРИТ — IT-консалтинг. Мы ходим в тендеры. Актуальность опыта сотрудников — это не HR-аккуратность, а готовность команды к сделке.",
-        15, INK, pad=False,
+        s, Inches(0.55), top, Inches(12.2), Inches(0.42),
+        "КРИТ — IT-консалтинг. Мы ходим в тендеры. Актуальность опыта — не HR-аккуратность, а готовность команды к сделке.",
+        T_BODY, INK, pad=False,
     )
     items = [
-        ("01", "Актуальность CV", "Не видно, кто обновил резюме и когда он это сделал. Резюме живут сами по себе."),
-        ("02", "Потеря проектов", "Человек зашёл в проект или вышел из него — и через полгода проект из резюме уже не вспомнить."),
-        ("03", "Тендер не ждёт", "Нужный опыт надо найти в базе и успеть подготовить людей под конкретную закупку."),
+        ("01", "Актуальность CV", "Не видно, кто обновил резюме и когда. Резюме живут сами по себе."),
+        ("02", "Потеря проектов", "Человек вышел из проекта — и через полгода опыт из резюме уже не вспомнить."),
+        ("03", "Тендер не ждёт", "Нужный опыт надо найти и успеть подготовить людей под конкретную закупку."),
     ]
     y = top + Inches(0.55)
-    # Connected story: three widening bands, not equal cards
-    widths = [Inches(9.4), Inches(10.7), Inches(12.36)]
+    widths = [Inches(9.2), Inches(10.55), Inches(12.22)]
     fills = [SOFT, BLUE_SOFT, ACCENT]
     colors = [INK, INK, WHITE]
     muted_c = [MUTED, MUTED, WHITE]
     for i, ((num, title, text), w, fill, c, mc) in enumerate(zip(items, widths, fills, colors, muted_c)):
-        add_box(s, Inches(0.48), y, w, Inches(1.28), fill)
-        add_text(s, Inches(0.68), y + Inches(0.16), Inches(1.0), Inches(0.36), num, 18, ACCENT if i < 2 else WHITE, font=HEAD, pad=False)
-        add_text(s, Inches(1.75), y + Inches(0.16), w - Inches(1.5), Inches(0.36), title, 20, c, font=HEAD, pad=False)
-        add_text(s, Inches(1.75), y + Inches(0.58), w - Inches(1.5), Inches(0.55), text, 15, mc, pad=False)
-        y += Inches(1.40)
+        add_box(s, Inches(0.55), y, w, Inches(1.22), fill)
+        add_text(s, Inches(0.75), y + Inches(0.16), Inches(0.7), Inches(0.34), num, T_LEAD, ACCENT if i < 2 else WHITE, font=HEAD, pad=False)
+        add_text(s, Inches(1.55), y + Inches(0.16), w - Inches(1.3), Inches(0.34), title, T_LEAD, c, font=HEAD, pad=False)
+        add_text(s, Inches(1.55), y + Inches(0.56), w - Inches(1.3), Inches(0.50), text, T_BODY, mc, pad=False)
+        y += Inches(1.34)
     add_text(
-        s, Inches(0.48), Inches(6.62), Inches(12.36), Inches(0.40),
-        "Три проблемы закрываем в одном месте: платформа Bitrix и цифровые сотрудники.",
-        14, MUTED, pad=False,
+        s, Inches(0.55), Inches(6.58), Inches(12.22), Inches(0.40),
+        "Три проблемы закрываем в одном месте: Bitrix24 и цифровые сотрудники.",
+        T_CAPTION, MUTED, pad=False,
     )
     notes(
         s, "09",
@@ -798,32 +745,30 @@ def slide_cv_problems(prs):
 # ---------------------------------------------------------------------------
 # 10 CV how it works
 # ---------------------------------------------------------------------------
-def _flow_row(slide, y, kicker, steps, human_idx, label_size=13):
-    add_text(slide, Inches(0.48), y, Inches(12.3), Inches(0.26), kicker, 13, ACCENT, pad=False)
+def _flow_row(slide, y, kicker, steps, human_idx):
+    add_text(slide, Inches(0.55), y, Inches(12.2), Inches(0.26), kicker, T_KICKER, ACCENT, pad=False)
     n = len(steps)
-    gap = Inches(0.28)
-    cw = (Inches(12.36) - (n - 1) * gap) / n
+    gap = Inches(0.16)
+    cw = (Inches(12.22) - (n - 1) * gap) / n
     row_y = y + Inches(0.32)
     ch = Inches(1.38)
     for i, label in enumerate(steps):
-        x = Inches(0.48) + i * (cw + gap)
+        x = Inches(0.55) + i * (cw + gap)
         live = i in human_idx
-        add_box(slide, x, row_y, cw, ch, BLUE_SOFT if live else WHITE, LINE)
-        if live:
-            add_bar(slide, x, row_y, cw)
-        add_text(slide, x + Inches(0.08), row_y + Inches(0.10), cw - Inches(0.16), Inches(0.24), f"{i + 1:02}", 12, ACCENT, font=HEAD, pad=False)
+        add_box(slide, x, row_y, cw, ch, BLUE_SOFT if live else SOFT)
+        add_text(slide, x + Inches(0.08), row_y + Inches(0.10), cw - Inches(0.16), Inches(0.24), f"{i + 1:02}", T_CAPTION, ACCENT, font=HEAD, pad=False)
         add_text(
-            slide, x + Inches(0.08), row_y + Inches(0.38), cw - Inches(0.16), Inches(0.88),
-            label, label_size, INK, font=HEAD, pad=False, spacing=0.95,
+            slide, x + Inches(0.08), row_y + Inches(0.40), cw - Inches(0.16), Inches(0.86),
+            label, T_CAPTION, INK, font=HEAD, pad=False, spacing=1.02,
         )
         if i < n - 1:
-            arrow(slide, x + cw + (gap - Inches(0.20)) / 2, row_y + Inches(0.60), Inches(0.20), Inches(0.16), ACCENT)
+            arrow(slide, x + cw + Inches(0.01), row_y + Inches(0.60), Inches(0.14), Inches(0.14), ACCENT)
     return row_y + ch
 
 
 def slide_cv_flow(prs):
     s = blank(prs)
-    top = section(s, "Кейс 3  ·  CV-сервис", "От данных о проекте до готового CV", "10", 26)
+    top = section(s, "Кейс 3  ·  CV-сервис", "От данных о проекте до готового CV", "10")
     y = _flow_row(
         s, top,
         "Ветка 1. Актуализация резюме",
@@ -837,7 +782,7 @@ def slide_cv_flow(prs):
         human_idx={3, 4},
     )
     y = _flow_row(
-        s, y + Inches(0.16),
+        s, y + Inches(0.18),
         "Ветка 2. Подготовка к тендеру",
         [
             "Стадия\n«идём»",
@@ -848,14 +793,12 @@ def slide_cv_flow(prs):
             "HR готовит\nрезюме",
         ],
         human_idx={3, 4, 5},
-        label_size=12,
     )
-    add_box(s, Inches(0.48), Inches(6.22), Inches(12.36), Inches(0.78), BLUE_SOFT)
     add_text(
-        s, Inches(0.68), Inches(6.22), Inches(11.95), Inches(0.78),
-        "Цифровые помощники берут подготовительную работу. Человек оставляет проверку и ответственность.\n"
+        s, Inches(0.55), Inches(6.28), Inches(12.22), Inches(0.70),
+        "Цифровые помощники берут подготовку. Человек оставляет проверку и ответственность.\n"
         "Измеренного экономического эффекта по этому контуру нет — и мы его не придумываем.",
-        14, INK, anchor=MSO_ANCHOR.MIDDLE, pad=False, spacing=1.05,
+        T_CAPTION, MUTED, pad=False, spacing=1.12,
     )
     notes(
         s, "10",
@@ -875,30 +818,29 @@ def slide_cv_flow(prs):
 # ---------------------------------------------------------------------------
 def slide_unites(prs):
     s = blank(prs, ACCENT)
-    add_text(s, Inches(0.62), Inches(0.38), Inches(10.5), Inches(0.28), "Три кейса — один сдвиг", 14, WHITE, pad=False)
-    add_text(s, Inches(11.9), Inches(0.38), Inches(0.9), Inches(0.28), "11", 14, WHITE, align=PP_ALIGN.RIGHT, pad=False)
+    add_text(s, Inches(0.62), Inches(0.38), Inches(10.5), Inches(0.28), "Три кейса — один сдвиг", T_KICKER, WHITE, pad=False)
+    add_text(s, Inches(11.9), Inches(0.38), Inches(0.9), Inches(0.28), "11", T_KICKER, WHITE, align=PP_ALIGN.RIGHT, pad=False)
     add_text(
         s, Inches(0.62), Inches(0.78), Inches(12.1), Inches(1.15),
         "Мы перестали ждать.\nМы начали создавать.",
-        32, WHITE, font=HEAD, pad=False, spacing=0.95,
+        T_DISPLAY, WHITE, font=HEAD, pad=False, spacing=0.96,
     )
-    # Three different treatments, not three identical cards.
-    add_box(s, Inches(0.62), Inches(2.22), Inches(3.85), Inches(2.85), WHITE)
-    add_text(s, Inches(0.84), Inches(2.40), Inches(3.4), Inches(0.32), "01", 16, ACCENT, font=HEAD, pad=False)
-    add_text(s, Inches(0.84), Inches(2.80), Inches(3.4), Inches(0.85), "Самостоятельность", 18, INK, font=HEAD, pad=False, spacing=0.95)
-    add_text(s, Inches(0.84), Inches(3.78), Inches(3.4), Inches(1.05), "Можем реализовать собственную логику процесса.", 15, MUTED, pad=False, spacing=1.05)
-    add_box(s, Inches(4.65), Inches(2.22), Inches(3.85), Inches(2.85), NAVY)
-    add_text(s, Inches(4.87), Inches(2.40), Inches(3.4), Inches(0.32), "02", 16, ACCENT, font=HEAD, pad=False)
-    add_text(s, Inches(4.87), Inches(2.80), Inches(3.4), Inches(0.70), "Скорость", 18, WHITE, font=HEAD, pad=False)
-    add_text(s, Inches(4.87), Inches(3.78), Inches(3.4), Inches(1.05), "Быстрее проверяем идеи и собираем первые версии.", 15, WHITE, pad=False, spacing=1.05)
-    outline(s, Inches(8.68), Inches(2.22), Inches(3.85), Inches(2.85), WHITE, 2.0)
-    add_text(s, Inches(8.90), Inches(2.40), Inches(3.4), Inches(0.32), "03", 16, WHITE, font=HEAD, pad=False)
-    add_text(s, Inches(8.90), Inches(2.80), Inches(3.4), Inches(0.85), "Новая\nэкспертиза", 18, WHITE, font=HEAD, pad=False, spacing=0.95)
-    add_text(s, Inches(8.90), Inches(3.78), Inches(3.4), Inches(1.05), "HR начинает понимать процессы, данные и возможности разработки.", 15, WHITE, pad=False, spacing=1.05)
+    add_box(s, Inches(0.62), Inches(2.22), Inches(3.85), Inches(2.72), WHITE)
+    add_text(s, Inches(0.84), Inches(2.40), Inches(3.45), Inches(0.28), "01", T_KICKER, ACCENT, font=HEAD, pad=False)
+    add_text(s, Inches(0.84), Inches(2.76), Inches(3.45), Inches(0.70), "Делаем сами", T_LEAD, INK, font=HEAD, pad=False, spacing=0.98)
+    add_text(s, Inches(0.84), Inches(3.62), Inches(3.45), Inches(1.05), "Можем реализовать собственную логику процесса.", T_BODY, MUTED, pad=False, spacing=1.08)
+    add_box(s, Inches(4.65), Inches(2.22), Inches(3.85), Inches(2.72), NAVY)
+    add_text(s, Inches(4.87), Inches(2.40), Inches(3.45), Inches(0.28), "02", T_KICKER, ACCENT, font=HEAD, pad=False)
+    add_text(s, Inches(4.87), Inches(2.76), Inches(3.45), Inches(0.50), "Скорость", T_LEAD, WHITE, font=HEAD, pad=False)
+    add_text(s, Inches(4.87), Inches(3.62), Inches(3.45), Inches(1.05), "Быстрее проверяем идеи и собираем первые версии.", T_BODY, WHITE, pad=False, spacing=1.08)
+    outline(s, Inches(8.68), Inches(2.22), Inches(3.85), Inches(2.72), WHITE, 1.5)
+    add_text(s, Inches(8.90), Inches(2.40), Inches(3.45), Inches(0.28), "03", T_KICKER, WHITE, font=HEAD, pad=False)
+    add_text(s, Inches(8.90), Inches(2.76), Inches(3.45), Inches(0.70), "Новая\nэкспертиза", T_LEAD, WHITE, font=HEAD, pad=False, spacing=0.98)
+    add_text(s, Inches(8.90), Inches(3.62), Inches(3.45), Inches(1.05), "HR начинает понимать процессы, данные и возможности разработки.", T_BODY, WHITE, pad=False, spacing=1.08)
     add_text(
-        s, Inches(0.62), Inches(5.32), Inches(12.1), Inches(1.45),
-        "HR не становится профессиональным программистом.\nЕго возможности больше не ограничены умением написать техническое задание.",
-        20, WHITE, font=HEAD, pad=False, spacing=1.08,
+        s, Inches(0.62), Inches(5.22), Inches(12.1), Inches(1.45),
+        "HR не становится профессиональным программистом.\nЕго возможности больше не ограничены умением написать ТЗ.",
+        T_LEAD, WHITE, font=HEAD, pad=False, spacing=1.12,
     )
     notes(
         s, "11",
@@ -918,33 +860,31 @@ def slide_future(prs):
     top = section(
         s, "В логике исследований Джоша Берсина",
         "Если транзакции уходят AI,\nчто остаётся человеку?",
-        "12", 26,
+        "12",
     )
-    add_box(s, Inches(0.48), top, Inches(6.05), Inches(3.42), SOFT)
-    add_box(s, Inches(6.80), top, Inches(6.04), Inches(3.42), BLUE_SOFT)
-    add_text(s, Inches(0.70), top + Inches(0.16), Inches(5.6), Inches(0.36), "Транзакционная работа", 16, MUTED, font=HEAD, pad=False)
-    add_text(s, Inches(7.02), top + Inches(0.16), Inches(5.6), Inches(0.36), "Новая ценность HR", 16, ACCENT, font=HEAD, pad=False)
+    add_text(s, Inches(0.55), top, Inches(5.7), Inches(0.32), "Транзакционная работа", T_KICKER, MUTED, pad=False)
+    add_text(s, Inches(7.05), top, Inches(5.7), Inches(0.32), "Новая ценность HR", T_KICKER, ACCENT, pad=False)
     add_text(
-        s, Inches(0.70), top + Inches(0.64), Inches(5.55), Inches(2.55),
-        "Рутинные операции всё чаще берёт на себя автоматизация.\n\n"
-        "Формы, статусы, сбор данных, напоминания, первичная подготовка.\n\n"
-        "Это видимый сдвиг нагрузки, а не прогноз «HR исчезнет».",
-        15, INK, pad=False, spacing=1.08,
+        s, Inches(0.55), top + Inches(0.48), Inches(5.5), Inches(2.55),
+        "Рутину всё чаще берёт автоматизация.\n\n"
+        "Формы, статусы, сбор данных,\nнапоминания, первичная подготовка.\n\n"
+        "Это сдвиг нагрузки, а не прогноз,\nчто HR исчезнет.",
+        T_BODY, MUTED, pad=False, spacing=1.12,
+    )
+    add_box(s, Inches(6.85), top + Inches(0.40), Inches(5.92), Inches(2.85), BLUE_SOFT)
+    add_text(
+        s, Inches(7.08), top + Inches(0.58), Inches(5.5), Inches(2.50),
+        "Проектирование процессов.\n"
+        "Организационные изменения.\n"
+        "Сложные решения и ответственность.\n"
+        "Данные, AI и устройство работы.",
+        T_LEAD, INK, font=HEAD, pad=False, spacing=1.18,
     )
     add_text(
-        s, Inches(7.02), top + Inches(0.64), Inches(5.55), Inches(2.55),
-        "Проектирование процессов.\n\n"
-        "Организационные изменения.\n\n"
-        "Сложные решения и ответственность за них.\n\n"
-        "Работа с данными, AI и бизнес-архитектурой.",
-        15, INK, pad=False, spacing=1.08,
-    )
-    add_box(s, Inches(0.48), top + Inches(3.58), Inches(12.36), Inches(1.35), WHITE, LINE)
-    add_text(
-        s, Inches(0.70), top + Inches(3.58), Inches(11.95), Inches(1.35),
+        s, Inches(0.55), Inches(5.55), Inches(12.22), Inches(1.15),
         "Будущее HR — не в количестве автоматизированных операций.\n"
         "А в способности иначе организовать работу людей и технологий.",
-        18, INK, font=HEAD, anchor=MSO_ANCHOR.MIDDLE, pad=False, spacing=1.05,
+        T_LEAD, INK, font=HEAD, pad=False, spacing=1.12,
     )
     notes(
         s, "12",
@@ -962,27 +902,27 @@ def slide_future(prs):
 # ---------------------------------------------------------------------------
 def slide_challenge(prs):
     s = blank(prs)
-    top = section(s, "AI Challenge", "Следующий шаг —\nчтобы разработчиками стали все", "13", 26)
+    top = section(s, "AI Challenge", "Следующий шаг —\nчтобы разработчиками стали все", "13")
     add_text(
-        s, Inches(0.48), top, Inches(12.3), Inches(0.55),
-        "Это не соревнование ради количества AI-решений. Это управленческая программа изменения мышления бэк-офиса.",
-        15, INK, pad=False,
+        s, Inches(0.55), top, Inches(12.2), Inches(0.42),
+        "Не соревнование ради ботов. Управленческая программа: научить бэк-офис менять свою работу.",
+        T_BODY, INK, pad=False,
     )
-    cy = top + Inches(0.62)
+    cy = top + Inches(0.52)
     ch = Inches(0.58)
-    gap_y = Inches(0.06)
+    gap_y = Inches(0.08)
     block_h = 6 * ch + 5 * gap_y
-    add_box(s, Inches(0.48), cy, Inches(4.35), block_h, NAVY)
-    add_text(s, Inches(0.70), cy + Inches(0.16), Inches(3.95), Inches(0.28), "От одного к команде", 13, ACCENT, pad=False)
+    add_box(s, Inches(0.55), cy, Inches(4.35), block_h, NAVY)
+    add_text(s, Inches(0.78), cy + Inches(0.22), Inches(3.95), Inches(0.28), "От одного к команде", T_KICKER, ACCENT, pad=False)
     add_text(
-        s, Inches(0.70), cy + Inches(0.50), Inches(3.95), Inches(1.45),
+        s, Inches(0.78), cy + Inches(0.62), Inches(3.95), Inches(1.55),
         "Сначала процессы\nсобирал руководитель.\nТеперь это возможность\nвсей команды.",
-        16, WHITE, font=HEAD, pad=False, spacing=1.06,
+        T_LEAD, WHITE, font=HEAD, pad=False, spacing=1.08,
     )
     add_text(
-        s, Inches(0.70), cy + Inches(2.10), Inches(3.95), Inches(1.55),
-        "Найти процесс, который можно изменить.\nСобрать прототип.\nПоказать результат.\nЛучшее — в реальные процессы.",
-        13, WHITE, pad=False, spacing=1.12,
+        s, Inches(0.78), cy + Inches(2.40), Inches(3.95), Inches(1.35),
+        "Найти процесс.\nСобрать прототип.\nПоказать результат.\nЛучшее — в работу.",
+        T_BODY, WHITE, pad=False, spacing=1.18,
     )
     cycle = [
         ("01", "Нашёл проблему"),
@@ -994,13 +934,14 @@ def slide_challenge(prs):
     ]
     for i, (num, label) in enumerate(cycle):
         y = cy + i * (ch + gap_y)
-        add_box(s, Inches(5.08), y, Inches(7.76), ch, BLUE_SOFT if i % 2 == 0 else WHITE, LINE)
-        add_text(s, Inches(5.28), y, Inches(0.7), ch, num, 15, ACCENT, font=HEAD, anchor=MSO_ANCHOR.MIDDLE, pad=False)
-        add_text(s, Inches(6.10), y, Inches(6.5), ch, label, 16, INK, font=HEAD, anchor=MSO_ANCHOR.MIDDLE, pad=False)
+        add_text(s, Inches(5.28), y, Inches(0.7), ch, num, T_KICKER, ACCENT, font=HEAD, anchor=MSO_ANCHOR.MIDDLE, pad=False)
+        add_text(s, Inches(6.10), y, Inches(6.5), ch, label, T_LEAD, INK, font=HEAD, anchor=MSO_ANCHOR.MIDDLE, pad=False)
+        if i < 5:
+            add_box(s, Inches(5.28), y + ch + Inches(0.02), Inches(7.5), Pt(1), LINE)
     add_text(
-        s, Inches(0.48), cy + block_h + Inches(0.12), Inches(12.36), Inches(0.36),
-        "Challenge продолжается. Решение по каждому прототипу — внедрять, дорабатывать или остановить — принимается отдельно.",
-        13, MUTED, pad=False,
+        s, Inches(0.55), cy + block_h + Inches(0.14), Inches(12.22), Inches(0.36),
+        "Challenge продолжается. По каждому прототипу решение отдельное: внедрить, доработать или остановить.",
+        T_CAPTION, MUTED, pad=False,
     )
     notes(
         s, "13",
@@ -1021,26 +962,26 @@ def slide_challenge(prs):
 def slide_final(prs):
     s = blank(prs, NAVY)
     s.shapes.add_picture(LOGO_WHITE, Inches(0.55), Inches(0.32), height=Inches(0.44))
-    add_text(s, Inches(11.4), Inches(0.40), Inches(1.4), Inches(0.28), "14", 14, ACCENT, align=PP_ALIGN.RIGHT, pad=False)
+    add_text(s, Inches(11.4), Inches(0.40), Inches(1.4), Inches(0.28), "14", T_KICKER, ACCENT, align=PP_ALIGN.RIGHT, pad=False)
     add_text(
         s, Inches(0.62), Inches(1.15), Inches(12.1), Inches(1.85),
         "«Единственный способ делать\nдействительно большую работу —\nлюбить то, что ты делаешь».",
-        26, WHITE, font=HEAD, pad=False, spacing=1.08,
+        T_TITLE, WHITE, font=HEAD, pad=False, spacing=1.10,
     )
     add_text(
         s, Inches(0.62), Inches(3.12), Inches(12.1), Inches(0.36),
         "Стив Джобс  ·  выступление в Стэнфорде, 2005",
-        14, ACCENT, pad=False,
+        T_KICKER, ACCENT, pad=False,
     )
-    add_box(s, Inches(0.62), Inches(3.70), Inches(1.7), Pt(2.5), ACCENT)
+    add_box(s, Inches(0.62), Inches(3.70), Inches(1.45), Pt(2.5), ACCENT)
     add_text(
         s, Inches(0.62), Inches(4.00), Inches(12.1), Inches(1.25),
         "Мы начинали с автоматизации процессов.\nА теперь меняем представление о том, что можем делать сами.",
-        22, WHITE, font=HEAD, pad=False, spacing=1.08,
+        T_LEAD, WHITE, font=HEAD, pad=False, spacing=1.12,
     )
     s.shapes.add_picture(VERTIK, Inches(0.52), Inches(5.72), height=Inches(1.18))
-    add_text(s, Inches(1.90), Inches(5.92), Inches(5.5), Inches(0.36), "Елена Никишева  ·  COO КРИТ", 16, WHITE, font=HEAD, pad=False)
-    add_text(s, Inches(1.90), Inches(6.32), Inches(5.5), Inches(0.30), "t.me/NikishevaTeam", 14, ACCENT, pad=False)
+    add_text(s, Inches(1.90), Inches(5.92), Inches(5.5), Inches(0.36), "Елена Никишева  ·  COO КРИТ", T_BODY, WHITE, font=HEAD, pad=False)
+    add_text(s, Inches(1.90), Inches(6.32), Inches(5.5), Inches(0.30), "t.me/NikishevaTeam", T_KICKER, ACCENT, pad=False)
     qr = s.shapes.add_picture(QR, Inches(11.55), Inches(5.72), height=Inches(1.18))
     qr.name = "QR Telegram"
     notes(
@@ -1060,7 +1001,7 @@ def write_notes_md():
         ("03", "Почему прежняя автоматизация перестала устраивать", "1:20"),
         ("04", "Кейс 1. Оценка 360", "1:20"),
         ("05", "Оценка 360: что мы соединили", "1:40"),
-        ("06", "Оценка 360: результаты", "1:40"),
+        ("06", "Оценка 360: ход волны и своя логика", "1:40"),
         ("07", "Кейс 2. Бонусные письма", "1:20"),
         ("08", "Бонусные письма: что изменилось", "1:10"),
         ("09", "Кейс 3. CV-сервис для тендеров", "1:10"),
