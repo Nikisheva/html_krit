@@ -34,13 +34,18 @@ SOFT = RGBColor(0xF7, 0xF9, 0xFB)
 BLUE_SOFT = RGBColor(0xEE, 0xF6, 0xFF)
 NAVY = RGBColor(0x0B, 0x2A, 0x4A)
 NAVY_MID = RGBColor(0x14, 0x3D, 0x66)
-HEAD = "UNCAGE"
+# Как в «Цифровые сотрудники» и AI Challenge: typeface Uncage, текст Arial.
+# На этом Mac PowerPoint инвертирует начертания семейства UNCAGE:
+# Uncage + b=0 → Bold, Uncage + b=1 → Regular. Regular — нужный фирменный вид.
+HEAD = "Uncage"
 BODY = "Arial"
-# Единая шкала: UNCAGE — заголовки и акценты, Arial — текст с экрана.
-T_DISPLAY = 40
+HEAD_AS_REGULAR = True
+# Шкала как в «Цифровые сотрудники» / AI Challenge: Uncage Regular + Arial.
+T_DISPLAY = 32
 T_TITLE = 26
 T_LEAD = 18
 T_BODY = 16
+T_LABEL = 14
 T_KICKER = 13
 T_CAPTION = 12
 T_KPI = 48
@@ -62,9 +67,12 @@ def set_run(run, text, size, color, font=BODY, bold=False):
     run.font.size = Pt(size)
     run.font.color.rgb = color
     run.font.name = font
+    if font == HEAD:
+        bold = HEAD_AS_REGULAR
     run.font.bold = bold
     rPr = run._r.get_or_add_rPr()
     rPr.set("lang", "ru-RU")
+    rPr.set("b", "1" if bold else "0")
     for tag in ("latin", "ea", "cs"):
         el = rPr.find(qn(f"a:{tag}"))
         if el is None:
@@ -377,8 +385,8 @@ def slide_old_path(prs):
     for i, label in enumerate(old):
         x = Inches(0.55) + i * Inches(1.76)
         oval(s, x, y, Inches(0.36), Inches(0.36), MUTED)
-        add_text(s, x, y, Inches(0.36), Inches(0.36), str(i + 1), 11, WHITE, font=HEAD, align=PP_ALIGN.CENTER, anchor=MSO_ANCHOR.MIDDLE, pad=False)
-        add_text(s, x - Inches(0.55), y + Inches(0.48), Inches(1.5), Inches(0.40), label, T_CAPTION, INK, font=HEAD, align=PP_ALIGN.CENTER, pad=False)
+        add_text(s, x, y, Inches(0.36), Inches(0.36), str(i + 1), T_CAPTION, WHITE, align=PP_ALIGN.CENTER, anchor=MSO_ANCHOR.MIDDLE, pad=False)
+        add_text(s, x - Inches(0.55), y + Inches(0.48), Inches(1.5), Inches(0.40), label, T_LABEL, INK, font=HEAD, align=PP_ALIGN.CENTER, pad=False)
     add_text(
         s, Inches(0.55), y + Inches(1.05), Inches(12.2), Inches(0.36),
         "Зависимость от разработчиков  ·  Длинный цикл  ·  Затраты на подрядчика  ·  Чужая логика",
@@ -756,10 +764,10 @@ def _flow_row(slide, y, kicker, steps, human_idx):
         x = Inches(0.55) + i * (cw + gap)
         live = i in human_idx
         add_box(slide, x, row_y, cw, ch, BLUE_SOFT if live else SOFT)
-        add_text(slide, x + Inches(0.08), row_y + Inches(0.10), cw - Inches(0.16), Inches(0.24), f"{i + 1:02}", T_CAPTION, ACCENT, font=HEAD, pad=False)
+        add_text(slide, x + Inches(0.08), row_y + Inches(0.10), cw - Inches(0.16), Inches(0.24), f"{i + 1:02}", T_LABEL, ACCENT, font=HEAD, pad=False)
         add_text(
             slide, x + Inches(0.08), row_y + Inches(0.40), cw - Inches(0.16), Inches(0.86),
-            label, T_CAPTION, INK, font=HEAD, pad=False, spacing=1.02,
+            label, T_LABEL, INK, font=HEAD, pad=False, spacing=1.02,
         )
         if i < n - 1:
             arrow(slide, x + cw + Inches(0.01), row_y + Inches(0.60), Inches(0.14), Inches(0.14), ACCENT)
@@ -1043,10 +1051,32 @@ def write_notes_md():
     OUT_NOTES.write_text("\n".join(lines), encoding="utf-8")
 
 
+def set_theme_fonts(prs):
+    """Тема как в рабочих PPTX КРИТ: заголовки Uncage, текст Arial."""
+    rels = prs.slide_masters[0].part.rels
+    theme = None
+    for rel in rels.values():
+        if "theme" in str(rel.reltype).lower():
+            theme = rel.target_part
+            break
+    if theme is None:
+        return
+    ns = "{http://schemas.openxmlformats.org/drawingml/2006/main}"
+    root = etree.fromstring(theme.blob)
+    major = root.find(f".//{ns}majorFont/{ns}latin")
+    minor = root.find(f".//{ns}minorFont/{ns}latin")
+    if major is not None:
+        major.set("typeface", HEAD)
+    if minor is not None:
+        minor.set("typeface", BODY)
+    theme._blob = etree.tostring(root, xml_declaration=True, encoding="UTF-8", standalone=True)
+
+
 def main():
     prs = Presentation()
     prs.slide_width = W
     prs.slide_height = H
+    set_theme_fonts(prs)
     prs.core_properties.title = "HR сам себе разработчик: как мы создаём и внедряем ИИ-инструменты в КРИТ"
     prs.core_properties.author = "Елена Никишева"
     prs.core_properties.subject = "HR API, 1 декабря 2026"
