@@ -59,6 +59,7 @@ QR = str(ASSETS / "qr-nikisheva.png")
 SHOT_360_PROCESS = str(ASSETS / "360-process.png")
 SHOT_360_DASH = str(ASSETS / "360-dashboard.png")
 SHOT_BONUS = str(ASSETS / "bonus-goals-crop.png")
+SHOT_CV_REPORT = str(ASSETS / "cv-resume-report.png")
 
 NOTES = {}
 
@@ -754,70 +755,49 @@ def slide_cv_problems(prs):
 # ---------------------------------------------------------------------------
 # 10 CV how it works
 # ---------------------------------------------------------------------------
-def _flow_row(slide, y, kicker, steps, human_idx):
-    add_text(slide, Inches(0.55), y, Inches(12.2), Inches(0.26), kicker, T_KICKER, ACCENT, pad=False)
-    n = len(steps)
-    gap = Inches(0.16)
-    cw = (Inches(12.22) - (n - 1) * gap) / n
-    row_y = y + Inches(0.32)
-    ch = Inches(1.38)
-    for i, label in enumerate(steps):
-        x = Inches(0.55) + i * (cw + gap)
-        live = i in human_idx
-        add_box(slide, x, row_y, cw, ch, BLUE_SOFT if live else SOFT)
-        add_text(slide, x + Inches(0.08), row_y + Inches(0.10), cw - Inches(0.16), Inches(0.24), f"{i + 1:02}", T_CAPTION, ACCENT, pad=False)
-        add_text(
-            slide, x + Inches(0.08), row_y + Inches(0.40), cw - Inches(0.16), Inches(0.86),
-            label, T_LABEL, INK, pad=False, spacing=1.05,
-        )
-        if i < n - 1:
-            arrow(slide, x + cw + Inches(0.01), row_y + Inches(0.60), Inches(0.14), Inches(0.14), ACCENT)
-    return row_y + ch
-
-
 def slide_cv_flow(prs):
     s = blank(prs)
     top = section(s, "Кейс 3  ·  CV-сервис", "От данных о проекте до готового CV", "10")
-    y = _flow_row(
-        s, top,
-        "Ветка 1. Актуализация резюме",
-        [
-            "Вход или выход\nиз проекта",
-            "Сигнал\nиз УПЗ",
-            "Задача уже\nс данными проекта",
-            "Сотрудник\nпроверяет",
-            "HR\nсогласует",
-        ],
-        human_idx={3, 4},
-    )
-    y = _flow_row(
-        s, y + Inches(0.18),
-        "Ветка 2. Подготовка к тендеру",
-        [
-            "Стадия\n«идём»",
-            "Разбор\nтребований",
-            "Поиск опыта\nв CV-сервисе",
-            "Список\nдля РП / ДД",
-            "Проверка\nруководителем",
-            "HR готовит\nрезюме",
-        ],
-        human_idx={3, 4, 5},
-    )
+    points = [
+        ("01", "Задача с данными проекта", "Вход или выход из проекта даёт задачу уже с названием, заказчиком, периодом и ролью. Сотрудник проверяет, HR согласует."),
+        ("02", "Поиск опыта под тендер", "Помощник разбирает требования и ищет опыт в CV-сервисе. Список проверяют РП или ДД, затем HR готовит резюме."),
+        ("03", "Отчёт «Резюме»", "Реестр уже в Bitrix24: кто в списке, должность, ссылка. Даты файла с SharePoint ещё подключаем."),
+    ]
+    y = top
+    for num, title, text in points:
+        add_text(s, Inches(0.55), y, Inches(0.55), Inches(0.32), num, T_KICKER, ACCENT, pad=False)
+        add_text(s, Inches(1.18), y, Inches(4.85), Inches(0.34), title, T_SUB, INK, font=HEAD, pad=False)
+        add_text(s, Inches(1.18), y + Inches(0.38), Inches(4.85), Inches(0.78), text, T_BODY, MUTED, pad=False, spacing=1.08)
+        y += Inches(1.22)
     add_text(
-        s, Inches(0.55), Inches(6.28), Inches(12.22), Inches(0.70),
-        "Цифровые помощники берут подготовку. Человек оставляет проверку и ответственность.\n"
-        "Измеренного экономического эффекта по этому контуру нет — и мы его не придумываем.",
+        s, Inches(0.55), Inches(6.28), Inches(5.5), Inches(0.68),
+        "Цифровые помощники берут подготовку. Человек оставляет проверку и ответственность.",
         T_CAPTION, MUTED, pad=False, spacing=1.12,
+    )
+    shot_l, shot_t = Inches(6.55), top
+    shot_w, shot_h = Inches(6.22), Inches(4.48)
+    add_box(s, shot_l, shot_t, shot_w, shot_h, SOFT)
+    pic = place_image(
+        s, SHOT_CV_REPORT,
+        shot_l + Inches(0.08), shot_t + Inches(0.08),
+        shot_w - Inches(0.16), shot_h - Inches(0.16),
+        mode="contain", valign="top",
+    )
+    pic.name = "Отчёт по резюме в Bitrix24"
+    add_text(
+        s, Inches(6.55), Inches(6.28), Inches(6.22), Inches(0.42),
+        "Отчёт по резюме в Bitrix24. Имена скрыты.",
+        T_CAPTION, MUTED, pad=False,
     )
     notes(
         s, "10",
-        "1:40. Две ветки, не архитектура систем.\n\n"
+        "1:40. Две ветки, не архитектура систем. Экран справа — живой отчёт по резюме в Bitrix24, как свод 360 на шестом слайде.\n\n"
         "Первая: человек входит в проект или выходит — из управления проектами приходит сигнал — в задачу обновления резюме уже подставлены название, заказчик, период, роль. "
         "Сотрудник не сочиняет проект заново, он проверяет. HR согласовывает.\n\n"
         "Вторая: решили идти в тендер — помощник разбирает, какие навыки нужны — ищет опыт в CV-сервисе — отдаёт список РП или ДД. "
         "Если просят найти ещё, поиск повторяется. Когда «ок», задача падает на HR: кого готовить и в какую роль.\n\n"
-        "Синяя полоска сверху шага — место человека. Подготовку ведут цифровые сотрудники, решение и ответственность остаются у людей.\n\n"
-        "Не называйте экономию, скорость закрытия тендера и долю найденных CV: этих цифр нет.\n\n"
+        "На экране — реестр: кто в списке, должность, ссылка на файл. Даты обновления с SharePoint ещё не подгружаются, это не скрывать и не дорисовывать. "
+        "Число сотрудников на скрине не делайте KPI и не называйте экономию: измеренного эффекта по контуру нет.\n\n"
         "Переход: что общего у трёх разных кейсов.",
     )
 
