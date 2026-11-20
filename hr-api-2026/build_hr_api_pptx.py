@@ -514,18 +514,26 @@ def slide_360_system(prs):
         if i < n - 1:
             arrow(s, x + cw + Inches(0.01), y + Inches(1.02), Inches(0.16), Inches(0.14), ACCENT)
     add_text(
-        s, Inches(0.55), y + ch + Inches(0.18), Inches(12.2), Inches(0.26),
-        "Подключаем дальше — ещё не готово", T_KICKER, MUTED, pad=False,
+        s, Inches(0.55), y + ch + Inches(0.22), Inches(12.2), Inches(0.26),
+        "Дальше — развитие продукта", T_KICKER, ACCENT, pad=False,
     )
+    nxt = [
+        ("Утилизация", "Колонка в отчёте уже есть. Дорабатываем правила и источники."),
+        ("Живая коммуникация", "Следующий слой — кто с кем реально работает: почта и Teams."),
+    ]
+    nw = Inches(6.00)
+    ng = Inches(0.22)
+    ny = y + ch + Inches(0.54)
+    nh = Inches(1.12)
+    for i, (title, text) in enumerate(nxt):
+        x = Inches(0.55) + i * (nw + ng)
+        add_box(s, x, ny, nw, nh, SOFT)
+        add_text(s, x + Inches(0.22), ny + Inches(0.14), nw - Inches(0.44), Inches(0.30), title, T_LABEL, INK, pad=False)
+        add_text(s, x + Inches(0.22), ny + Inches(0.48), nw - Inches(0.44), Inches(0.52), text, T_CAPTION, MUTED, pad=False, spacing=1.08)
+    band_t = ny + nh + Inches(0.18)
+    add_box(s, Inches(0.55), band_t, Inches(12.22), Inches(0.72), NAVY)
     add_text(
-        s, Inches(0.55), y + ch + Inches(0.48), Inches(12.2), Inches(0.42),
-        "Утилизация — дорабатываем правила и источники.  ·  Рекомендации по живой коммуникации — почта и Teams.",
-        T_BODY, MUTED, pad=False,
-    )
-    band_t = y + ch + Inches(1.12)
-    add_box(s, Inches(0.55), band_t, Inches(12.22), Inches(0.82), NAVY)
-    add_text(
-        s, Inches(0.78), band_t, Inches(11.76), Inches(0.82),
+        s, Inches(0.78), band_t, Inches(11.76), Inches(0.72),
         "Нужный срез и логику процесса собираем сами. Добавить дашборд — не заявка подрядчику.",
         T_LEAD, WHITE, anchor=MSO_ANCHOR.MIDDLE, pad=False,
     )
@@ -534,8 +542,8 @@ def slide_360_system(prs):
         "1:40. Это схема процесса, не техническая архитектура. Не говорите, что все блоки уже связаны API.\n\n"
         "Пройдите цепочку слева направо. УПЗ даёт, кто с кем работал на проектах. Дальше назначение оценщиков, задачи со статусами, анкеты. "
         "Последний шаг — аналитика: дашборды собираем сами под нужный срез, а не ждём отчёт от вендора.\n\n"
-        "Утилизацию на слайде не ставьте в один ряд с работающим контуром. Колонка в отчёте уже есть, но правила и источники мы ещё дорабатываем. "
-        "Рекомендации по живой коммуникации — почта и Teams — следующий шаг. Это не сделанный контур.\n\n"
+        "Нижняя полоса — развитие продукта, не «недоделка». Утилизацию не ставьте в один ряд с работающей цепочкой: колонка в отчёте уже есть, правила и источники дорабатываем. "
+        "Дальше — рекомендации по живой коммуникации, почта и Teams.\n\n"
         "Тезис нижней полосы: нужный дашборд и логику процесса мы задаём сами.\n\n"
         "Переход: как это выглядит в рабочей среде — не процентами сдачи, а управляемостью.",
     )
@@ -669,31 +677,39 @@ def slide_bonus_change(prs):
     gap = Inches(0.16)
     cw = (Inches(12.22) - (n - 1) * gap) / n
     y = top
-    ch = Inches(1.28)
+    ch = Inches(1.12)
     for i, (num, label) in enumerate(steps):
         x = Inches(0.55) + i * (cw + gap)
         live = i in (2, 5)
         add_box(s, x, y, cw, ch, ACCENT if live else BLUE_SOFT)
         color = WHITE if live else INK
         ncolor = WHITE if live else ACCENT
-        add_text(s, x + Inches(0.08), y + Inches(0.10), cw - Inches(0.16), Inches(0.26), num, T_KICKER, ncolor, pad=False)
-        add_text(s, x + Inches(0.08), y + Inches(0.48), cw - Inches(0.16), Inches(0.58), label, T_BODY, color, pad=False)
+        add_text(s, x + Inches(0.08), y + Inches(0.10), cw - Inches(0.16), Inches(0.24), num, T_KICKER, ncolor, pad=False)
+        add_text(s, x + Inches(0.08), y + Inches(0.42), cw - Inches(0.16), Inches(0.52), label, T_BODY, color, pad=False)
         if i < n - 1:
-            arrow(s, x + cw + Inches(0.01), y + Inches(0.56), Inches(0.14), Inches(0.14), ACCENT)
-    add_text(
-        s, Inches(0.55), y + ch + Inches(0.28), Inches(5.55), Inches(1.15),
-        "Правила, поля и маршрут согласования меняем сами. Небольшой сдвиг больше не обязан быть IT-проектом.",
-        T_BODY, INK, pad=False, spacing=1.08,
-    )
+            arrow(s, x + cw + Inches(0.01), y + Inches(0.48), Inches(0.14), Inches(0.14), ACCENT)
+    points = [
+        ("01", "Свои правила", "Поля, цели и маршрут согласования меняем сами — без заявки подрядчику."),
+        ("02", "Не IT-проект", "Небольшой сдвиг больше не обязан быть отдельной разработкой."),
+        ("03", "Живой процесс", "Запустили, смотрим, улучшаем. Это уже часть работы, не разовый проект."),
+    ]
+    py = y + ch + Inches(0.22)
+    for num, title, text in points:
+        add_text(s, Inches(0.55), py, Inches(0.50), Inches(0.30), num, T_KICKER, ACCENT, pad=False)
+        add_text(s, Inches(1.12), py, Inches(4.95), Inches(0.30), title, T_SUB, INK, font=HEAD, pad=False)
+        add_text(s, Inches(1.12), py + Inches(0.34), Inches(4.95), Inches(0.70), text, T_BODY, MUTED, pad=False, spacing=1.08)
+        py += Inches(1.18)
     shot_top = y + ch + Inches(0.18)
+    shot_h = Inches(6.48) - shot_top
+    add_box(s, Inches(6.45), shot_top, Inches(6.32), shot_h, SOFT)
     pic = place_image(
         s, SHOT_BONUS,
-        Inches(6.45), shot_top,
-        Inches(6.32), Inches(6.72) - shot_top,
+        Inches(6.53), shot_top + Inches(0.08),
+        Inches(6.16), shot_h - Inches(0.16),
         mode="contain", valign="top",
     )
     add_text(
-        s, Inches(6.45), Inches(6.72), Inches(6.32), Inches(0.24),
+        s, Inches(6.45), Inches(6.58), Inches(6.32), Inches(0.28),
         "Страница бонусного письма в Bitrix24",
         T_CAPTION, MUTED, pad=False,
     )
