@@ -40,15 +40,16 @@ NAVY_MID = RGBColor(0x14, 0x3D, 0x66)
 HEAD = "Uncage"
 BODY = "Arial"
 HEAD_AS_REGULAR = True
-# Шкала как в «Цифровые сотрудники» / AI Challenge: Uncage Regular + Arial.
-T_DISPLAY = 32
-T_TITLE = 26
-T_LEAD = 18
-T_BODY = 16
+# Сдержанная шкала: Uncage только на заголовках, Arial — всё остальное.
+T_DISPLAY = 28
+T_TITLE = 22
+T_SUB = 20
+T_LEAD = 16
+T_BODY = 15
 T_LABEL = 14
-T_KICKER = 13
-T_CAPTION = 12
-T_KPI = 48
+T_KICKER = 12
+T_CAPTION = 11
+T_KPI = 36
 FOOT = "КРИТ · HR API · 1 декабря 2026"
 LOGO_GREY = str(ASSETS / "logo-grey.png")
 LOGO_WHITE = str(ASSETS / "logo-white.png")
@@ -286,7 +287,7 @@ def connector(slide, x1, y1, x2, y2, color=LINE):
 
 def pill(slide, l, t, w, h, text, fill, color, size=13):
     add_round(slide, l, t, w, h, fill)
-    add_text(slide, l, t, w, h, text, size, color, font=HEAD, align=PP_ALIGN.CENTER, anchor=MSO_ANCHOR.MIDDLE, pad=False)
+    add_text(slide, l, t, w, h, text, size, color, align=PP_ALIGN.CENTER, anchor=MSO_ANCHOR.MIDDLE, pad=False)
 
 
 # ---------------------------------------------------------------------------
@@ -313,15 +314,15 @@ def slide_cover(prs):
     add_text(
         s, Inches(0.62), Inches(3.78), Inches(8.3), Inches(0.9),
         "Как мы создаём и внедряем\nИИ-инструменты в КРИТ",
-        T_LEAD, INK, font=HEAD, spacing=1.08, pad=False,
+        T_LEAD, INK, spacing=1.12, pad=False,
     )
     add_text(
         s, Inches(10.15), Inches(5.92), Inches(2.85), Inches(0.9),
         "1 декабря\n2026",
-        T_LEAD, WHITE, font=HEAD, pad=False, spacing=1.08,
+        T_LEAD, WHITE, pad=False, spacing=1.12,
     )
     s.shapes.add_picture(VERTIK, Inches(0.55), Inches(5.78), height=Inches(1.18))
-    add_text(s, Inches(1.92), Inches(6.05), Inches(5.4), Inches(0.36), "Елена Никишева", T_LEAD, INK, font=HEAD, pad=False)
+    add_text(s, Inches(1.92), Inches(6.05), Inches(5.4), Inches(0.36), "Елена Никишева", T_SUB, INK, font=HEAD, pad=False)
     add_text(s, Inches(1.92), Inches(6.44), Inches(5.4), Inches(0.28), "COO КРИТ", T_BODY, MUTED, pad=False)
     notes(
         s, "01",
@@ -349,8 +350,8 @@ def slide_about(prs):
     y0 = top + Inches(0.08)
     for i, (num, title, text) in enumerate(facts):
         y = y0 + i * Inches(1.12)
-        add_text(s, Inches(0.55), y, Inches(0.7), Inches(0.36), num, T_KICKER, ACCENT, font=HEAD, pad=False)
-        add_text(s, Inches(1.35), y, Inches(7.6), Inches(0.38), title, T_LEAD, INK, font=HEAD, pad=False)
+        add_text(s, Inches(0.55), y, Inches(0.7), Inches(0.36), num, T_KICKER, ACCENT, pad=False)
+        add_text(s, Inches(1.35), y, Inches(7.6), Inches(0.38), title, T_SUB, INK, font=HEAD, pad=False)
         add_text(s, Inches(1.35), y + Inches(0.40), Inches(7.6), Inches(0.36), text, T_BODY, MUTED, pad=False)
     place_image(s, SPEAKER, Inches(9.55), Inches(1.35), Inches(3.22), Inches(3.85), valign="top")
     add_text(
@@ -386,7 +387,7 @@ def slide_old_path(prs):
         x = Inches(0.55) + i * Inches(1.76)
         oval(s, x, y, Inches(0.36), Inches(0.36), MUTED)
         add_text(s, x, y, Inches(0.36), Inches(0.36), str(i + 1), T_CAPTION, WHITE, align=PP_ALIGN.CENTER, anchor=MSO_ANCHOR.MIDDLE, pad=False)
-        add_text(s, x - Inches(0.55), y + Inches(0.48), Inches(1.5), Inches(0.40), label, T_LABEL, INK, font=HEAD, align=PP_ALIGN.CENTER, pad=False)
+        add_text(s, x - Inches(0.55), y + Inches(0.48), Inches(1.5), Inches(0.40), label, T_LABEL, INK, align=PP_ALIGN.CENTER, pad=False)
     add_text(
         s, Inches(0.55), y + Inches(1.05), Inches(12.2), Inches(0.36),
         "Зависимость от разработчиков  ·  Длинный цикл  ·  Затраты на подрядчика  ·  Чужая логика",
@@ -404,8 +405,8 @@ def slide_old_path(prs):
         fill = ACCENT if i == 3 else BLUE_SOFT
         color = WHITE if i == 3 else INK
         add_box(s, x, by, nw, bh, fill)
-        add_text(s, x, by + Inches(0.22), nw, Inches(0.28), f"{i + 1:02}", T_KICKER, WHITE if i == 3 else ACCENT, font=HEAD, align=PP_ALIGN.CENTER, pad=False)
-        add_text(s, x + Inches(0.1), by + Inches(0.58), nw - Inches(0.2), Inches(0.55), label, T_LEAD, color, font=HEAD, align=PP_ALIGN.CENTER, pad=False)
+        add_text(s, x, by + Inches(0.22), nw, Inches(0.28), f"{i + 1:02}", T_KICKER, WHITE if i == 3 else ACCENT, align=PP_ALIGN.CENTER, pad=False)
+        add_text(s, x + Inches(0.1), by + Inches(0.58), nw - Inches(0.2), Inches(0.55), label, T_LEAD, color, align=PP_ALIGN.CENTER, pad=False)
         if i < nn - 1:
             arrow(s, x + nw + Inches(0.01), by + Inches(0.58), Inches(0.20), Inches(0.16), ACCENT)
     add_text(
@@ -434,7 +435,7 @@ def slide_360_case(prs):
     add_text(
         s, Inches(0.55), top + Inches(0.36), Inches(5.7), Inches(1.05),
         "Готовое решение\nподрядчика",
-        T_TITLE, INK, font=HEAD, pad=False, spacing=0.98,
+        T_SUB, INK, font=HEAD, pad=False, spacing=1.02,
     )
     add_lines(
         s, Inches(0.55), top + Inches(1.55), Inches(5.5), Inches(2.4),
@@ -451,7 +452,7 @@ def slide_360_case(prs):
     add_text(
         s, Inches(6.98), top + Inches(0.56), Inches(5.55), Inches(1.05),
         "Процесс под\nIT-консалтинг",
-        T_TITLE, INK, font=HEAD, pad=False, spacing=0.98,
+        T_SUB, INK, font=HEAD, pad=False, spacing=1.02,
     )
     add_lines(
         s, Inches(6.98), top + Inches(1.72), Inches(5.5), Inches(1.35),
@@ -506,8 +507,8 @@ def slide_360_system(prs):
         scol = WHITE if i == 4 else MUTED
         ncol = WHITE if i == 4 else ACCENT
         add_box(s, x, y, cw, ch, fill)
-        add_text(s, x + Inches(0.12), y + Inches(0.14), cw - Inches(0.24), Inches(0.28), num, T_KICKER, ncol, font=HEAD, pad=False)
-        add_text(s, x + Inches(0.12), y + Inches(0.48), cw - Inches(0.24), Inches(0.52), title, T_LEAD, tcol, font=HEAD, pad=False)
+        add_text(s, x + Inches(0.12), y + Inches(0.14), cw - Inches(0.24), Inches(0.28), num, T_KICKER, ncol, pad=False)
+        add_text(s, x + Inches(0.12), y + Inches(0.48), cw - Inches(0.24), Inches(0.52), title, T_LEAD, tcol, pad=False)
         add_text(s, x + Inches(0.12), y + Inches(1.12), cw - Inches(0.24), Inches(0.95), text, T_CAPTION, scol, pad=False, spacing=1.12)
         if i < n - 1:
             arrow(s, x + cw + Inches(0.01), y + Inches(1.02), Inches(0.16), Inches(0.14), ACCENT)
@@ -525,7 +526,7 @@ def slide_360_system(prs):
     add_text(
         s, Inches(0.78), band_t, Inches(11.76), Inches(0.82),
         "Нужный срез и логику процесса собираем сами. Добавить дашборд — не заявка подрядчику.",
-        T_LEAD, WHITE, font=HEAD, anchor=MSO_ANCHOR.MIDDLE, pad=False,
+        T_LEAD, WHITE, anchor=MSO_ANCHOR.MIDDLE, pad=False,
     )
     notes(
         s, "05",
@@ -552,8 +553,8 @@ def slide_360_results(prs):
     ]
     y = top
     for num, title, text in points:
-        add_text(s, Inches(0.55), y, Inches(0.55), Inches(0.32), num, T_KICKER, ACCENT, font=HEAD, pad=False)
-        add_text(s, Inches(1.18), y, Inches(4.85), Inches(0.34), title, T_LEAD, INK, font=HEAD, pad=False)
+        add_text(s, Inches(0.55), y, Inches(0.55), Inches(0.32), num, T_KICKER, ACCENT, pad=False)
+        add_text(s, Inches(1.18), y, Inches(4.85), Inches(0.34), title, T_SUB, INK, font=HEAD, pad=False)
         add_text(s, Inches(1.18), y + Inches(0.38), Inches(4.85), Inches(0.72), text, T_BODY, MUTED, pad=False, spacing=1.08)
         y += Inches(1.22)
     add_text(
@@ -595,11 +596,11 @@ def slide_bonus_case(prs):
     add_box(s, 0, 0, Inches(4.85), H, ACCENT)
     s.shapes.add_picture(LOGO_WHITE, Inches(0.42), Inches(0.28), height=Inches(0.42))
     add_text(s, Inches(0.42), Inches(1.15), Inches(4.05), Inches(0.32), "Кейс 2  ·  Бонусные письма", T_KICKER, WHITE, pad=False)
-    add_text(s, Inches(0.38), Inches(1.85), Inches(4.15), Inches(1.85), "½", 72, WHITE, font=HEAD, pad=False)
+    add_text(s, Inches(0.38), Inches(1.85), Inches(4.15), Inches(1.55), "½", 56, WHITE, font=HEAD, pad=False)
     add_text(
-        s, Inches(0.42), Inches(3.85), Inches(4.05), Inches(1.05),
+        s, Inches(0.42), Inches(3.55), Inches(4.05), Inches(1.05),
         "рабочего дня\nна первую версию",
-        T_LEAD, WHITE, font=HEAD, pad=False, spacing=1.08,
+        T_LEAD, WHITE, pad=False, spacing=1.12,
     )
     add_text(
         s, Inches(0.42), Inches(5.22), Inches(4.05), Inches(1.35),
@@ -613,7 +614,7 @@ def slide_bonus_case(prs):
         T_TITLE, INK, font=HEAD, pad=False, spacing=0.98,
     )
     add_text(s, Inches(12.55), Inches(0.22), Inches(0.4), Inches(0.24), "07", T_CAPTION, MUTED, align=PP_ALIGN.RIGHT, pad=False)
-    add_text(s, Inches(5.28), Inches(1.62), Inches(3.55), Inches(0.36), "Было", T_LEAD, MUTED, font=HEAD, pad=False)
+    add_text(s, Inches(5.28), Inches(1.62), Inches(3.55), Inches(0.36), "Было", T_SUB, MUTED, font=HEAD, pad=False)
     add_lines(
         s, Inches(5.28), Inches(2.15), Inches(3.4), Inches(4.2),
         [
@@ -625,7 +626,7 @@ def slide_bonus_case(prs):
         T_BODY, INK, space=14, spacing=1.08,
     )
     add_box(s, Inches(8.95), Inches(1.55), Inches(3.85), Inches(5.15), BLUE_SOFT)
-    add_text(s, Inches(9.16), Inches(1.74), Inches(3.45), Inches(0.36), "Стало", T_LEAD, ACCENT, font=HEAD, pad=False)
+    add_text(s, Inches(9.16), Inches(1.74), Inches(3.45), Inches(0.36), "Стало", T_SUB, ACCENT, font=HEAD, pad=False)
     add_lines(
         s, Inches(9.16), Inches(2.22), Inches(3.45), Inches(4.2),
         [
@@ -674,8 +675,8 @@ def slide_bonus_change(prs):
         add_box(s, x, y, cw, ch, ACCENT if live else BLUE_SOFT)
         color = WHITE if live else INK
         ncolor = WHITE if live else ACCENT
-        add_text(s, x + Inches(0.08), y + Inches(0.10), cw - Inches(0.16), Inches(0.26), num, T_KICKER, ncolor, font=HEAD, pad=False)
-        add_text(s, x + Inches(0.08), y + Inches(0.48), cw - Inches(0.16), Inches(0.58), label, T_BODY, color, font=HEAD, pad=False)
+        add_text(s, x + Inches(0.08), y + Inches(0.10), cw - Inches(0.16), Inches(0.26), num, T_KICKER, ncolor, pad=False)
+        add_text(s, x + Inches(0.08), y + Inches(0.48), cw - Inches(0.16), Inches(0.58), label, T_BODY, color, pad=False)
         if i < n - 1:
             arrow(s, x + cw + Inches(0.01), y + Inches(0.56), Inches(0.14), Inches(0.14), ACCENT)
     add_text(
@@ -730,8 +731,8 @@ def slide_cv_problems(prs):
     muted_c = [MUTED, MUTED, WHITE]
     for i, ((num, title, text), w, fill, c, mc) in enumerate(zip(items, widths, fills, colors, muted_c)):
         add_box(s, Inches(0.55), y, w, Inches(1.22), fill)
-        add_text(s, Inches(0.75), y + Inches(0.16), Inches(0.7), Inches(0.34), num, T_LEAD, ACCENT if i < 2 else WHITE, font=HEAD, pad=False)
-        add_text(s, Inches(1.55), y + Inches(0.16), w - Inches(1.3), Inches(0.34), title, T_LEAD, c, font=HEAD, pad=False)
+        add_text(s, Inches(0.75), y + Inches(0.16), Inches(0.7), Inches(0.34), num, T_KICKER, ACCENT if i < 2 else WHITE, pad=False)
+        add_text(s, Inches(1.55), y + Inches(0.16), w - Inches(1.3), Inches(0.34), title, T_SUB, c, font=HEAD, pad=False)
         add_text(s, Inches(1.55), y + Inches(0.56), w - Inches(1.3), Inches(0.50), text, T_BODY, mc, pad=False)
         y += Inches(1.34)
     add_text(
@@ -764,10 +765,10 @@ def _flow_row(slide, y, kicker, steps, human_idx):
         x = Inches(0.55) + i * (cw + gap)
         live = i in human_idx
         add_box(slide, x, row_y, cw, ch, BLUE_SOFT if live else SOFT)
-        add_text(slide, x + Inches(0.08), row_y + Inches(0.10), cw - Inches(0.16), Inches(0.24), f"{i + 1:02}", T_LABEL, ACCENT, font=HEAD, pad=False)
+        add_text(slide, x + Inches(0.08), row_y + Inches(0.10), cw - Inches(0.16), Inches(0.24), f"{i + 1:02}", T_CAPTION, ACCENT, pad=False)
         add_text(
             slide, x + Inches(0.08), row_y + Inches(0.40), cw - Inches(0.16), Inches(0.86),
-            label, T_LABEL, INK, font=HEAD, pad=False, spacing=1.02,
+            label, T_LABEL, INK, pad=False, spacing=1.05,
         )
         if i < n - 1:
             arrow(slide, x + cw + Inches(0.01), row_y + Inches(0.60), Inches(0.14), Inches(0.14), ACCENT)
@@ -834,21 +835,21 @@ def slide_unites(prs):
         T_DISPLAY, WHITE, font=HEAD, pad=False, spacing=0.96,
     )
     add_box(s, Inches(0.62), Inches(2.22), Inches(3.85), Inches(2.72), WHITE)
-    add_text(s, Inches(0.84), Inches(2.40), Inches(3.45), Inches(0.28), "01", T_KICKER, ACCENT, font=HEAD, pad=False)
-    add_text(s, Inches(0.84), Inches(2.76), Inches(3.45), Inches(0.70), "Делаем сами", T_LEAD, INK, font=HEAD, pad=False, spacing=0.98)
+    add_text(s, Inches(0.84), Inches(2.40), Inches(3.45), Inches(0.28), "01", T_KICKER, ACCENT, pad=False)
+    add_text(s, Inches(0.84), Inches(2.76), Inches(3.45), Inches(0.70), "Делаем сами", T_SUB, INK, font=HEAD, pad=False, spacing=1.02)
     add_text(s, Inches(0.84), Inches(3.62), Inches(3.45), Inches(1.05), "Можем реализовать собственную логику процесса.", T_BODY, MUTED, pad=False, spacing=1.08)
     add_box(s, Inches(4.65), Inches(2.22), Inches(3.85), Inches(2.72), NAVY)
-    add_text(s, Inches(4.87), Inches(2.40), Inches(3.45), Inches(0.28), "02", T_KICKER, ACCENT, font=HEAD, pad=False)
-    add_text(s, Inches(4.87), Inches(2.76), Inches(3.45), Inches(0.50), "Скорость", T_LEAD, WHITE, font=HEAD, pad=False)
+    add_text(s, Inches(4.87), Inches(2.40), Inches(3.45), Inches(0.28), "02", T_KICKER, ACCENT, pad=False)
+    add_text(s, Inches(4.87), Inches(2.76), Inches(3.45), Inches(0.50), "Скорость", T_SUB, WHITE, font=HEAD, pad=False)
     add_text(s, Inches(4.87), Inches(3.62), Inches(3.45), Inches(1.05), "Быстрее проверяем идеи и собираем первые версии.", T_BODY, WHITE, pad=False, spacing=1.08)
     outline(s, Inches(8.68), Inches(2.22), Inches(3.85), Inches(2.72), WHITE, 1.5)
-    add_text(s, Inches(8.90), Inches(2.40), Inches(3.45), Inches(0.28), "03", T_KICKER, WHITE, font=HEAD, pad=False)
-    add_text(s, Inches(8.90), Inches(2.76), Inches(3.45), Inches(0.70), "Новая\nэкспертиза", T_LEAD, WHITE, font=HEAD, pad=False, spacing=0.98)
+    add_text(s, Inches(8.90), Inches(2.40), Inches(3.45), Inches(0.28), "03", T_KICKER, WHITE, pad=False)
+    add_text(s, Inches(8.90), Inches(2.76), Inches(3.45), Inches(0.70), "Новая\nэкспертиза", T_SUB, WHITE, font=HEAD, pad=False, spacing=1.02)
     add_text(s, Inches(8.90), Inches(3.62), Inches(3.45), Inches(1.05), "HR начинает понимать процессы, данные и возможности разработки.", T_BODY, WHITE, pad=False, spacing=1.08)
     add_text(
         s, Inches(0.62), Inches(5.22), Inches(12.1), Inches(1.45),
         "HR не становится профессиональным программистом.\nЕго возможности больше не ограничены умением написать ТЗ.",
-        T_LEAD, WHITE, font=HEAD, pad=False, spacing=1.12,
+        T_LEAD, WHITE, pad=False, spacing=1.15,
     )
     notes(
         s, "11",
@@ -886,13 +887,13 @@ def slide_future(prs):
         "Организационные изменения.\n"
         "Сложные решения и ответственность.\n"
         "Данные, AI и устройство работы.",
-        T_LEAD, INK, font=HEAD, pad=False, spacing=1.18,
+        T_LEAD, INK, pad=False, spacing=1.22,
     )
     add_text(
         s, Inches(0.55), Inches(5.55), Inches(12.22), Inches(1.15),
         "Будущее HR — не в количестве автоматизированных операций.\n"
         "А в способности иначе организовать работу людей и технологий.",
-        T_LEAD, INK, font=HEAD, pad=False, spacing=1.12,
+        T_SUB, INK, font=HEAD, pad=False, spacing=1.12,
     )
     notes(
         s, "12",
@@ -925,7 +926,7 @@ def slide_challenge(prs):
     add_text(
         s, Inches(0.78), cy + Inches(0.62), Inches(3.95), Inches(1.55),
         "Сначала процессы\nсобирал руководитель.\nТеперь это возможность\nвсей команды.",
-        T_LEAD, WHITE, font=HEAD, pad=False, spacing=1.08,
+        T_LEAD, WHITE, pad=False, spacing=1.12,
     )
     add_text(
         s, Inches(0.78), cy + Inches(2.40), Inches(3.95), Inches(1.35),
@@ -942,8 +943,8 @@ def slide_challenge(prs):
     ]
     for i, (num, label) in enumerate(cycle):
         y = cy + i * (ch + gap_y)
-        add_text(s, Inches(5.28), y, Inches(0.7), ch, num, T_KICKER, ACCENT, font=HEAD, anchor=MSO_ANCHOR.MIDDLE, pad=False)
-        add_text(s, Inches(6.10), y, Inches(6.5), ch, label, T_LEAD, INK, font=HEAD, anchor=MSO_ANCHOR.MIDDLE, pad=False)
+        add_text(s, Inches(5.28), y, Inches(0.7), ch, num, T_KICKER, ACCENT, anchor=MSO_ANCHOR.MIDDLE, pad=False)
+        add_text(s, Inches(6.10), y, Inches(6.5), ch, label, T_LEAD, INK, anchor=MSO_ANCHOR.MIDDLE, pad=False)
         if i < 5:
             add_box(s, Inches(5.28), y + ch + Inches(0.02), Inches(7.5), Pt(1), LINE)
     add_text(
@@ -985,10 +986,10 @@ def slide_final(prs):
     add_text(
         s, Inches(0.62), Inches(4.00), Inches(12.1), Inches(1.25),
         "Мы начинали с автоматизации процессов.\nА теперь меняем представление о том, что можем делать сами.",
-        T_LEAD, WHITE, font=HEAD, pad=False, spacing=1.12,
+        T_SUB, WHITE, font=HEAD, pad=False, spacing=1.15,
     )
     s.shapes.add_picture(VERTIK, Inches(0.52), Inches(5.72), height=Inches(1.18))
-    add_text(s, Inches(1.90), Inches(5.92), Inches(5.5), Inches(0.36), "Елена Никишева  ·  COO КРИТ", T_BODY, WHITE, font=HEAD, pad=False)
+    add_text(s, Inches(1.90), Inches(5.92), Inches(5.5), Inches(0.36), "Елена Никишева  ·  COO КРИТ", T_BODY, WHITE, pad=False)
     add_text(s, Inches(1.90), Inches(6.32), Inches(5.5), Inches(0.30), "t.me/NikishevaTeam", T_KICKER, ACCENT, pad=False)
     qr = s.shapes.add_picture(QR, Inches(11.55), Inches(5.72), height=Inches(1.18))
     qr.name = "QR Telegram"
