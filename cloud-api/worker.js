@@ -29,8 +29,8 @@ const JURY_MVP_PARTICIPANTS = [
   { id: "chuvakorzin.m", name: "Чувакорзин Михаил" },
   { id: "shchenin.i", name: "Щенин Игорь" },
   { id: "misiukova.d", name: "Мисиюкова Дарья" },
-  { id: "kolesnikova.o", name: "Колесникова Ольга" },
   { id: "ivanova.n", name: "Иванова Наталья" },
+  { id: "kolesnikova.o", name: "Колесникова Ольга" },
 ];
 const PROGRESS = {
   assignment_sent: "Отправлено задание",
@@ -298,7 +298,7 @@ function juryToCsv(rows) {
 function juryMvpToCsv(rows) {
   const header = [
     "член жюри", "участник", "пропущен", "эффект 30%", "mvp работает 25%",
-    "новая логика 20%", "путь в prod 15%", "демонстрация 10%",
+    "логика процесса 20%", "путь в prod 15%", "демонстрация 10%",
     "итог челленджа", "код-ревью", "комментарий", "обновлено",
   ];
   const lines = [header.join(",")];
