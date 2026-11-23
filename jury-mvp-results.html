@@ -1,0 +1,266 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Итоги показа MVP · AI Challenge</title>
+  <link rel="stylesheet" href="brand-tokens.css" />
+  <link rel="stylesheet" href="storybook-static/krit-report-components.css" />
+  <style>
+    body { margin: 0; background: #f4f7fb; color: var(--ink); font-family: var(--font-family-body); line-height: 1.45; }
+    .top { background: #fff; border-bottom: 1px solid var(--line); }
+    .top-inner, .wrap { width: min(1480px, calc(100% - 32px)); margin: 0 auto; }
+    .top-inner { min-height: 72px; display: flex; align-items: center; justify-content: space-between; }
+    .wrap { padding: 32px 0 64px; }
+    h1, h2 { font-family: var(--font-family-heading); font-weight: 300; }
+    h1 { font-size: 38px; margin: 8px 0; }
+    h2 { font-size: 22px; margin: 0 0 14px; }
+    .kicker { color: var(--accent); font-size: 13px; }
+    .note { color: var(--muted); font-size: 15px; max-width: 720px; margin: 0 0 8px; }
+    .bar { display: flex; justify-content: space-between; align-items: end; gap: 14px; margin: 18px 0; flex-wrap: wrap; }
+    .stats { display: flex; gap: 10px; flex-wrap: wrap; }
+    .table-wrap { overflow: auto; }
+    table.mtable { min-width: 1180px; background: #fff; }
+    table.mtable th, table.mtable td { vertical-align: top; }
+    .score { text-align: center; white-space: nowrap; }
+    .total { color: var(--accent); font-family: var(--font-family-heading); font-size: 18px; }
+    .total small { display: block; color: var(--muted); font: 11px var(--font-family-body); }
+    .muted { color: var(--muted); }
+    .judge-start td { border-top: 2px solid color-mix(in srgb, var(--accent) 35%, var(--line)); }
+    .judge-name { min-width: 180px; }
+    .comments { margin-top: 16px; display: grid; gap: 10px; }
+    .comment-head { display: flex; justify-content: space-between; gap: 12px; margin-bottom: 6px; }
+    .comment-body { color: var(--muted); font-size: 14px; }
+    .error { color: var(--danger); font-size: 14px; }
+    .error.notice { color: var(--warn); }
+    [hidden] { display: none !important; }
+  </style>
+</head>
+<body>
+  <header class="top">
+    <div class="top-inner">
+      <img src="logo/KRIT_Logo_Grey_Color.svg" alt="КРИТ" width="90" height="51" />
+      <span style="color:var(--muted);font-size:13px">Результаты показа MVP</span>
+    </div>
+  </header>
+  <main class="wrap">
+    <div class="kicker">AI Challenge · показ MVP · 23 ноября</div>
+    <h1>Итоги оценки прототипов</h1>
+    <p class="note">Итог челленджа — взвешенные баллы за показ. Код-ревью считается отдельно: оно не меняет места, а помогает решить про перенос на прод.</p>
+    <p class="error" id="error" hidden></p>
+
+    <section id="content" hidden>
+      <div class="bar">
+        <div class="stats">
+          <div class="kpi"><div class="kpi-label">Оценили</div><div class="kpi-value dark" id="jury-count">0</div></div>
+          <div class="kpi"><div class="kpi-label">Участников</div><div class="kpi-value dark" id="participant-count">8</div></div>
+        </div>
+        <div style="display:flex;gap:8px">
+          <button class="sb-btn ghost" id="reload" type="button">Обновить</button>
+          <button class="sb-btn primary" id="csv" type="button">Скачать CSV</button>
+        </div>
+      </div>
+      <article class="card table-wrap">
+        <table class="mtable">
+          <thead>
+            <tr>
+              <th>Участник</th>
+              <th class="score">Эффект 30%</th>
+              <th class="score">MVP 25%</th>
+              <th class="score">Логика 20%</th>
+              <th class="score">Путь в PROD 15%</th>
+              <th class="score">Демо 10%</th>
+              <th class="score">Итог челленджа</th>
+              <th class="score">Код-ревью</th>
+              <th class="score">Пропуски</th>
+            </tr>
+          </thead>
+          <tbody id="rows"></tbody>
+        </table>
+      </article>
+      <section style="margin-top:22px">
+        <h2>Оценки каждого члена жюри</h2>
+        <p style="color:var(--muted);font-size:14px;margin:-7px 0 12px">Код-ревью в этой таблице не суммируется с итогом челленджа.</p>
+        <article class="card table-wrap">
+          <table class="mtable">
+            <thead>
+              <tr>
+                <th>Член жюри</th>
+                <th>Участник</th>
+                <th class="score">Эффект</th>
+                <th class="score">MVP</th>
+                <th class="score">Логика</th>
+                <th class="score">Путь в PROD</th>
+                <th class="score">Демо</th>
+                <th class="score">Итог</th>
+                <th class="score">Код-ревью</th>
+              </tr>
+            </thead>
+            <tbody id="detail-rows"></tbody>
+          </table>
+        </article>
+      </section>
+      <section style="margin-top:22px">
+        <h2>Комментарии жюри</h2>
+        <div class="comments" id="comments"></div>
+      </section>
+    </section>
+  </main>
+  <script>
+    const criteria = [
+      { id: "effect", weight: 30 },
+      { id: "mvp_works", weight: 25 },
+      { id: "new_logic", weight: 20 },
+      { id: "prod_path", weight: 15 },
+      { id: "demo", weight: 10 },
+    ];
+    let apiBase = "https://ai-challenge-apply.nikisheva.workers.dev";
+    function apiUrl(path) { return (apiBase || "") + path; }
+    function showError(text, notice = false) {
+      const error = document.getElementById("error");
+      error.hidden = !text;
+      error.textContent = text || "";
+      error.classList.toggle("notice", Boolean(notice));
+    }
+    function average(values) {
+      return values.length ? values.reduce((sum, value) => sum + value, 0) / values.length : 0;
+    }
+    function format(value) { return value.toLocaleString("ru-RU", { minimumFractionDigits: 1, maximumFractionDigits: 1 }); }
+    function weighted(evaluation) {
+      return criteria.reduce((sum, criterion) => sum + Number(evaluation.scores[criterion.id]) * (criterion.weight / 5), 0);
+    }
+    async function request(path, attempts = 2) {
+      for (let attempt = 0; attempt < attempts; attempt += 1) {
+        try {
+          const response = await fetch(apiUrl(path), { cache: "no-store" });
+          if (response.status < 500 || attempt === attempts - 1) return response;
+        } catch {
+          if (attempt === attempts - 1) return null;
+        }
+      }
+      return null;
+    }
+    function render(data) {
+      const evaluationsByParticipant = new Map();
+      for (const judge of data.items || []) {
+        for (const evaluation of judge.evaluations || []) {
+          if (!evaluationsByParticipant.has(evaluation.participant_id)) evaluationsByParticipant.set(evaluation.participant_id, []);
+          evaluationsByParticipant.get(evaluation.participant_id).push({ ...evaluation, jury_name: judge.jury_name });
+        }
+      }
+      const rows = document.getElementById("rows");
+      rows.replaceChildren();
+      const ranked = (data.participants || []).map((participant) => {
+        const evaluations = evaluationsByParticipant.get(participant.id) || [];
+        const scored = evaluations.filter((item) => !item.skipped && item.scores);
+        const skipped = evaluations.filter((item) => item.skipped).length;
+        const totals = scored.map(weighted);
+        const reviews = scored.map((item) => item.code_review).filter((value) => value != null);
+        return { participant, evaluations, scored, skipped, totals, reviews };
+      }).sort((a, b) => average(b.totals) - average(a.totals));
+      for (const row of ranked) {
+        const tr = document.createElement("tr");
+        const scoreCells = criteria.map((criterion) => `<td class="score">${row.scored.length ? format(average(row.scored.map((item) => Number(item.scores[criterion.id])))) : "—"}</td>`).join("");
+        tr.innerHTML = `<td><strong>${row.participant.name}</strong><br><span style="color:var(--muted);font-size:12px">${row.scored.length} оценок</span></td>
+          ${scoreCells}
+          <td class="score total">${row.scored.length ? `${format(average(row.totals))}<small>из 100</small>` : "—"}</td>
+          <td class="score">${row.reviews.length ? format(average(row.reviews)) : "—"}</td>
+          <td class="score muted">${row.skipped || "—"}</td>`;
+        rows.appendChild(tr);
+      }
+
+      const detailRows = document.getElementById("detail-rows");
+      detailRows.replaceChildren();
+      for (const judge of data.items || []) {
+        (judge.evaluations || []).forEach((evaluation, index) => {
+          const tr = document.createElement("tr");
+          if (index === 0) tr.className = "judge-start";
+          const juryCell = document.createElement("td");
+          juryCell.className = "judge-name";
+          if (index === 0) {
+            const strong = document.createElement("strong");
+            strong.textContent = judge.jury_name;
+            juryCell.appendChild(strong);
+          }
+          tr.appendChild(juryCell);
+          const participantCell = document.createElement("td");
+          participantCell.textContent = evaluation.participant_name + (evaluation.skipped ? " · пропущен" : "");
+          tr.appendChild(participantCell);
+          if (evaluation.skipped) {
+            for (let i = 0; i < 7; i += 1) {
+              const td = document.createElement("td");
+              td.className = "score muted";
+              td.textContent = "—";
+              tr.appendChild(td);
+            }
+          } else {
+            for (const criterion of criteria) {
+              const td = document.createElement("td");
+              td.className = "score";
+              td.textContent = String(evaluation.scores[criterion.id]);
+              tr.appendChild(td);
+            }
+            const totalCell = document.createElement("td");
+            totalCell.className = "score total";
+            totalCell.textContent = format(weighted(evaluation));
+            tr.appendChild(totalCell);
+            const reviewCell = document.createElement("td");
+            reviewCell.className = "score";
+            reviewCell.textContent = evaluation.code_review == null ? "—" : String(evaluation.code_review);
+            tr.appendChild(reviewCell);
+          }
+          detailRows.appendChild(tr);
+        });
+      }
+
+      const comments = document.getElementById("comments");
+      comments.replaceChildren();
+      let commentCount = 0;
+      for (const participant of data.participants || []) {
+        for (const evaluation of evaluationsByParticipant.get(participant.id) || []) {
+          if (!evaluation.comment) continue;
+          commentCount += 1;
+          const card = document.createElement("article");
+          card.className = "card";
+          card.innerHTML = '<div class="comment-head"><strong></strong><span style="color:var(--muted);font-size:12px"></span></div><div class="comment-body"></div>';
+          card.querySelector("strong").textContent = participant.name;
+          card.querySelector(".comment-head span").textContent = evaluation.jury_name;
+          card.querySelector(".comment-body").textContent = evaluation.comment;
+          comments.appendChild(card);
+        }
+      }
+      if (!commentCount) comments.innerHTML = '<p style="color:var(--muted)">Комментариев пока нет.</p>';
+      document.getElementById("jury-count").textContent = String(data.count || 0);
+      document.getElementById("participant-count").textContent = String((data.participants || []).length);
+    }
+    async function load() {
+      showError("");
+      const response = await request("/api/jury/mvp/evaluations");
+      if (!response) {
+        const hasContent = !document.getElementById("content").hidden;
+        return showError(hasContent ? "Не удалось обновить данные. Ниже показана последняя загруженная версия." : "Не удалось связаться с сервером.", hasContent);
+      }
+      const data = await response.json().catch(() => ({}));
+      if (!response.ok) return showError(data.error || "Не удалось загрузить оценки.");
+      render(data);
+      document.getElementById("content").hidden = false;
+    }
+    document.getElementById("reload").addEventListener("click", load);
+    document.getElementById("csv").addEventListener("click", async () => {
+      const response = await request("/api/jury/mvp/evaluations.csv").catch(() => null);
+      if (!response || !response.ok) return showError("Не удалось скачать CSV.");
+      const blob = await response.blob();
+      const link = document.createElement("a");
+      link.href = URL.createObjectURL(blob);
+      link.download = "ai-challenge-jury-mvp.csv";
+      link.click();
+      URL.revokeObjectURL(link.href);
+    });
+    fetch("api-base.json", { cache: "no-store" })
+      .then((response) => response.ok ? response.json() : {})
+      .then((config) => { apiBase = String(config.api || "").replace(/\/$/, ""); })
+      .catch(() => {});
+    load();
+  </script>
+</body>
+</html>

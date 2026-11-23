@@ -1,6 +1,7 @@
 const DEADLINE = Date.parse("2026-10-22T12:00:00+03:00");
 const STORE_KEY = "applications";
 const JURY_STORE_KEY = "jury_evaluations_live";
+const JURY_MVP_STORE_KEY = "jury_mvp_evaluations_live";
 const TRAINING = { passed: "Прошёл", missed: "Не прошёл" };
 const JURY_CRITERIA = ["business_effect", "value", "quality", "scale", "depth_realism"];
 const JURY_PARTICIPANTS = [
@@ -13,6 +14,23 @@ const JURY_PARTICIPANTS = [
   { id: "shakirova.r", name: "Шакирова Регина" },
   { id: "ivanova.n", name: "Иванова Наталья" },
   { id: "vorobeva.d", name: "Воробьёва Дарья" },
+];
+const JURY_MVP_CRITERIA = [
+  { id: "effect", weight: 30 },
+  { id: "mvp_works", weight: 25 },
+  { id: "new_logic", weight: 20 },
+  { id: "prod_path", weight: 15 },
+  { id: "demo", weight: 10 },
+];
+const JURY_MVP_PARTICIPANTS = [
+  { id: "shakirova.r", name: "Шакирова Регина" },
+  { id: "shuteleva.a", name: "Шутелева Анна" },
+  { id: "ladkina.a", name: "Ладкина Анна" },
+  { id: "chuvakorzin.m", name: "Чувакорзин Михаил" },
+  { id: "shchenin.i", name: "Щенин Игорь" },
+  { id: "misiukova.d", name: "Мисиюкова Дарья" },
+  { id: "kolesnikova.o", name: "Колесникова Ольга" },
+  { id: "ivanova.n", name: "Иванова Наталья" },
 ];
 const PROGRESS = {
   assignment_sent: "Отправлено задание",
@@ -122,6 +140,21 @@ async function saveJuryEvaluations(env, rows) {
   await env.APPS.put(JURY_STORE_KEY, JSON.stringify(rows));
 }
 
+async function loadJuryMvpEvaluations(env) {
+  const raw = await env.APPS.get(JURY_MVP_STORE_KEY);
+  if (!raw) return [];
+  try {
+    const data = JSON.parse(raw);
+    return Array.isArray(data) ? data : [];
+  } catch {
+    return [];
+  }
+}
+
+async function saveJuryMvpEvaluations(env, rows) {
+  await env.APPS.put(JURY_MVP_STORE_KEY, JSON.stringify(rows));
+}
+
 function validateJuryEvaluation(body) {
   if (String(body.company_website || "").trim()) return { honeypot: true };
   const juryName = cleanText(body.jury_name, 120);
@@ -154,6 +187,63 @@ function validateJuryEvaluation(body) {
       scores,
       cross_functional: source.cross_functional,
       recommend_mvp: source.recommend_mvp,
+      comment: cleanText(source.comment, 500),
+    });
+  }
+  return { item: { jury_name: juryName, evaluations } };
+}
+
+function mvpWeightedTotal(scores) {
+  return JURY_MVP_CRITERIA.reduce((sum, criterion) => sum + Number(scores[criterion.id]) * (criterion.weight / 5), 0);
+}
+
+function validateJuryMvpEvaluation(body) {
+  if (String(body.company_website || "").trim()) return { honeypot: true };
+  const juryName = cleanText(body.jury_name, 120);
+  if (juryName.length < 3) return { error: "Укажите фамилию, имя и отчество члена жюри." };
+  if (!Array.isArray(body.evaluations) || body.evaluations.length !== JURY_MVP_PARTICIPANTS.length) {
+    return { error: "Оцените или пропустите всех выступающих." };
+  }
+
+  const byId = new Map(body.evaluations.map((item) => [String(item && item.participant_id), item]));
+  const evaluations = [];
+  for (const participant of JURY_MVP_PARTICIPANTS) {
+    const source = byId.get(participant.id);
+    if (!source || typeof source !== "object") {
+      return { error: `Не заполнена оценка: ${participant.name}.` };
+    }
+    if (source.skipped === true) {
+      evaluations.push({
+        participant_id: participant.id,
+        participant_name: participant.name,
+        skipped: true,
+        scores: null,
+        code_review: null,
+        comment: cleanText(source.comment, 500),
+      });
+      continue;
+    }
+    const scores = {};
+    for (const criterion of JURY_MVP_CRITERIA) {
+      const score = Number(source.scores && source.scores[criterion.id]);
+      if (!Number.isInteger(score) || score < 0 || score > 5) {
+        return { error: `Проверьте оценки от 0 до 5: ${participant.name}.` };
+      }
+      scores[criterion.id] = score;
+    }
+    let codeReview = null;
+    if (source.code_review !== null && source.code_review !== undefined && source.code_review !== "") {
+      codeReview = Number(source.code_review);
+      if (!Number.isInteger(codeReview) || codeReview < 0 || codeReview > 5) {
+        return { error: `Проверьте код-ревью от 0 до 5: ${participant.name}.` };
+      }
+    }
+    evaluations.push({
+      participant_id: participant.id,
+      participant_name: participant.name,
+      skipped: false,
+      scores,
+      code_review: codeReview,
       comment: cleanText(source.comment, 500),
     });
   }
@@ -196,6 +286,32 @@ function juryToCsv(rows) {
         evaluation.cross_functional ? "да" : "нет",
         total,
         evaluation.recommend_mvp ? "да" : "нет",
+        evaluation.comment,
+        row.updated_at,
+      ].map((value) => `"${String(value ?? "").replace(/"/g, '""')}"`);
+      lines.push(values.join(","));
+    }
+  }
+  return "\uFEFF" + lines.join("\n");
+}
+
+function juryMvpToCsv(rows) {
+  const header = [
+    "член жюри", "участник", "пропущен", "эффект 30%", "mvp работает 25%",
+    "новая логика 20%", "путь в prod 15%", "демонстрация 10%",
+    "итог челленджа", "код-ревью", "комментарий", "обновлено",
+  ];
+  const lines = [header.join(",")];
+  for (const row of rows) {
+    for (const evaluation of row.evaluations || []) {
+      const skipped = Boolean(evaluation.skipped);
+      const values = [
+        row.jury_name,
+        evaluation.participant_name,
+        skipped ? "да" : "нет",
+        ...JURY_MVP_CRITERIA.map((criterion) => skipped ? "" : evaluation.scores && evaluation.scores[criterion.id]),
+        skipped ? "" : mvpWeightedTotal(evaluation.scores || {}),
+        evaluation.code_review,
         evaluation.comment,
         row.updated_at,
       ].map((value) => `"${String(value ?? "").replace(/"/g, '""')}"`);
@@ -253,6 +369,8 @@ export default {
         && path !== "/api/applications.csv"
         && path !== "/api/jury/evaluations"
         && path !== "/api/jury/evaluations.csv"
+        && path !== "/api/jury/mvp/evaluations"
+        && path !== "/api/jury/mvp/evaluations.csv"
       ) {
         return json(request, 404, { error: "Страница не найдена." });
       }
@@ -309,6 +427,68 @@ export default {
         participants: JURY_PARTICIPANTS,
         criteria: JURY_CRITERIA,
       });
+    }
+
+    if (request.method === "GET" && (path === "/api/jury/mvp/evaluations" || path === "/api/jury/mvp/evaluations.csv")) {
+      const rows = (await loadJuryMvpEvaluations(env))
+        .slice()
+        .sort((a, b) => String(a.created_at).localeCompare(String(b.created_at)));
+      if (path.endsWith(".csv")) {
+        return new Response(juryMvpToCsv(rows), {
+          status: 200,
+          headers: {
+            "Content-Type": "text/csv; charset=utf-8",
+            "Content-Disposition": "attachment; filename=ai-challenge-jury-mvp.csv",
+            "Cache-Control": "no-store",
+            ...corsHeaders(request),
+          },
+        });
+      }
+      return json(request, 200, {
+        items: rows,
+        count: rows.length,
+        participants: JURY_MVP_PARTICIPANTS,
+        criteria: JURY_MVP_CRITERIA,
+      });
+    }
+
+    if (request.method === "POST" && path === "/api/jury/mvp/evaluations") {
+      let body;
+      try {
+        body = await request.json();
+      } catch {
+        return json(request, 400, { error: "Не удалось прочитать оценки." });
+      }
+      if (!body || typeof body !== "object") {
+        return json(request, 400, { error: "Не удалось прочитать оценки." });
+      }
+      const checked = validateJuryMvpEvaluation(body);
+      if (checked.error) return json(request, 400, { error: checked.error });
+      if (checked.honeypot) return json(request, 201, { ok: true, id: "00000000", updated: false });
+      const rows = await loadJuryMvpEvaluations(env);
+      const { row, updated } = upsertJuryEvaluation(rows, checked.item);
+      await saveJuryMvpEvaluations(env, rows);
+      return json(request, updated ? 200 : 201, { ok: true, id: row.id, updated });
+    }
+
+    if (request.method === "DELETE" && path === "/api/jury/mvp/evaluations") {
+      if (!isAdmin(request, env)) {
+        return json(request, 403, { error: "Оценки доступны только организатору." });
+      }
+      let body;
+      try {
+        body = await request.json();
+      } catch {
+        return json(request, 400, { error: "Не удалось прочитать запрос." });
+      }
+      const evaluationId = String((body && body.id) || "").trim();
+      if (!evaluationId) return json(request, 400, { error: "Не указана оценка." });
+      const rows = await loadJuryMvpEvaluations(env);
+      const index = rows.findIndex((row) => String(row.id || "") === evaluationId);
+      if (index < 0) return json(request, 404, { error: "Оценка не найдена." });
+      rows.splice(index, 1);
+      await saveJuryMvpEvaluations(env, rows);
+      return json(request, 200, { ok: true, id: evaluationId });
     }
 
     if (request.method === "POST" && path === "/api/jury/evaluations") {
