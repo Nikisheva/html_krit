@@ -46,7 +46,7 @@
   <main class="wrap">
     <div class="kicker">AI Challenge · показ MVP · 25 ноября</div>
     <h1>Итоги оценки прототипов</h1>
-    <p class="note">Итог челленджа — взвешенные баллы за показ. Код-ревью считается отдельно: оно не меняет места, а помогает решить про перенос на прод.</p>
+    <p class="note">Итог челленджа — среднее взвешенных баллов за показ. Кто пропустил человека, в среднее по нему не входит.</p>
     <p class="error" id="error" hidden></p>
 
     <section id="content" hidden>
@@ -71,7 +71,6 @@
               <th class="score">Путь в PROD 15%</th>
               <th class="score">Демо 10%</th>
               <th class="score">Итог челленджа</th>
-              <th class="score">Код-ревью</th>
               <th class="score">Пропуски</th>
             </tr>
           </thead>
@@ -80,7 +79,7 @@
       </article>
       <section style="margin-top:22px">
         <h2>Оценки каждого члена жюри</h2>
-        <p style="color:var(--muted);font-size:14px;margin:-7px 0 12px">Код-ревью в этой таблице не суммируется с итогом челленджа.</p>
+        <p style="color:var(--muted);font-size:14px;margin:-7px 0 12px">Полная расшифровка: кто, кому и сколько баллов поставил.</p>
         <article class="card table-wrap">
           <table class="mtable">
             <thead>
@@ -93,7 +92,6 @@
                 <th class="score">Путь в PROD</th>
                 <th class="score">Демо</th>
                 <th class="score">Итог</th>
-                <th class="score">Код-ревью</th>
               </tr>
             </thead>
             <tbody id="detail-rows"></tbody>
@@ -155,8 +153,7 @@
         const scored = evaluations.filter((item) => !item.skipped && item.scores);
         const skipped = evaluations.filter((item) => item.skipped).length;
         const totals = scored.map(weighted);
-        const reviews = scored.map((item) => item.code_review).filter((value) => value != null);
-        return { participant, evaluations, scored, skipped, totals, reviews };
+        return { participant, evaluations, scored, skipped, totals };
       }).sort((a, b) => average(b.totals) - average(a.totals));
       for (const row of ranked) {
         const tr = document.createElement("tr");
@@ -164,7 +161,6 @@
         tr.innerHTML = `<td><strong>${row.participant.name}</strong><br><span style="color:var(--muted);font-size:12px">${row.scored.length} оценок</span></td>
           ${scoreCells}
           <td class="score total">${row.scored.length ? `${format(average(row.totals))}<small>из 100</small>` : "—"}</td>
-          <td class="score">${row.reviews.length ? format(average(row.reviews)) : "—"}</td>
           <td class="score muted">${row.skipped || "—"}</td>`;
         rows.appendChild(tr);
       }
@@ -187,7 +183,7 @@
           participantCell.textContent = evaluation.participant_name + (evaluation.skipped ? " · пропущен" : "");
           tr.appendChild(participantCell);
           if (evaluation.skipped) {
-            for (let i = 0; i < 7; i += 1) {
+            for (let i = 0; i < 6; i += 1) {
               const td = document.createElement("td");
               td.className = "score muted";
               td.textContent = "—";
@@ -204,10 +200,6 @@
             totalCell.className = "score total";
             totalCell.textContent = format(weighted(evaluation));
             tr.appendChild(totalCell);
-            const reviewCell = document.createElement("td");
-            reviewCell.className = "score";
-            reviewCell.textContent = evaluation.code_review == null ? "—" : String(evaluation.code_review);
-            tr.appendChild(reviewCell);
           }
           detailRows.appendChild(tr);
         });

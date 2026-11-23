@@ -11,8 +11,8 @@ AI Challenge для сотрудников ОЦО и бэкофиса: знак�
 - [`apply.html`](https://nikisheva.github.io/html_krit/apply.html) — короткая заявка на участие, приём закрыт 22 октября, 12:00 мск. Сводка тестового тура на этом компьютере: [http://127.0.0.1:8765/admin.html](http://127.0.0.1:8765/admin.html) — задание, вход в Bitrix Stage, админские права, начало и готовность минисмарт-процесса. Сверка: `python3 sync_bitrix_progress.py`, раз в час.
 - [`jury.html`](https://nikisheva.github.io/html_krit/jury.html) — внешняя форма оценки идей для жюри: пять критериев 0–5, бонус +2 за кросс-функциональность и рекомендация в MVP. Ответы сохраняются в Cloudflare KV и работают при выключенном компьютере.
 - [`jury-results.html`](https://nikisheva.github.io/html_krit/jury-results.html) — открытая по ссылке сводка оценок каждого члена жюри, общих баллов и выгрузка CSV.
-- [`jury-mvp.html`](https://nikisheva.github.io/html_krit/jury-mvp.html) — форма оценки прототипов на показе MVP: веса из презентации, пропуск, если человека не смотрели, код-ревью отдельно от итога челленджа.
-- [`jury-mvp-results.html`](https://nikisheva.github.io/html_krit/jury-mvp-results.html) — сводка баллов показа MVP и код-ревью.
+- [`jury-mvp.html`](https://nikisheva.github.io/html_krit/jury-mvp.html) — форма оценки прототипов на показе MVP: веса из презентации и пропуск, если человека не смотрели.
+- [`jury-mvp-results.html`](https://nikisheva.github.io/html_krit/jury-mvp-results.html) — сводка баллов показа MVP.
 - [`Инструкция_работа_с_Cursor_бэк-офис_КРИТ.docx`](Инструкция_работа_с_Cursor_бэк-офис_КРИТ.docx) — инструкция «Работа с Cursor в бэк-офисе КРИТ». Та же ссылка стоит в форме заявки.
 - [`reglament.html`](reglament.html) — публичный регламент для участников: этапы, даты, роли и правила. Рабочий список материалов и открытые пункты — в `launch-plan.html`.
 - [`Регламент AI Challenge.docx`](Регламент%20AI%20Challenge.docx) — тот же регламент в Word для рассылки.

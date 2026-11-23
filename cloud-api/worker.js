@@ -218,7 +218,6 @@ function validateJuryMvpEvaluation(body) {
         participant_name: participant.name,
         skipped: true,
         scores: null,
-        code_review: null,
         comment: cleanText(source.comment, 500),
       });
       continue;
@@ -231,19 +230,11 @@ function validateJuryMvpEvaluation(body) {
       }
       scores[criterion.id] = score;
     }
-    let codeReview = null;
-    if (source.code_review !== null && source.code_review !== undefined && source.code_review !== "") {
-      codeReview = Number(source.code_review);
-      if (!Number.isInteger(codeReview) || codeReview < 0 || codeReview > 5) {
-        return { error: `Проверьте код-ревью от 0 до 5: ${participant.name}.` };
-      }
-    }
     evaluations.push({
       participant_id: participant.id,
       participant_name: participant.name,
       skipped: false,
       scores,
-      code_review: codeReview,
       comment: cleanText(source.comment, 500),
     });
   }
@@ -299,7 +290,7 @@ function juryMvpToCsv(rows) {
   const header = [
     "член жюри", "участник", "пропущен", "эффект 30%", "mvp работает 25%",
     "логика процесса 20%", "путь в prod 15%", "демонстрация 10%",
-    "итог челленджа", "код-ревью", "комментарий", "обновлено",
+    "итог челленджа", "комментарий", "обновлено",
   ];
   const lines = [header.join(",")];
   for (const row of rows) {
@@ -311,7 +302,6 @@ function juryMvpToCsv(rows) {
         skipped ? "да" : "нет",
         ...JURY_MVP_CRITERIA.map((criterion) => skipped ? "" : evaluation.scores && evaluation.scores[criterion.id]),
         skipped ? "" : mvpWeightedTotal(evaluation.scores || {}),
-        evaluation.code_review,
         evaluation.comment,
         row.updated_at,
       ].map((value) => `"${String(value ?? "").replace(/"/g, '""')}"`);
